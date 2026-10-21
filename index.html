@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Lucas AMC8 Coach v0.6.3</title>
+<title>Lucas AMC8 Coach v0.6.3.1</title>
 <style>
 :root{--bg:#f4f7fb;--card:#fff;--text:#162235;--muted:#657287;--accent:#2d67d9;--line:#dbe3ef;--good:#137a4e;--warn:#a86400;--bad:#b42318}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
@@ -122,7 +122,7 @@ hr{border:0;border-top:1px solid var(--line);margin:15px 0}.two{display:grid;gri
 </head>
 <body>
 <header>
-<div><h1>Lucas AMC8 Coach <span style="font-size:12px;font-weight:400">v0.6.3</span></h1><div class=sub>真实AMC8题库核心 · Daily Adaptive Engine · Authentic Exam Assembly · 每日锁卷 · 云同步底座</div></div>
+<div><h1>Lucas AMC8 Coach <span style="font-size:12px;font-weight:400">v0.6.3.1</span></h1><div class=sub>真实AMC8题库核心 · Daily Adaptive Engine · Authentic Exam Assembly · 每日锁卷 · 免注册云同步</div></div>
 <nav>
 <button onclick="show('home')">主页</button>
 <button onclick="show('practice')">每日训练</button>
@@ -156,7 +156,7 @@ const SEED={"version":"0.6.3","profile":{"name":"Lucas","goal":"2027-01 AMC 8","
 const ZH_DOMAIN={"arithmetic":"基础运算","ratio":"比例","rate":"速度与行程","algebra":"代数/应用","number_theory":"数论","coordinate":"坐标与变换","data":"数据与统计","patterns":"数列与规律","combinatorics":"组合/概率","geometry":"几何","probability":"概率","spatial":"立体与空间","logic":"逻辑与逆推","misc":"综合","meta":"综合习惯"};
 const ZH_SKILL={"percent_two_step":"连续百分比","ratio_change":"比例变化","average_speed":"平均速度","divisible_but_not":"整除但不整除","composite_divisibility":"复合整除","transformations":"坐标变换","median_change":"中位数变化","arithmetic_series":"等差求和","round_robin":"两两配对计数","area_ratio":"面积比","exactly_two_colors":"恰好两种颜色","distribution":"分配与角色","painted_cuboid":"涂色长方体","machine_reverse":"机器逆推","execution_complete":"做题完整性","rectangle_cutout":"割补与周长","right_triangle_altitude":"直角三角形高","trapezoid_area":"梯形面积","rectangle_midpoint":"长方形与中点","square_point_area":"正方形面积关系","sector_area":"扇形面积","parallelogram_area":"平行四边形面积","triangle_angle_ratio":"三角形角度比","fraction_remainder":"分数连续变化","reverse_percent":"反求原价","percent_change_chain":"连续百分比变化","unit_price":"单价与包装","map_scale":"地图比例尺","proportional_sharing":"按比分配","mixture_ratio":"混合比例","ratio_transfer":"转移后的比例","fraction_ratio":"分数化比例","distance_speed_time":"路程速度时间","catch_up":"追及问题","meeting":"相遇问题","work_rate":"工程问题","upstream_downstream":"流水行船","average_speed_equal_distance":"等路程平均速度","average_speed_equal_time":"等时间平均速度","rectangle_perimeter":"长方形周长","triangle_area":"三角形面积","pythagorean":"勾股关系","similar_triangles":"相似三角形","triangle_angle_sum":"三角形内角和","coordinate_distance":"坐标距离","coordinate_midpoint":"坐标中点","reflection_translation":"对称与平移","painted_cuboid_one_face":"恰一面涂色","prism_volume":"长方体体积","prism_surface_area":"长方体表面积","handshakes":"握手计数","permutations":"全排列","adjacent_arrangements":"相邻排列","identical_distribution":"相同物分配","lattice_paths":"格点路径","single_draw_probability":"单次抽取概率","at_least_one":"至少一个","two_dice_sum":"两骰点数和","exact_heads":"恰好若干正面","inclusion_exclusion":"容斥计数","divisor_count":"因数个数","gcd":"最大公因数","lcm":"最小公倍数","modular_remainder":"幂的余数","digit_divisibility":"数字整除","last_digit":"个位循环","square_divisors":"平方因数","multiples_union":"倍数并集","remainder_count":"余数类计数","palindrome_divisibility":"回文与整除","arithmetic_sequence":"等差数列第n项","recurrence":"递推数列","repeating_cycle":"循环规律","growing_blocks":"增长图案","machine_reverse_even":"奇偶机器逆推","relative_order":"相对次序","pigeonhole":"抽屉原理","mean_change":"平均数变化","weighted_average":"加权平均","range_change":"极差变化","mode_change":"众数变化","frequency_mean":"频数平均数","frequency_median":"频数中位数","frequency_percent":"频数百分比"};
 
-const ENGINE_VERSION='0.6.3';
+const ENGINE_VERSION='0.6.3.1';
 const MOCK_TOPIC_MAP={
   arithmetic:'application',ratio:'application',rate:'application',algebra:'application',misc:'patterns_logic',
   geometry:'geometry',coordinate:'geometry',spatial:'geometry',
@@ -1420,339 +1420,46 @@ function importBackupFile(input){
   }catch(e){alert('导入失败：'+e.message);input.value=''} };
   r.readAsText(f,'utf-8');
 }
-function renderData(){document.getElementById('data').innerHTML=`<div class=card><h3>数据与备份</h3><p class=small>当前训练记录保存在本浏览器的 localStorage。同一台电脑的 file:// 本地版与 https:// GitHub Pages 也属于不同存储空间，不会自动互通。</p><div class=row><button class=primary onclick="dl('lucas-amc8-backup-${today()}.json',JSON.stringify(S,null,2))">导出全部训练数据</button><label class=btn>导入训练数据<input type=file accept="application/json,.json" style="display:none" onchange="importBackupFile(this)"></label><button onclick="dl('true-question-registry.json',JSON.stringify(TRUE_REG,null,2))">导出175题索引</button><button onclick="dl('structured-training-bank.json',JSON.stringify(BANK,null,2))">导出训练题库</button><button onclick="if(confirm('恢复初始数据？')){S=structuredClone(SEED);S=migrateState(S);save()}">恢复初始数据</button></div><div class=notice style="margin-top:10px"><b>跨设备：</b>当前版本先用“导出→导入”迁移；云端自动同步将在接入专用 Supabase 后启用。</div><hr><textarea style="width:100%;height:320px" readonly>${JSON.stringify(S,null,2)}</textarea></div>`}
-
-// ==================== v0.6.3 authentic AMC8 bank + cloud sync ====================
-const AUTHENTIC_BANK_URL='https://raw.githubusercontent.com/iuruoy-shao/training-problems/main/problem-classification/amc_8_problems_with_sol.json';
-const AUTHENTIC_LABEL_URL='https://raw.githubusercontent.com/iuruoy-shao/training-problems/main/problem-classification/outputs_file_8.txt';
-const AUTHENTIC_YEARS=new Set([2015,2016,2017,2018]);
-const AUTHENTIC_CACHE_KEY='lucas_amc8_authentic_bank_v063';
-const CLOUD_SESSION_KEY='lucas_amc8_cloud_session_v1';
-const CLOUD_CFG=window.AMC8_CLOUD_CONFIG||{};
-let authenticLoadState={status:'idle',message:''};
-let cloudTimer=null;
-
-function superDomain(q){
-  const d=q?.domain;
-  if(['geometry','coordinate','spatial'].includes(d))return 'geometry';
-  if(['number_theory'].includes(d))return 'number_theory';
-  if(['combinatorics','probability'].includes(d))return 'combinatorics';
-  if(['arithmetic','ratio','rate','data','patterns','algebra'].includes(d))return 'algebra';
-  return 'misc';
-}
-function familyKey(q){return q?.variant_group||[superDomain(q),q?.skill,q?.core_method].join('/')}
-function bandDifficulty(n){return n<=8?1:n<=16?2:n<=21?3:4}
-function labelVectorDomain(v){
-  if(!Array.isArray(v))return 'misc';
-  if(v[2])return 'geometry';
-  if(v[3])return 'number_theory';
-  if(v[4])return 'combinatorics';
-  if(v[1])return 'algebra';
-  return 'misc';
-}
-function parseLabelText(t){
-  const out={};
-  String(t||'').split(/\r?\n/).forEach(line=>{
-    const m=line.match(/^(\d{4}) AMC 8 #(\d+):\s*\[([01,\s]+)\]/);
-    if(!m)return;
-    out[`${m[1]}-${Number(m[2])}`]=m[3].split(',').map(x=>+x.trim());
-  });
-  return out;
-}
-function makeRealQuestion(key,v,labelMap){
-  const year=Number(v.test?.[0]),num=Number(v.number),diff=bandDifficulty(num);
-  const domain=labelVectorDomain(labelMap[`${year}-${num}`]);
-  return {
-    id:`real_${year}_${String(num).padStart(2,'0')}`,
-    domain,
-    skill:`official_${domain}_band${diff}`,
-    core_method:`official_${domain}_band${diff}`,
-    difficulty:diff,
-    problem_html:v.problem||'',
-    prompt:officialPlain(v.problem||''),
-    prompt_en:officialPlain(v.problem||''),
-    prompt_zh:'',
-    choices:Array.isArray(v.choices)?v.choices.map(x=>String(x).trim()):[],
-    answer:String(v.answer||'').trim().toUpperCase(),
-    hints:[],
-    trap_tags:['official_amc8'],
-    source:`${year} AMC8`,
-    official:true,
-    active:true,
-    year,problem_number:num,
-    quality_tier:'official',
-    variant_group:`official_position_${num}`,
-    amc_band:{1:'Q1-8',2:'Q9-16',3:'Q17-21',4:'Q22-25'}[diff]
-  };
-}
-async function loadAuthenticBank(){
-  authenticLoadState={status:'loading',message:'正在加载2015–2018真实AMC8题库…'};
-  try{
-    let rows=null;
-    const cached=localStorage.getItem(AUTHENTIC_CACHE_KEY);
-    if(cached){
-      try{
-        const c=JSON.parse(cached);
-        if(Array.isArray(c?.rows)&&c.rows.length===100)rows=c.rows;
-      }catch(e){}
-    }
-    if(!rows){
-      const [r1,r2]=await Promise.all([fetch(AUTHENTIC_BANK_URL,{cache:'no-cache'}),fetch(AUTHENTIC_LABEL_URL,{cache:'no-cache'})]);
-      if(!r1.ok||!r2.ok)throw new Error(`题库源响应异常 ${r1.status}/${r2.status}`);
-      const data=await r1.json(),labelMap=parseLabelText(await r2.text());
-      rows=Object.entries(data).map(([k,v])=>makeRealQuestion(k,v,labelMap)).filter(q=>AUTHENTIC_YEARS.has(q.year)&&q.choices.length===5&&'ABCDE'.includes(q.answer));
-      rows.sort((a,b)=>a.year-b.year||a.problem_number-b.problem_number);
-      if(rows.length!==100)throw new Error(`2015–2018应有100题，实际加载${rows.length}题`);
-      localStorage.setItem(AUTHENTIC_CACHE_KEY,JSON.stringify({cached_at:new Date().toISOString(),rows}));
-    }
-    REAL_BANK=rows;
-    BANK=[...LEGACY_BANK,...REAL_BANK];
-    authenticLoadState={status:'ready',message:`已加载 ${REAL_BANK.length} 道2015–2018真实AMC8题`};
-  }catch(e){
-    REAL_BANK=[];
-    BANK=[...LEGACY_BANK];
-    authenticLoadState={status:'error',message:'真实AMC8题库加载失败：'+e.message};
-  }
-}
-
-function eligibleDailyBank(){
-  // v0.6.3 日常训练不再从旧300道简单生成题出题。
-  // Lucas 当前专项基线：默认只用真实 AMC8 Q13–Q25。Q1–12 留给周末完整模拟或人工指定，避免日常专项过易。
-  return REAL_BANK.filter(q=>q.problem_number>=13&&questionEligibleForDaily(q));
-}
-function targetDifficulty(q){
-  const hist=skillAttempts(q);
-  if(!hist.length)return 2; // Lucas 当前基线：新技能从AMC8 Q9–16起步，不从三年级式基础题起步
-  const last=hist[hist.length-1],a=last.a,d=last.q?.difficulty||q.difficulty||2;
-  if(a.result_status==='unable'||a.error_detail==='unable'||!a.correct){
-    if(['knowledge_gap','method_gap'].includes(a.error_type)||a.result_status==='unable')return Math.max(2,d-1);
-    return Math.max(2,d);
-  }
-  if(a.guessed)return Math.max(2,d);
-  let streak=0;
-  for(let i=hist.length-1;i>=0;i--){
-    const x=hist[i].a;if(x.correct&&!x.guessed&&(x.hint_level||0)===0)streak++;else break;
-  }
-  return streak>=2?Math.min(4,Math.max(2,d+1)):Math.max(2,d);
-}
-function recentWeakSuperDomains(){
-  const s={algebra:0,geometry:0,number_theory:0,combinatorics:0,misc:0};
-  for(const a of (S.attempts||[])){
-    const age=dd(a.date,today());if(age<0||age>28)continue;
-    const q=qById(a.question_id);if(!q)continue;
-    if(!a.correct||a.guessed||a.error_type)s[superDomain(q)]+=(1/(1+age/7))*(a.correct?.5:1.5);
-  }
-  return s;
-}
-function authenticScore(q,targetProblem,used,mode){
-  let s=0;
-  // 正式题号是主要难度信号。差1题号就有明显代价，避免Q9和Q16被粗略视为同难度。
-  s-=Math.abs((q.problem_number||15)-targetProblem)*1.7;
-  const ageA=lastAttemptForQuestion(q.id);if(ageA)s-=Math.max(0,30-daysSinceAttempt(ageA));
-  const weak=recentWeakSuperDomains();s+=(weak[superDomain(q)]||0)*(mode==='weak'?2.2:.6);
-  const D=domainFreq();s-=(D[q.domain]||0)*(mode==='coverage'?1.4:.25);
-  if(used.some(x=>x.year===q.year))s-=.35;
-  if(used.some(x=>superDomain(x)===superDomain(q)))s-=mode==='coverage'?2.2:.4;
-  s+=stableNoise(`${mode}:${q.id}`)*.35;
-  return s;
-}
-function generateDailyPlan(){
-  const pool=eligibleDailyBank();
-  if(pool.length<3)return [];
-  const used=[];
-  const weakMap=recentWeakSuperDomains();
-  const weakDomain=Object.entries(weakMap).sort((a,b)=>b[1]-a[1])[0]?.[0];
-
-  // Slot 1：弱项迁移，目标中心约正式 Q16。
-  let aPool=pool.filter(q=>q.problem_number>=13&&q.problem_number<=19);
-  if(weakDomain&&weakMap[weakDomain]>0){const w=aPool.filter(q=>superDomain(q)===weakDomain);if(w.length)aPool=w;}
-  let a=aPool.sort((x,y)=>authenticScore(y,16,used,'weak')-authenticScore(x,16,used,'weak'))[0]||pool[0];
-  used.push(a);
-
-  // Slot 2：到期/历史复测，目标中心约 Q17。
-  let dueCandidates=pool.filter(q=>q.problem_number>=14&&q.problem_number<=21&&!used.some(x=>x.id===q.id)&&S.skill_state?.[skillKey(q)]?.next_review<=today());
-  let bPool=dueCandidates.length?dueCandidates:pool.filter(q=>q.problem_number>=14&&q.problem_number<=21&&!used.some(x=>x.id===q.id)&&superDomain(q)!==superDomain(a));
-  let b=bPool.sort((x,y)=>authenticScore(y,17,used,'due')-authenticScore(x,17,used,'due'))[0];
-  if(b)used.push(b);
-
-  // Slot 3：广度/陌生题，平日中心 Q20；周五中心 Q23。
-  const dow=new Date().getDay(),targetPos=dow===5?23:20;
-  let cPool=pool.filter(q=>!used.some(x=>x.id===q.id)&&q.problem_number>=17&&!used.some(x=>superDomain(x)===superDomain(q)));
-  if(dow===5){const hard=cPool.filter(q=>q.problem_number>=22);if(hard.length)cPool=hard;}
-  else {const midhard=cPool.filter(q=>q.problem_number>=18&&q.problem_number<=22);if(midhard.length)cPool=midhard;}
-  let c=cPool.sort((x,y)=>authenticScore(y,targetPos,used,'coverage')-authenticScore(x,targetPos,used,'coverage'))[0];
-  if(c)used.push(c);
-  return used.slice(0,3);
-}
-function dailyReason(q,i){
-  const pos=`${q.year} AMC8 Q${q.problem_number}`;
-  if(i===0)return `近期弱项迁移 · ${pos} · 真实AMC8`;
-  if(i===1)return `到期/历史复测 · ${pos} · 真实AMC8`;
-  return `广度/陌生题型 · ${pos} · 真实AMC8中后段难度`;
-}
-
-function buildPrintableMockCore(){
-  if(REAL_BANK.length!==100){alert(authenticLoadState.message||'真实AMC8题库尚未加载完成。');return}
-  const blocked=recentWeekendQuestionIds(3); // 4个年份可轮换，保证至少连续3套同题号不复用
-  const chosen=[],domainRuns=[];
-  for(let num=1;num<=25;num++){
-    let pool=REAL_BANK.filter(q=>q.problem_number===num&&!blocked.has(q.id));
-    if(!pool.length)pool=REAL_BANK.filter(q=>q.problem_number===num);
-    if(chosen.length>=2){
-      const s1=superDomain(chosen.at(-1)),s2=superDomain(chosen.at(-2));
-      if(s1===s2){
-        const alt=pool.filter(q=>superDomain(q)!==s1);if(alt.length)pool=alt;
-      }
-    }
-    pool.sort((a,b)=>{
-      const ay=chosen.filter(x=>x.year===a.year).length,by=chosen.filter(x=>x.year===b.year).length;
-      const ad=chosen.filter(x=>superDomain(x)===superDomain(a)).length,bd=chosen.filter(x=>superDomain(x)===superDomain(b)).length;
-      return (ay*1.2+ad*.2+stableNoise('mock:'+a.id)*.1)-(by*1.2+bd*.2+stableNoise('mock:'+b.id)*.1);
-    });
-    const q=pool[0];if(!q){alert(`真实题库中缺少Q${num}`);return}
-    chosen.push(q);
-  }
-  S.printable_mock_ids=chosen.map(q=>q.id);
-  S.printable_mock_date=today();
-  S.printable_mock_meta={
-    engine:'authentic_position_match_v063',engine_version:ENGINE_VERSION,
-    source_years:[...new Set(chosen.map(q=>q.year))],
-    note:'每个位置从2015–2018真实AMC8同题号位置抽取；保持真实Q1–25难度曲线。'
-  };
-  S.printable_mock_id=null;
-  saveStateLocal();
-  return chosen;
-}
-
-function cloudConfigured(){return !!(CLOUD_CFG.url&&CLOUD_CFG.publishableKey)}
-function getCloudSession(){
-  try{return JSON.parse(localStorage.getItem(CLOUD_SESSION_KEY)||'null')}catch(e){return null}
-}
-function setCloudSession(x){if(x)localStorage.setItem(CLOUD_SESSION_KEY,JSON.stringify(x));else localStorage.removeItem(CLOUD_SESSION_KEY)}
-function cloudHeaders(session,extra={}){
-  return {'apikey':CLOUD_CFG.publishableKey,'Content-Type':'application/json',...(session?.access_token?{'Authorization':'Bearer '+session.access_token}:{}),...extra};
-}
-async function cloudSignIn(){
-  if(!cloudConfigured()){alert('Supabase尚未绑定。先完成专用AMC8云项目配置。');return}
-  const email=(document.getElementById('cloud_email')?.value||'').trim(),password=document.getElementById('cloud_password')?.value||'';
-  if(!email||!password){alert('请输入邮箱和密码。');return}
-  const r=await fetch(`${CLOUD_CFG.url}/auth/v1/token?grant_type=password`,{method:'POST',headers:cloudHeaders(null),body:JSON.stringify({email,password})});
-  const d=await r.json();if(!r.ok)throw new Error(d.error_description||d.msg||d.message||'登录失败');
-  setCloudSession(d);S.cloud_meta=S.cloud_meta||{};S.cloud_meta.user_id=d.user?.id||null;saveStateLocal(false);await cloudSyncAuto();renderData();
-}
-async function cloudSignUp(){
-  if(!cloudConfigured()){alert('Supabase尚未绑定。');return}
-  const email=(document.getElementById('cloud_email')?.value||'').trim(),password=document.getElementById('cloud_password')?.value||'';
-  if(!email||password.length<6){alert('请输入邮箱，密码至少6位。');return}
-  const r=await fetch(`${CLOUD_CFG.url}/auth/v1/signup`,{method:'POST',headers:cloudHeaders(null),body:JSON.stringify({email,password})});
-  const d=await r.json();if(!r.ok)throw new Error(d.msg||d.message||'注册失败');
-  if(d.access_token)setCloudSession(d);
-  alert(d.access_token?'账号已创建并登录。':'账号已创建，请按邮箱验证后登录。');renderData();
-}
-function cloudLogout(){setCloudSession(null);renderData()}
-async function cloudFetchRow(){
-  const s=getCloudSession();if(!s?.user?.id)return null;
-  const u=encodeURIComponent(s.user.id);
-  const r=await fetch(`${CLOUD_CFG.url}/rest/v1/amc8_user_state?user_id=eq.${u}&select=user_id,payload,revision,updated_at`,{headers:cloudHeaders(s)});
-  if(r.status===401){setCloudSession(null);throw new Error('云端登录已过期，请重新登录')}
-  const d=await r.json();if(!r.ok)throw new Error(d.message||'读取云端失败');
-  return d[0]||null;
-}
-async function cloudPushLocal(){
-  const s=getCloudSession();if(!s?.user?.id){alert('请先登录云端。');return}
-  const nextRev=(S.cloud_meta?.cloud_revision||0)+1;
-  const payload=structuredClone(S);payload.version=ENGINE_VERSION;
-  const body={user_id:s.user.id,payload,revision:nextRev,updated_at:new Date().toISOString()};
-  const r=await fetch(`${CLOUD_CFG.url}/rest/v1/amc8_user_state?on_conflict=user_id`,{
-    method:'POST',headers:cloudHeaders(s,{'Prefer':'resolution=merge-duplicates,return=representation'}),body:JSON.stringify(body)
-  });
-  const d=await r.json();if(!r.ok)throw new Error(d.message||'上传失败');
-  const row=Array.isArray(d)?d[0]:d;
-  S.cloud_meta=S.cloud_meta||{};S.cloud_meta.cloud_revision=row?.revision||nextRev;S.cloud_meta.last_cloud_updated_at=row?.updated_at||body.updated_at;S.cloud_meta.last_sync_at=new Date().toISOString();
-  saveStateLocal(false);renderData();
-}
-async function cloudPullRemote(){
-  const row=await cloudFetchRow();if(!row){alert('云端还没有训练数据。');return}
-  if(!confirm('下载云端数据会覆盖当前浏览器的训练数据。确定继续？'))return;
-  S=migrateState(row.payload);S.cloud_meta=S.cloud_meta||{};S.cloud_meta.cloud_revision=row.revision;S.cloud_meta.last_cloud_updated_at=row.updated_at;S.cloud_meta.last_sync_at=new Date().toISOString();
-  saveStateLocal(false);renderAll();alert('已从云端恢复训练数据。');
-}
-async function cloudSyncAuto(){
-  if(!cloudConfigured()||!getCloudSession()?.user?.id)return;
-  const row=await cloudFetchRow();
-  if(!row){await cloudPushLocal();return}
-  const last=S.cloud_meta?.last_cloud_updated_at||null;
-  const localModified=S.cloud_meta?.local_modified_at||null;
-  const cloudChanged=!last||row.updated_at!==last;
-  const localChanged=!S.cloud_meta?.last_sync_at||localModified>S.cloud_meta.last_sync_at;
-  if(cloudChanged&&localChanged&&last){
-    S.cloud_meta.sync_conflict=true;saveStateLocal(false);renderData();return;
-  }
-  if(cloudChanged){
-    S=migrateState(row.payload);S.cloud_meta=S.cloud_meta||{};S.cloud_meta.cloud_revision=row.revision;S.cloud_meta.last_cloud_updated_at=row.updated_at;S.cloud_meta.last_sync_at=new Date().toISOString();S.cloud_meta.sync_conflict=false;
-    saveStateLocal(false);renderAll();
-  }else if(localChanged)await cloudPushLocal();
-}
-function scheduleCloudPush(){
-  if(!cloudConfigured()||!getCloudSession()?.user?.id)return;
-  clearTimeout(cloudTimer);cloudTimer=setTimeout(()=>cloudSyncAuto().catch(e=>console.warn('cloud sync',e)),1200);
-}
-function saveStateLocal(markModified=true){
-  S.version=ENGINE_VERSION;S.cloud_meta=S.cloud_meta||{};
-  if(markModified)S.cloud_meta.local_modified_at=new Date().toISOString();
-  localStorage.setItem(LS,JSON.stringify(S));
-  if(markModified)scheduleCloudPush();
-}
-function save(){saveStateLocal();renderAll()}
-
-function renderBank(){
-  const el=document.getElementById('bank');
-  const realCounts={};REAL_BANK.forEach(q=>realCounts[q.domain]=(realCounts[q.domain]||0)+1);
-  el.innerHTML=`<div class=grid>
-    <div class=card><div class=muted>当前出题核心</div><div class=big>${REAL_BANK.length||'—'}</div><div class=small>2015–2018真实AMC8题</div></div>
-    <div class=card><div class=muted>旧生成题</div><div class=big>${LEGACY_BANK.length}</div><div class=small>仅兼容历史记录，不再自动出题</div></div>
-    <div class=card><div class=muted>题库状态</div><div class=big>${authenticLoadState.status==='ready'?'✓':'!'}</div><div class=small>${esc(authenticLoadState.message)}</div></div>
-  </div>
-  <div class=card style="margin-top:13px"><h3>真实AMC8训练池</h3>
-    <p>v0.6.3 已停止用旧300道生成题做每日/周末自动出题。每日训练改用2015–2018真实AMC8 Q13–Q25中后段题；周末模拟按每个正式题号位置混编真实题，难度曲线由真实题号本身决定。</p>
-    <div>${Object.entries(realCounts).map(([k,v])=>`<span class=tag>${zhDomain(k)} ${v}</span>`).join('')}</div>
-    <hr><table><tr><th>ID</th><th>来源</th><th>领域</th><th>难度带</th></tr>
-    ${REAL_BANK.map(q=>`<tr><td>${q.id}</td><td>${q.year} AMC8 Q${q.problem_number}</td><td>${zhDomain(q.domain)}</td><td>${q.amc_band}</td></tr>`).join('')}
-    </table>
-    <div class=notice style="margin-top:10px">来源：公开GitHub项目 iuruoy-shao/training-problems 的结构化AMC8数据。2019–2024继续保留为独立真题/整套训练，不混入日常池，避免提前泄题。</div>
-  </div>`;
-}
 function renderData(){
-  const sess=getCloudSession(),configured=cloudConfigured(),conflict=!!S.cloud_meta?.sync_conflict;
+  const configured=cloudConfigured(),code=getSyncCode(),conflict=!!S.cloud_meta?.sync_conflict;
+  const codeShown=formatSyncCode(code);
   document.getElementById('data').innerHTML=`<div class=card><h3>数据与备份</h3>
-  <p class=small>本地始终先保存到浏览器 localStorage；绑定Supabase后，再把整份训练状态同步到专用云库。断网时仍可继续记录。</p>
+  <p class=small>本地始终先保存到浏览器 localStorage；绑定同步码后，再把整份训练状态同步到专用 Supabase 云库。断网时仍可继续记录。</p>
   <div class=row><button class=primary onclick="dl('lucas-amc8-backup-${today()}.json',JSON.stringify(S,null,2))">导出全部训练数据</button>
   <label class=btn>导入训练数据<input type=file accept="application/json,.json" style="display:none" onchange="importBackupFile(this)"></label>
   <button onclick="dl('true-question-registry.json',JSON.stringify(TRUE_REG,null,2))">导出175题索引</button>
   <button onclick="if(confirm('恢复初始数据？')){S=structuredClone(SEED);S=migrateState(S);save()}">恢复初始数据</button></div>
   </div>
-  <div class=card style="margin-top:13px"><h3>Supabase 云同步</h3>
-    <div class=notice>${configured?'云端配置已写入本版本。':'当前包已具备云同步代码，但还没有绑定专用Supabase项目；未绑定前仍只保存在本机。'}</div>
-    ${configured?`<div style="margin-top:10px">
-      <input id=cloud_email type=email placeholder="邮箱" value="${esc(sess?.user?.email||'')}" style="padding:9px;margin-right:6px">
-      <input id=cloud_password type=password placeholder="密码" style="padding:9px;margin-right:6px">
-      ${sess?.user?.id
-        ?`<button onclick="cloudSyncAuto().then(()=>renderData()).catch(e=>alert(e.message))">自动同步</button>
-          <button onclick="cloudPushLocal().catch(e=>alert(e.message))">上传本地→云</button>
-          <button onclick="cloudPullRemote().catch(e=>alert(e.message))">下载云→本地</button>
-          <button onclick="cloudLogout()">退出</button>`
-        :`<button class=primary onclick="cloudSignIn().catch(e=>alert(e.message))">登录</button>
-          <button onclick="cloudSignUp().catch(e=>alert(e.message))">注册</button>`}
+  <div class=card style="margin-top:13px"><h3>Supabase 云同步（免注册）</h3>
+    <div class=notice>${configured?'不需要注册账号。同步码就是云端钥匙：同一个同步码可在不同浏览器、电脑或 iPad 上读取同一份 Lucas 训练数据。':'云端配置尚未写入本版本。'}</div>
+    ${configured?(!code?`<div style="margin-top:12px">
+        <button class=primary onclick="createNewSyncCode().catch(e=>alert(e.message))">生成新的同步码</button>
+        <span class=small style="margin:0 8px">或</span>
+        <input id=cloud_sync_code placeholder="粘贴已有同步码" style="min-width:300px;padding:9px">
+        <button onclick="bindSyncCode().catch(e=>alert(e.message))">绑定已有同步码</button>
       </div>
-      <p class=small>状态：${sess?.user?.id?`已登录 ${esc(sess.user.email||sess.user.id)}；最近同步 ${esc(S.cloud_meta?.last_sync_at||'尚未')}`:'未登录'}</p>
-      ${conflict?'<div class=notice style="border-color:#b45309"><b>检测到同步冲突：</b>本地和云端都发生过修改。请明确选择“上传本地→云”或“下载云→本地”，系统不会偷偷覆盖。</div>':''}
-      `:''}
+      <p class=small>第一次使用：在主要设备上“生成新的同步码”；以后其他设备只需输入同一个同步码。无需邮箱、密码或验证邮件。</p>`:
+      `<div style="margin-top:12px" class=paper-lock>
+        <div class=small>当前同步码（请妥善保存，它相当于云端数据钥匙）</div>
+        <div style="font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:17px;font-weight:700;letter-spacing:.5px;margin:6px 0">${esc(codeShown)}</div>
+        <div class=row>
+          <button class=primary onclick="cloudSyncAuto().then(()=>renderData()).catch(e=>alert(e.message))">立即同步</button>
+          <button onclick="cloudPushLocal(false).catch(e=>alert(e.message))">上传本地→云</button>
+          <button onclick="cloudPullRemote(true).catch(e=>alert(e.message))">下载云→本地</button>
+          <button onclick="copySyncCode()">复制同步码</button>
+          <button onclick="clearSyncCode()">解除本机绑定</button>
+        </div>
+      </div>
+      <p class=small>状态：云端版本 ${Number(S.cloud_meta?.cloud_revision||0)}；最近同步 ${esc(S.cloud_meta?.last_sync_at||'尚未')}</p>
+      ${conflict?`<div class=notice style="border-color:#b45309"><b>检测到同步冲突：</b>本地和云端都发生过修改，系统没有自动覆盖。
+        <div class=row style="margin-top:8px"><button onclick="if(confirm('确定用本机数据覆盖云端？'))cloudPushLocal(true).catch(e=>alert(e.message))">用本地覆盖云端</button>
+        <button onclick="cloudPullRemote(true).catch(e=>alert(e.message))">用云端覆盖本地</button></div></div>`:''}`):''}
     <hr><textarea style="width:100%;height:260px" readonly>${JSON.stringify(S,null,2)}</textarea>
   </div>`;
 }
 
 function renderAll(){renderHome();renderPractice();renderTruePractice();renderMock();renderReport();renderArchive();renderBank();renderData()}
-async function initV063(){await loadAuthenticBank();S=migrateState(S);saveStateLocal(false);renderAll();if(cloudConfigured()&&getCloudSession()?.user?.id)cloudSyncAuto().catch(e=>console.warn(e));}
+async function initV063(){await loadAuthenticBank();S=migrateState(S);saveStateLocal(false);renderAll();if(cloudConfigured()&&getSyncCode())cloudSyncAuto().catch(e=>console.warn(e));}
 initV063();
 </script>
 </body></html>
