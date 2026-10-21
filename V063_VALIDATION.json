@@ -65,12 +65,21 @@
       ]
     },
     "supabase_binding": {
-      "status": "PENDING",
-      "reason": "Dedicated project has not been created; organization/cost confirmation is required before provisioning."
+      "status": "PASS",
+      "project_ref": "dfwojiefseopguoqugzs",
+      "project_name": "lucas-amc8",
+      "region": "ap-northeast-1 (Tokyo)",
+      "table": "public.amc8_user_state",
+      "rls_enabled": true,
+      "security_advisor": "PASS (0 lints after hardening)",
+      "migrations": [
+        "create_amc8_cloud_state",
+        "harden_auto_rls_function"
+      ]
     },
     "browser_runtime": {
-      "status": "NOT_RUN",
-      "reason": "Final Supabase-bound GitHub Pages build not deployed yet."
+      "status": "PENDING_DEPLOY",
+      "reason": "Cloud-bound build is ready; GitHub Pages must redeploy after these files are uploaded."
     }
   }
 }

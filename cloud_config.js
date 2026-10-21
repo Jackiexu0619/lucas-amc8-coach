@@ -1,7 +1,7 @@
-// Lucas AMC8 Coach v0.6.3
-// 专用 Supabase 项目创建后，只需要填写以下两个公开配置。
-// publishableKey/anon key 可以放在浏览器端；不要放 service_role key。
+// Lucas AMC8 Coach v0.6.3 — public browser configuration
+// The publishable key is intentionally safe to expose in the browser.
+// Never put a service_role or secret key in this file.
 window.AMC8_CLOUD_CONFIG = {
-  url: "",
-  publishableKey: ""
+  url: "https://dfwojiefseopguoqugzs.supabase.co",
+  publishableKey: "sb_publishable_KfMnpoo-V16EK5G-S6KUHA_XzHvBMk_"
 };

@@ -52,3 +52,11 @@ v0.6.2 GitHub Pages 首次切换造成的 2026-10-21 三题错配，只在题号
 - `question_bank.json`：v0.6.3 真实题库来源清单
 - `question_bank_legacy_v060.json`：旧 300 道题，仅兼容历史记录
 - `V063_VALIDATION.json`：本版验证结果
+
+
+## 云端已绑定
+- Supabase project: `lucas-amc8`
+- Project ref: `dfwojiefseopguoqugzs`
+- Region: Tokyo (`ap-northeast-1`)
+- 表：`public.amc8_user_state`，RLS 已启用。
+- 浏览器端仅使用 publishable key，不包含 service_role/secret key。
