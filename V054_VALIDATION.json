@@ -1,0 +1,10 @@
+{
+  "version": "0.5.4",
+  "daily_parent_answer_entry": true,
+  "daily_parent_time_entry": true,
+  "weekend_no_per_question_time": true,
+  "weekend_per_question_answers": true,
+  "weekend_optional_total_time": true,
+  "paper_workflow_text": true,
+  "figures_retained": true
+}

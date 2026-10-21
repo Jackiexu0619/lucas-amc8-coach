@@ -1,0 +1,9 @@
+{
+  "version": "0.5.2",
+  "question_timer": true,
+  "pause_timer": true,
+  "auto_duration_on_submit": true,
+  "daily_total_timer": true,
+  "skill_timing_report": true,
+  "print_functions_retained": true
+}

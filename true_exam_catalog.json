@@ -1,0 +1,82 @@
+[
+  {
+    "year": 2019,
+    "question_count": 25,
+    "status": "本地已接入",
+    "local_pdf": "papers/AMC8_2019.pdf",
+    "online_exam": "https://live.poshenloh.com/past-contests/amc8/2019",
+    "printable_pdf": "https://live.poshenloh.com/images/past-contests/pdf/amc8-2019-exam.pdf",
+    "answer_key": "https://live.poshenloh.com/past-contests/amc8/2019/answers",
+    "structured_status": "待结构化"
+  },
+  {
+    "year": 2020,
+    "question_count": 25,
+    "status": "本地已接入",
+    "local_pdf": "papers/AMC8_2020.pdf",
+    "online_exam": "https://live.poshenloh.com/past-contests/amc8/2020",
+    "printable_pdf": "https://live.poshenloh.com/images/past-contests/pdf/amc8-2020-exam.pdf",
+    "answer_key": "https://live.poshenloh.com/past-contests/amc8/2020/answers",
+    "structured_status": "待结构化"
+  },
+  {
+    "year": 2021,
+    "question_count": 0,
+    "status": "未举行",
+    "local_pdf": null,
+    "online_exam": null,
+    "printable_pdf": null,
+    "answer_key": null,
+    "structured_status": "不适用"
+  },
+  {
+    "year": 2022,
+    "question_count": 25,
+    "status": "本地已接入",
+    "local_pdf": "papers/AMC8_2022.pdf",
+    "online_exam": "https://live.poshenloh.com/past-contests/amc8/2022",
+    "printable_pdf": "https://live.poshenloh.com/images/past-contests/pdf/amc8-2022-exam.pdf",
+    "answer_key": "https://live.poshenloh.com/past-contests/amc8/2022/answers",
+    "structured_status": "待结构化"
+  },
+  {
+    "year": 2023,
+    "question_count": 25,
+    "status": "本地已接入",
+    "local_pdf": "papers/AMC8_2023.pdf",
+    "online_exam": "https://live.poshenloh.com/past-contests/amc8/2023",
+    "printable_pdf": "https://live.poshenloh.com/images/past-contests/pdf/amc8-2023-exam.pdf",
+    "answer_key": "https://live.poshenloh.com/past-contests/amc8/2023/answers",
+    "structured_status": "待结构化"
+  },
+  {
+    "year": 2024,
+    "question_count": 25,
+    "status": "本地已接入",
+    "local_pdf": "papers/AMC8_2024.pdf",
+    "online_exam": "https://live.poshenloh.com/past-contests/amc8/2024",
+    "printable_pdf": "https://live.poshenloh.com/images/past-contests/pdf/amc8-2024-exam.pdf",
+    "answer_key": "https://live.poshenloh.com/past-contests/amc8/2024/answers",
+    "structured_status": "待结构化"
+  },
+  {
+    "year": 2025,
+    "question_count": 25,
+    "status": "在线已确认",
+    "local_pdf": null,
+    "online_exam": "https://live.poshenloh.com/past-contests/amc8/2025",
+    "printable_pdf": "https://live.poshenloh.com/images/past-contests/pdf/amc8-2025-exam.pdf",
+    "answer_key": "https://live.poshenloh.com/past-contests/amc8/2025/answers",
+    "structured_status": "待导入"
+  },
+  {
+    "year": 2026,
+    "question_count": 25,
+    "status": "在线已确认",
+    "local_pdf": null,
+    "online_exam": "https://live.poshenloh.com/past-contests/amc8/2026",
+    "printable_pdf": "https://live.poshenloh.com/images/past-contests/pdf/amc8-2026-exam.pdf",
+    "answer_key": "https://live.poshenloh.com/past-contests/amc8/2026/answers",
+    "structured_status": "待导入"
+  }
+]

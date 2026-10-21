@@ -1,0 +1,14 @@
+{
+  "version": "0.5.6",
+  "paper_id_present": true,
+  "paper_lock_present": true,
+  "regenerate_confirm": true,
+  "one_by_one_entry": true,
+  "full_paper_preview": true,
+  "draft_persistence": true,
+  "paper_id_printed": true,
+  "supports_unable": true,
+  "supports_skipped": true,
+  "no_weekend_per_question_timer": true,
+  "figures_in_entry": true
+}

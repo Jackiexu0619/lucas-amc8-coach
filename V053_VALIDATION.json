@@ -1,0 +1,7 @@
+{
+  "version": "0.5.3",
+  "mock_answer_recording": true,
+  "latest_mock_detail": true,
+  "figure_support": true,
+  "figures_in_print": true
+}

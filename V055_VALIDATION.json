@@ -1,0 +1,82 @@
+{
+  "version": "0.5.5",
+  "structured_question_count": 64,
+  "new_geometry_questions": 8,
+  "new_geometry_math_validation": {
+    "q057": {
+      "computed": 34,
+      "answer_choice_value": "34",
+      "expected": "34",
+      "pass": true
+    },
+    "q058": {
+      "computed": 7.2,
+      "answer_choice_value": "7.2",
+      "expected": "7.2",
+      "pass": true
+    },
+    "q059": {
+      "computed": 66.0,
+      "answer_choice_value": "66",
+      "expected": "66",
+      "pass": true
+    },
+    "q060": {
+      "computed": 48.0,
+      "answer_choice_value": "48",
+      "expected": "48",
+      "pass": true
+    },
+    "q061": {
+      "computed": 50.0,
+      "answer_choice_value": "50",
+      "expected": "50",
+      "pass": true
+    },
+    "q062": {
+      "computed": 28.274333882308138,
+      "answer_choice_value": "9π",
+      "expected": "9π",
+      "pass": true
+    },
+    "q063": {
+      "computed": 60,
+      "answer_choice_value": "60",
+      "expected": "60",
+      "pass": true
+    },
+    "q064": {
+      "computed": 80.0,
+      "answer_choice_value": "80°",
+      "expected": "80°",
+      "pass": true
+    }
+  },
+  "weekend_quick_buttons": true,
+  "batch_entry": true,
+  "unable_supported_weekend": true,
+  "unable_supported_daily": true,
+  "weekend_per_question_time_absent": true,
+  "figure_types": [
+    "coordinate",
+    "coordinate",
+    "coordinate",
+    "coordinate",
+    "triangle_ratio",
+    "triangle_ratio",
+    "triangle_ratio",
+    "triangle_ratio",
+    "prism",
+    "prism",
+    "prism",
+    "prism",
+    "rectangle_cutout",
+    "right_triangle_altitude",
+    "trapezoid",
+    "rectangle_midpoint",
+    "square_point",
+    "sector",
+    "parallelogram",
+    "triangle_angle_ratio"
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "version": "0.6.0",
+  "total_structured_questions": 300,
+  "old_questions_reaudited": 64,
+  "new_questions_formula_checked": 236,
+  "group_counts": {
+    "app": 78,
+    "geo": 72,
+    "combprob": 51,
+    "nt": 42,
+    "patternlogic": 33,
+    "data": 24
+  },
+  "domain_counts": {
+    "arithmetic": 20,
+    "ratio": 24,
+    "rate": 34,
+    "number_theory": 42,
+    "coordinate": 12,
+    "data": 24,
+    "patterns": 20,
+    "combinatorics": 31,
+    "geometry": 48,
+    "probability": 20,
+    "spatial": 12,
+    "logic": 13
+  },
+  "difficulty_counts": {
+    "1": 78,
+    "2": 132,
+    "3": 45,
+    "4": 45
+  },
+  "answer_choice_distribution": {
+    "C": 60,
+    "D": 60,
+    "A": 60,
+    "B": 60,
+    "E": 60
+  },
+  "skill_count": 83,
+  "questions_with_figures": 72,
+  "all_choices_unique": true,
+  "all_answer_keys_match_choice": true,
+  "inherited_64_math_audit_pass": true,
+  "generated_236_key_audit_pass": true
+}

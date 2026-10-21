@@ -1,0 +1,31 @@
+{
+  "version": "0.5.0",
+  "structured_training_questions": 56,
+  "true_question_registry": 175,
+  "true_exam_years": [
+    2019,
+    2020,
+    2022,
+    2023,
+    2024,
+    2025,
+    2026
+  ],
+  "local_pdf_years": [
+    2019,
+    2020,
+    2022,
+    2023,
+    2024
+  ],
+  "online_only_years": [
+    2025,
+    2026
+  ],
+  "seed_mock_records": 7,
+  "has_true_practice": true,
+  "has_weekly_report": true,
+  "has_score_reference_range": true,
+  "has_mock_history": true,
+  "all_local_pdfs_exist": true
+}

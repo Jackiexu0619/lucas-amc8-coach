@@ -1,0 +1,204 @@
+{
+  "version": "0.5.0",
+  "profile": {
+    "name": "Lucas",
+    "goal": "2027-01 AMC 8",
+    "daily_limit": 3
+  },
+  "settings": {
+    "cooldown_days": 7,
+    "slow_threshold_sec": 240
+  },
+  "skill_state": {
+    "patterns/arithmetic_series": {
+      "mastery": 0.3,
+      "next_review": "2026-10-21",
+      "status": "active",
+      "note": "等差求和公式遗忘"
+    },
+    "probability/exactly_two_colors": {
+      "mastery": 0.35,
+      "next_review": "2026-10-23",
+      "status": "due_soon",
+      "note": "复杂概率补集需要间隔迁移"
+    },
+    "spatial/painted_cuboid": {
+      "mastery": 0.65,
+      "next_review": "2026-10-27",
+      "status": "scheduled",
+      "note": "棱计数已完成一次快速迁移"
+    },
+    "combinatorics/distribution": {
+      "mastery": 0.62,
+      "next_review": "2026-10-26",
+      "status": "scheduled",
+      "note": "角色分配已完成一次修复"
+    },
+    "number_theory/composite_divisibility": {
+      "mastery": 0.62,
+      "next_review": "2026-10-27",
+      "status": "scheduled",
+      "note": "合数整除拆分已完成第一次迁移"
+    },
+    "meta/execution_complete": {
+      "mastery": 0.4,
+      "next_review": "2026-10-22",
+      "status": "active",
+      "note": "近期多次出现漏范围/边界/角色/小数收尾"
+    }
+  },
+  "attempts": [
+    {
+      "question_id": "q049",
+      "date": "2026-10-19",
+      "correct": false,
+      "duration_sec": null,
+      "guessed": false,
+      "hint_level": 0,
+      "error_type": "execution_error",
+      "error_detail": "missed_edge",
+      "independent": false
+    },
+    {
+      "question_id": "q045",
+      "date": "2026-10-19",
+      "correct": true,
+      "duration_sec": 94,
+      "guessed": false,
+      "hint_level": 0,
+      "error_type": null,
+      "error_detail": null,
+      "independent": true
+    },
+    {
+      "question_id": "q017",
+      "date": "2026-10-19",
+      "correct": true,
+      "duration_sec": 109,
+      "guessed": false,
+      "hint_level": 0,
+      "error_type": null,
+      "error_detail": null,
+      "independent": true
+    },
+    {
+      "question_id": "q050",
+      "date": "2026-10-20",
+      "correct": true,
+      "duration_sec": 41,
+      "guessed": false,
+      "hint_level": 0,
+      "error_type": null,
+      "error_detail": null,
+      "independent": true
+    },
+    {
+      "question_id": "q002",
+      "date": "2026-10-20",
+      "correct": true,
+      "duration_sec": 91,
+      "guessed": false,
+      "hint_level": 0,
+      "error_type": null,
+      "error_detail": null,
+      "independent": true
+    },
+    {
+      "question_id": "q030",
+      "date": "2026-10-20",
+      "correct": false,
+      "duration_sec": null,
+      "guessed": false,
+      "hint_level": 0,
+      "error_type": "knowledge_gap",
+      "error_detail": "formula_forgotten",
+      "independent": false
+    }
+  ],
+  "true_attempts": [],
+  "true_question_tags": {},
+  "mock_history": [
+    {
+      "date": "2026-08-31",
+      "name": "第1套模拟",
+      "score": 18,
+      "independent_score": 18,
+      "attempted": 25,
+      "minutes": 40,
+      "kind": "训练模拟",
+      "count_in_estimate": true,
+      "note": "整体偏易"
+    },
+    {
+      "date": "2026-09-06",
+      "name": "第2套模拟",
+      "score": 13,
+      "independent_score": 13,
+      "attempted": 25,
+      "minutes": 40,
+      "kind": "训练模拟",
+      "count_in_estimate": true,
+      "note": "后段时间明显不足"
+    },
+    {
+      "date": "2026-09-15",
+      "name": "第3套模拟",
+      "score": 14,
+      "independent_score": 14,
+      "attempted": 16,
+      "minutes": 40,
+      "kind": "训练模拟",
+      "count_in_estimate": true,
+      "note": "后段未完成"
+    },
+    {
+      "date": "2026-09-26",
+      "name": "中秋整套",
+      "score": 16,
+      "independent_score": 16,
+      "attempted": 16,
+      "minutes": 40,
+      "kind": "训练模拟",
+      "count_in_estimate": true,
+      "note": "前14题稳定"
+    },
+    {
+      "date": "2026-10-01",
+      "name": "国庆第5套",
+      "score": 16,
+      "independent_score": 15,
+      "attempted": 19,
+      "minutes": 40,
+      "kind": "训练模拟",
+      "count_in_estimate": true,
+      "note": "后段多题未完成"
+    },
+    {
+      "date": "2026-10-02",
+      "name": "国庆第6套",
+      "score": 21,
+      "independent_score": 19,
+      "attempted": 25,
+      "minutes": 40,
+      "kind": "训练模拟",
+      "count_in_estimate": true,
+      "note": "部分后段题为猜对"
+    },
+    {
+      "date": "2026-10-18",
+      "name": "近期专项验证卷",
+      "score": 20,
+      "independent_score": 20,
+      "attempted": 25,
+      "minutes": 40,
+      "kind": "专项验证",
+      "count_in_estimate": false,
+      "note": "题型分布偏专项，不作为正式水平估计"
+    }
+  ],
+  "report_settings": {
+    "week_days": 7,
+    "min_full_mocks_for_estimate": 2,
+    "score_range_pad": 2
+  }
+}

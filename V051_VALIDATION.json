@@ -1,0 +1,10 @@
+{
+  "version": "0.5.1",
+  "daily_student_print": true,
+  "daily_parent_answer_print": true,
+  "paper_result_entry": true,
+  "weekend_full_mock_print": true,
+  "weekend_answer_print": true,
+  "full_true_paper_print": true,
+  "print_root_present": true
+}

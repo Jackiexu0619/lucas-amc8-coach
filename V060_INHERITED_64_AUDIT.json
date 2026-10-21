@@ -1,0 +1,322 @@
+[
+  {
+    "id": "q001",
+    "pass": true,
+    "expected": "132"
+  },
+  {
+    "id": "q002",
+    "pass": true,
+    "expected": "5508/25"
+  },
+  {
+    "id": "q003",
+    "pass": true,
+    "expected": "420"
+  },
+  {
+    "id": "q004",
+    "pass": true,
+    "expected": "324"
+  },
+  {
+    "id": "q005",
+    "pass": true,
+    "expected": "8"
+  },
+  {
+    "id": "q006",
+    "pass": true,
+    "expected": "18"
+  },
+  {
+    "id": "q007",
+    "pass": true,
+    "expected": "36"
+  },
+  {
+    "id": "q008",
+    "pass": true,
+    "expected": "60"
+  },
+  {
+    "id": "q009",
+    "pass": true,
+    "expected": "12"
+  },
+  {
+    "id": "q010",
+    "pass": true,
+    "expected": "72/5"
+  },
+  {
+    "id": "q011",
+    "pass": true,
+    "expected": "75/4"
+  },
+  {
+    "id": "q012",
+    "pass": true,
+    "expected": "45/2"
+  },
+  {
+    "id": "q013",
+    "pass": true,
+    "expected": "14"
+  },
+  {
+    "id": "q014",
+    "pass": true,
+    "expected": "30"
+  },
+  {
+    "id": "q015",
+    "pass": true,
+    "expected": "22"
+  },
+  {
+    "id": "q016",
+    "pass": true,
+    "expected": "25"
+  },
+  {
+    "id": "q017",
+    "pass": true,
+    "expected": "2"
+  },
+  {
+    "id": "q018",
+    "pass": true,
+    "expected": "2"
+  },
+  {
+    "id": "q019",
+    "pass": true,
+    "expected": "5"
+  },
+  {
+    "id": "q020",
+    "pass": true,
+    "expected": "7"
+  },
+  {
+    "id": "q021",
+    "pass": true,
+    "expected": "(6,-2)"
+  },
+  {
+    "id": "q022",
+    "pass": true,
+    "expected": "(-1,0)"
+  },
+  {
+    "id": "q023",
+    "pass": true,
+    "expected": "(3,4)"
+  },
+  {
+    "id": "q024",
+    "pass": true,
+    "expected": "(4,-2)"
+  },
+  {
+    "id": "q025",
+    "pass": true,
+    "expected": "165/2"
+  },
+  {
+    "id": "q026",
+    "pass": true,
+    "expected": "77"
+  },
+  {
+    "id": "q027",
+    "pass": true,
+    "expected": "19"
+  },
+  {
+    "id": "q028",
+    "pass": true,
+    "expected": "155/2"
+  },
+  {
+    "id": "q029",
+    "pass": true,
+    "expected": "1035"
+  },
+  {
+    "id": "q030",
+    "pass": true,
+    "expected": "2850"
+  },
+  {
+    "id": "q031",
+    "pass": true,
+    "expected": "5050"
+  },
+  {
+    "id": "q032",
+    "pass": true,
+    "expected": "8001"
+  },
+  {
+    "id": "q033",
+    "pass": true,
+    "expected": "66"
+  },
+  {
+    "id": "q034",
+    "pass": true,
+    "expected": "153"
+  },
+  {
+    "id": "q035",
+    "pass": true,
+    "expected": "190"
+  },
+  {
+    "id": "q036",
+    "pass": true,
+    "expected": "276"
+  },
+  {
+    "id": "q037",
+    "pass": true,
+    "expected": "24"
+  },
+  {
+    "id": "q038",
+    "pass": true,
+    "expected": "36"
+  },
+  {
+    "id": "q039",
+    "pass": true,
+    "expected": "60"
+  },
+  {
+    "id": "q040",
+    "pass": true,
+    "expected": "100"
+  },
+  {
+    "id": "q041",
+    "pass": true,
+    "expected": "9/14"
+  },
+  {
+    "id": "q042",
+    "pass": true,
+    "expected": "29/44"
+  },
+  {
+    "id": "q043",
+    "pass": true,
+    "expected": "36/55"
+  },
+  {
+    "id": "q044",
+    "pass": true,
+    "expected": "36/55"
+  },
+  {
+    "id": "q045",
+    "pass": true,
+    "expected": "360"
+  },
+  {
+    "id": "q046",
+    "pass": true,
+    "expected": "630"
+  },
+  {
+    "id": "q047",
+    "pass": true,
+    "expected": "1680"
+  },
+  {
+    "id": "q048",
+    "pass": true,
+    "expected": "7560"
+  },
+  {
+    "id": "q049",
+    "pass": true,
+    "expected": "16"
+  },
+  {
+    "id": "q050",
+    "pass": true,
+    "expected": "24"
+  },
+  {
+    "id": "q051",
+    "pass": true,
+    "expected": "36"
+  },
+  {
+    "id": "q052",
+    "pass": true,
+    "expected": "32"
+  },
+  {
+    "id": "q053",
+    "pass": true,
+    "expected": "4"
+  },
+  {
+    "id": "q054",
+    "pass": true,
+    "expected": "3"
+  },
+  {
+    "id": "q055",
+    "pass": true,
+    "expected": "8"
+  },
+  {
+    "id": "q056",
+    "pass": true,
+    "expected": "8"
+  },
+  {
+    "id": "q057",
+    "pass": true,
+    "expected": "34"
+  },
+  {
+    "id": "q058",
+    "pass": true,
+    "expected": "36/5"
+  },
+  {
+    "id": "q059",
+    "pass": true,
+    "expected": "66"
+  },
+  {
+    "id": "q060",
+    "pass": true,
+    "expected": "48"
+  },
+  {
+    "id": "q061",
+    "pass": true,
+    "expected": "50"
+  },
+  {
+    "id": "q062",
+    "pass": true,
+    "expected": "('pi', Fraction(9, 1))"
+  },
+  {
+    "id": "q063",
+    "pass": true,
+    "expected": "60"
+  },
+  {
+    "id": "q064",
+    "pass": true,
+    "expected": "80°"
+  }
+]

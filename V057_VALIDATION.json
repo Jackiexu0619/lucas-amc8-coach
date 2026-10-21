@@ -1,0 +1,9 @@
+{
+  "version": "0.5.7",
+  "screen_figure_max_300px": true,
+  "print_figure_box_56mm": true,
+  "print_svg_52mm": true,
+  "print_svg_max_height_38mm": true,
+  "paper_id_logic_retained": true,
+  "one_by_one_entry_retained": true
+}

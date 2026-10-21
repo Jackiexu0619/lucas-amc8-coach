@@ -1,0 +1,26 @@
+{
+  "version": "0.3",
+  "local_pdfs": [
+    2019,
+    2020,
+    2022,
+    2023,
+    2024
+  ],
+  "online_years": [
+    2025,
+    2026
+  ],
+  "contest_years": [
+    2019,
+    2020,
+    2022,
+    2023,
+    2024,
+    2025,
+    2026
+  ],
+  "total_questions": 175,
+  "2021_status": "not_held",
+  "all_local_pdfs_exist": true
+}

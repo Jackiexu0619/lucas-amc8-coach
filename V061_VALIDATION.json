@@ -1,0 +1,17 @@
+{
+  "version": "0.6.1",
+  "cooldown_policy": {
+    "wrong": 7,
+    "unable": 7,
+    "skipped": 7,
+    "guessed_correct": 7,
+    "execution_error": 14,
+    "correct_but_slow": 14,
+    "independent_correct": 30
+  },
+  "daily_uses_eligible_pool": true,
+  "last_4_mocks_excluded": true,
+  "last_7_weekdays_excluded": true,
+  "same_method_limit_retained": true,
+  "js_syntax": "PASS"
+}
