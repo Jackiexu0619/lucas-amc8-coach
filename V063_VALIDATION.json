@@ -1,0 +1,76 @@
+{
+  "version": "0.6.3",
+  "generated_at": "2026-10-21T12:06:36.559904+00:00",
+  "checks": {
+    "javascript_syntax": {
+      "status": "PASS",
+      "method": "node --check on main inline script"
+    },
+    "authentic_source_2015_2018": {
+      "status": "PASS",
+      "source": "iuruoy-shao/training-problems",
+      "count": 100,
+      "by_year": {
+        "2015": 25,
+        "2016": 25,
+        "2017": 25,
+        "2018": 25
+      },
+      "difficulty_by_official_position": {
+        "1": 32,
+        "2": 32,
+        "3": 20,
+        "4": 16
+      },
+      "invalid_choice_or_answer_records": 0
+    },
+    "legacy_bank": {
+      "status": "PASS",
+      "count": 300,
+      "scheduled": false,
+      "purpose": "historical qID compatibility"
+    },
+    "daily_policy": {
+      "status": "PASS",
+      "default_min_official_problem_number": 13,
+      "slot1_target": "Q16",
+      "slot2_target": "Q17",
+      "slot3_target": "Q20 weekdays / Q23 Friday",
+      "difficulty_signal": "official problem number distance (fine-grained)",
+      "legacy_300_scheduled": false
+    },
+    "weekend_policy": {
+      "status": "PASS",
+      "method": "same-position mix from real 2015-2018 AMC8",
+      "recent_mock_exclusion": 3
+    },
+    "daily_lock": {
+      "status": "PASS",
+      "inherited_from": "0.6.2.1"
+    },
+    "known_bad_session_repair": {
+      "status": "PASS",
+      "guard": "exact date+qids+answers+times+0/3 session match only"
+    },
+    "cloud_sync_code": {
+      "status": "PASS",
+      "features": [
+        "signup",
+        "signin",
+        "local-first save",
+        "auto sync",
+        "manual push",
+        "manual pull",
+        "conflict stop"
+      ]
+    },
+    "supabase_binding": {
+      "status": "PENDING",
+      "reason": "Dedicated project has not been created; organization/cost confirmation is required before provisioning."
+    },
+    "browser_runtime": {
+      "status": "NOT_RUN",
+      "reason": "Final Supabase-bound GitHub Pages build not deployed yet."
+    }
+  }
+}

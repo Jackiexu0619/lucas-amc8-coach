@@ -1,5 +1,5 @@
 {
-  "version": "0.6.2",
+  "version": "0.6.3",
   "profile": {
     "name": "Lucas",
     "goal": "2027-01 AMC 8",
@@ -7,7 +7,14 @@
   },
   "settings": {
     "cooldown_days": 7,
-    "slow_threshold_sec": 240
+    "slow_threshold_sec": 240,
+    "daily_difficulty_floor": 2,
+    "daily_real_amc_years": [
+      2015,
+      2016,
+      2017,
+      2018
+    ]
   },
   "skill_state": {
     "patterns/arithmetic_series": {
@@ -200,5 +207,7 @@
     "week_days": 7,
     "min_full_mocks_for_estimate": 2,
     "score_range_pad": 2
-  }
+  },
+  "daily_plan": null,
+  "cloud_meta": {}
 }
