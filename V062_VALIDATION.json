@@ -1,0 +1,38 @@
+{
+  "version": "0.6.2",
+  "js_syntax": "PASS",
+  "structured_training_questions": 300,
+  "daily_adaptive_engine": {
+    "three_slots": true,
+    "recent_weakness_transfer": true,
+    "due_review": true,
+    "breadth_novelty": true,
+    "knowledge_or_method_gap_can_step_down_one_level": true,
+    "execution_error_keeps_difficulty": true,
+    "two_consecutive_independent_correct_can_step_up_one_level": true,
+    "same_question_cooldown_retained": true,
+    "skill_level_7_14_30_review_counting": true
+  },
+  "exam_assembly_engine": {
+    "position_difficulty_pattern": [1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,3,3,3,3,3,4,4,4,4],
+    "topic_quota_profiles": 5,
+    "difficulty_band_topic_planning": true,
+    "last_4_mocks_excluded": true,
+    "last_7_weekdays_excluded": true,
+    "same_method_max": 2,
+    "same_family_max": 1,
+    "no_three_consecutive_same_domain": true,
+    "q21_25_min_domains": 3,
+    "personalized_positions": 7,
+    "personalized_ratio": 0.28,
+    "final_constraint_validation": true
+  },
+  "runtime_tests": {
+    "random_mock_builds_checked": 20,
+    "random_mock_build_failures": 0,
+    "sequential_weeks_with_last4_exclusion_checked": 12,
+    "sequential_week_failures": 0,
+    "daily_difficulty_rule_tests": "PASS"
+  },
+  "known_scope": "Validation covers JavaScript syntax and selection-engine runtime/constraint behavior in a stubbed browser environment; it is not a full cross-browser visual QA run."
+}
