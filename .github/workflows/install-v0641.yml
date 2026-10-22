@@ -1,0 +1,42 @@
+name: Install Lucas AMC8 v0.6.4.1 skill review
+on:
+  push:
+    paths:
+      - 'coach_v0641.js'
+      - 'tools/apply_v0641.py'
+      - '.github/workflows/install-v0641.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install skill engine into index.html
+        run: python tools/apply_v0641.py
+      - name: Verify script reference
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          s=Path('index.html').read_text(encoding='utf-8')
+          assert s.count('<script src="coach_v0641.js"></script>') == 1
+          assert s.count('<script src="coach_v064.js"></script>') == 1
+          print('PASS')
+          PY
+      - name: Commit only if changed
+        run: |
+          if git diff --quiet -- index.html; then
+            echo 'No change required'
+          else
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add index.html
+            git commit -m 'feat: install AMC8 reviewed skill engine v0.6.4.1'
+            git push
+          fi
