@@ -1,0 +1,43 @@
+name: Install Lucas AMC8 v0.6.4 training engine
+on:
+  push:
+    paths:
+      - 'coach_v064.js'
+      - 'tools/apply_v064.py'
+      - '.github/workflows/install-v064.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Verify installed original bilingual bank
+        run: |
+          test -f index.html
+          test -f official_bank.js
+          test -d assets
+          test "$(find assets -maxdepth 1 -name '*.webp' | wc -l)" -eq 575
+      - name: Syntax check
+        run: node --check coach_v064.js
+      - name: Integrate with index.html
+        run: python tools/apply_v064.py index.html
+      - name: Validate integration
+        run: |
+          grep -q 'coach_v064.js' index.html
+          grep -q 'archive_official_v1' index.html
+          git diff --check
+      - name: Commit upgraded website
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          if git diff --cached --quiet; then
+            echo 'Already installed'
+          else
+            git commit -m 'feat: enable v0.6.4 skills and two weekend paper modes'
+            git push
+          fi
