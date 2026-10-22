@@ -134,6 +134,38 @@ hr{border:0;border-top:1px solid var(--line);margin:15px 0}.two{display:grid;gri
  #printRoot .work-line{height:3mm}
  #printRoot .print-footer{margin-top:2mm}
 }
+/* Lucas AMC8 Coach - daily archive paper A4 compact print hotfix */
+@media print {
+  @page { size: A4; margin: 7mm 9mm; }
+  #printRoot:has(.archive-paper-img):has(.work-lines) .print-title {
+    font-size: 12pt !important; margin-bottom: 1mm !important;
+  }
+  #printRoot:has(.archive-paper-img):has(.work-lines) .print-sub {
+    font-size: 7.5pt !important; margin-bottom: 1mm !important;
+  }
+  #printRoot:has(.archive-paper-img):has(.work-lines) .print-meta {
+    font-size: 8pt !important; margin-bottom: 2mm !important;
+  }
+  #printRoot:has(.archive-paper-img):has(.work-lines) .print-q {
+    margin: 0 0 2mm !important; padding: 0 !important;
+    line-height: 1.15 !important; break-inside: avoid !important;
+  }
+  #printRoot:has(.archive-paper-img):has(.work-lines) .print-q > div:first-child {
+    font-size: 8pt !important; margin-bottom: 0 !important;
+  }
+  #printRoot:has(.archive-paper-img):has(.work-lines) .archive-paper-img {
+    width: 148mm !important; max-width: 100% !important;
+    height: auto !important; margin: 0 auto !important;
+    max-height: none !important;
+  }
+  #printRoot:has(.archive-paper-img):has(.work-lines) .print-q:has(.archive-paper-img) .work-lines,
+  #printRoot:has(.archive-paper-img):has(.work-lines) .print-q:has(.archive-paper-img) .print-choices {
+    display: none !important;
+  }
+  #printRoot:has(.archive-paper-img):has(.work-lines) .print-footer {
+    margin-top: 1mm !important; font-size: 7pt !important;
+  }
+}
 </style>
 <script src="official_bank.js"></script>
 </head>
