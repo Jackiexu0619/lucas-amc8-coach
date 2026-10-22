@@ -1,1 +1,57 @@
+name: Install Lucas AMC8 bilingual official bank
+on:
+  push:
+    paths:
+      - 'amc8_images_575.zip'
+      - 'official_bank.js'
+      - 'official_bank.json'
+      - 'tools/apply_to_coach.py'
+      - '.github/workflows/install-official-bank.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Extract official bilingual question images
+        run: |
+          test -f amc8_images_575.zip
+          unzip -oq amc8_images_575.zip -d .
+      - name: Validate bank and images
+        run: |
+          python - <<'PYVERIFY'
+          import json,pathlib
+          root=pathlib.Path('.')
+          rows=json.loads((root/'official_bank.json').read_text(encoding='utf-8'))
+          assert len(rows)==575, f'Expected 575 rows; got {len(rows)}'
+          assert len({r['id'] for r in rows})==575
+          assert len(list((root/'assets').glob('*.webp')))==575
+          assert all((root/r['image']).is_file() and r['answer'] in 'ABCDE' for r in rows)
+          assert (root/'index.html').is_file()
+          print('575/575 image and answer references OK')
+          PYVERIFY
+      - name: Apply index.html patch if needed
+        run: |
+          if grep -q 'archive_official_v1' index.html; then
+            echo 'Patch already installed'
+          else
+            python tools/apply_to_coach.py index.html
+          fi
+          git diff --check
+      - name: Commit generated images and site upgrade
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html assets/
+          if git diff --cached --quiet; then
+            echo 'No generated files need committing'
+            exit 0
+          fi
+          git commit -m 'feat: install 575 bilingual AMC8 images and site patch'
+          git push
 
