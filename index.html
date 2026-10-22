@@ -1,10 +1,10 @@
 <!doctype html>
-<!-- BUILD: Lucas AMC8 Coach v0.6.3.3 / SYNC-CODE-FIX / 2026-10-21 -->
+<!-- BUILD: Lucas AMC8 Coach v0.6.3.4 / archive_official_v1 -->
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Lucas AMC8 Coach v0.6.3.3</title>
+<title>Lucas AMC8 Coach v0.6.3.4</title>
 <style>
 :root{--bg:#f4f7fb;--card:#fff;--text:#162235;--muted:#657287;--accent:#2d67d9;--line:#dbe3ef;--good:#137a4e;--warn:#a86400;--bad:#b42318}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
@@ -119,7 +119,23 @@ hr{border:0;border-top:1px solid var(--line);margin:15px 0}.two{display:grid;gri
   }
 }
 
+
+/* archive_official_v1 - screenshot preserves diagrams and Chinese translations */
+.archive-paper-img{width:100%;height:auto;display:block;max-width:780px;margin:5px 0}
+@media print{
+ @page{size:A4;margin:9mm}
+ #printRoot .print-title{font-size:14pt;margin-bottom:2mm}
+ #printRoot .print-sub{font-size:8.5pt;margin-bottom:2mm}
+ #printRoot .print-meta{font-size:8.5pt;margin-bottom:2mm}
+ #printRoot .print-q{margin-bottom:3mm;line-height:1.25;break-inside:avoid}
+ #printRoot .print-q .en{font-weight:normal;line-height:1.25}
+ #printRoot .archive-paper-img{max-width:100%;width:100%;max-height:none;margin:0 auto}
+ #printRoot .work-lines{margin-top:1mm}
+ #printRoot .work-line{height:3mm}
+ #printRoot .print-footer{margin-top:2mm}
+}
 </style>
+<script src="official_bank.js"></script>
 </head>
 <body>
 <header>
@@ -508,6 +524,7 @@ function choiceDisplay(c){
   return esc(s);
 }
 function questionPromptHtml(q){
+  if(q?.archive_image)return `<img class="archive-paper-img" src="${esc(q.archive_image)}" alt="${q.year} AMC8 Q${q.problem_number} 中英双语原题（包含选项和图形）">`;
   if(q?.official&&q.problem_html)return sanitizeOfficialHtml(q.problem_html);
   const en=q.prompt_en||q.prompt||'',zh=q.prompt_zh||q.prompt||'';
   return `<div class=en-main>${esc(en)}</div>${zh&&zh!==en?`<div class=zh-sub>${esc(zh)}</div>`:''}`;
@@ -520,7 +537,7 @@ function questionSourceBadge(q){
   return q?.official?`<span class=tag>${q.year} AMC8 Q${q.problem_number} 真题</span>`:'';
 }
 
-function printChoices(q){return q.choices.map((c,i)=>`${'ABCDE'[i]}. ${choiceDisplay(c)}`).join('　　')}
+function printChoices(q){if(q?.archive_image)return '';return q.choices.map((c,i)=>`${'ABCDE'[i]}. ${choiceDisplay(c)}`).join('　　')}
 function setPrintHtml(content,title){
   const root=document.getElementById('printRoot');
   root.innerHTML=content;
@@ -532,7 +549,7 @@ function printDailyStudent(){
   const body=plan.map((q,i)=>`<div class=print-q>
     <div><b>${i+1}.</b> ${questionSourceBadge(q)}</div><div class=en>${questionPromptHtml(q)}</div>
     ${figureHtml(q)}<div class=print-choices>${printChoices(q)}</div>
-    <div class=work-lines><div class=work-line></div><div class=work-line></div><div class=work-line></div></div>
+    <div class=work-lines><div class=work-line></div></div>
   </div>`).join('');
   setPrintHtml(`<div class=print-title>Lucas AMC8 每日专项训练</div>
     <div class=print-sub>3 Questions · English First / 中文辅助 · 独立完成，不看提示</div>
@@ -1276,7 +1293,7 @@ function renderPractice(){
   <div class=card>
     <div class=row>
       <h3 style="margin:0">今日3题 · Lucas纸上作答 <span class="progress-pill">${dailyPaperId()}</span></h3>
-      <button class=primary onclick=printDailyStudent()>打印今日3题学生卷</button>
+      <button class=primary onclick=printDailyStudent()>打印今日3题学生卷</button><button onclick="refreshArchiveDaily()">重新生成今日双语卷</button>
       <button onclick=printDailyAnswer()>打印家长答案页</button>
     </div>
     <div class=notice style="margin-top:10px">
@@ -1486,6 +1503,56 @@ function makeRealQuestion(key,v,labelMap){
     amc_band:{1:'Q1-8',2:'Q9-16',3:'Q17-21',4:'Q22-25'}[diff]
   };
 }
+
+// ---------- archive_official_v1: image-preserving, bilingual source PDFs ----------
+let ARCHIVE_BANK=[];
+function archiveQuestion(r){
+ const d=r.number<=8?1:r.number<=16?2:r.number<=21?3:4;
+ // No unverified knowledge labels; 2015-18 classifications reused if available.
+ const prior=(REAL_BANK||[]).find(q=>q.official&&q.year===r.year&&q.problem_number===r.number);
+ const domain=prior?.domain||'misc';
+ return {id:r.id,source:r.year+' AMC8 中英真题',year:r.year,problem_number:r.number,
+   domain,skill:prior?.skill||'archive_unclassified_'+r.year+'_'+r.number,
+   core_method:prior?.core_method||'archive_method_'+r.year+'_'+r.number,
+   difficulty:d,answer:r.answer,choices:['A','B','C','D','E'],prompt:'原版中英双语题目图像',prompt_en:'',prompt_zh:'',
+   archive_image:r.image,archive_height:r.height,official:true,active:true,quality_tier:'original_pdf',
+   variant_group:'archive_'+r.year+'_'+r.number};
+}
+async function loadArchiveBank(){
+ let rows=window.AMC8_ARCHIVE_DATA;
+ if(!Array.isArray(rows)){let res=await fetch('official_bank.json',{cache:'no-cache'});if(!res.ok)throw Error('双语真题库文件缺失');rows=await res.json()}
+ const ids=new Set(),good=[];
+ for(const row of rows){if(!row.id||!row.image||!/^([ABCDE])$/.test(row.answer)||ids.has(row.id))continue;ids.add(row.id);good.push(archiveQuestion(row))}
+ ARCHIVE_BANK=good;
+ BANK=[...LEGACY_BANK,...REAL_BANK,...ARCHIVE_BANK];
+ console.info('AMC8 双语PDF题库加载',ARCHIVE_BANK.length);
+}
+function refreshArchiveDaily(){
+ const p=S.daily_plan;
+ if(p?.date===today()&&p.submitted){alert('今日成绩已经提交，为保护记录不可重新组卷');return}
+ if(!confirm('确定重新生成今日双语卷？原今日锁卷会被替换，但历史作答记录不会删除。'))return;
+ delete S.daily_plan;saveStateLocal();renderAll();
+}
+function archivePaperPicker(){
+ const years=[...new Set(ARCHIVE_BANK.map(q=>q.year))];
+ const recent=new Set([...(S.printable_mock_ids||[]),...recentWeekendQuestionIds(4)]);
+ let candidates=years.filter(y=>ARCHIVE_BANK.filter(q=>q.year===y).length===25&&!ARCHIVE_BANK.some(q=>q.year===y&&recent.has(q.id)));
+ if(!candidates.length)candidates=years.filter(y=>ARCHIVE_BANK.filter(q=>q.year===y).length===25);
+ if(!candidates.length)return null;
+ const year=candidates[Math.floor(Math.random()*candidates.length)];
+ return ARCHIVE_BANK.filter(q=>q.year===year).sort((a,b)=>a.problem_number-b.problem_number);
+}
+function buildArchiveMockCore(){
+ if(!ARCHIVE_BANK.length)return false;
+ const chosen=archivePaperPicker();
+ if(!chosen){alert('双语真题库没有完整年份可组卷');return true}
+ S.printable_mock_ids=chosen.map(q=>q.id); S.printable_mock_date=today();
+ S.printable_mock_meta={engine:'official_bilingual_pdf_archive_v1',engine_version:ENGINE_VERSION,
+  source_year:chosen[0].year,difficulty_by_position:[...EXAM_DIFFICULTY_BY_POSITION],
+  constraints:{original_year_complete:true,answer_key_linked:true}};
+ saveStateLocal(); renderAll();return true;
+}
+
 async function loadAuthenticBank(){
   authenticLoadState={status:'loading',message:'正在加载2015–2018真实AMC8题库…'};
   try{
@@ -1519,7 +1586,7 @@ async function loadAuthenticBank(){
 function eligibleDailyBank(){
   // v0.6.3 日常训练不再从旧300道简单生成题出题。
   // Lucas 当前专项基线：默认只用真实 AMC8 Q13–Q25。Q1–12 留给周末完整模拟或人工指定，避免日常专项过易。
-  return REAL_BANK.filter(q=>q.problem_number>=13&&questionEligibleForDaily(q));
+  return ARCHIVE_BANK.filter(q=>q.problem_number>=13&&questionEligibleForDaily(q));
 }
 function targetDifficulty(q){
   const hist=skillAttempts(q);
@@ -1593,6 +1660,8 @@ function dailyReason(q,i){
 }
 
 function buildPrintableMockCore(){
+  if(buildArchiveMockCore())return;
+  alert('请先检查双语真题库文件 official_bank.js 是否加载成功');return;
   if(REAL_BANK.length!==100){alert(authenticLoadState.message||'真实AMC8题库尚未加载完成。');return}
   const blocked=recentWeekendQuestionIds(3); // 4个年份可轮换，保证至少连续3套同题号不复用
   const chosen=[],domainRuns=[];
@@ -1815,7 +1884,7 @@ function renderData(){
 }
 
 function renderAll(){renderHome();renderPractice();renderTruePractice();renderMock();renderReport();renderArchive();renderBank();renderData()}
-async function initV063(){await loadAuthenticBank();S=migrateState(S);saveStateLocal(false);renderAll();if(cloudConfigured()&&getSyncCode())cloudSyncAuto().catch(e=>console.warn(e));}
+async function initV063(){await loadAuthenticBank();try{await loadArchiveBank()}catch(e){console.error('双语真题库载入失败',e)}S=migrateState(S);saveStateLocal(false);renderAll();if(cloudConfigured()&&getSyncCode())cloudSyncAuto().catch(e=>console.warn(e));}
 initV063();
 </script>
 </body></html>
