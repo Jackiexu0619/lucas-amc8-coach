@@ -1,5 +1,5 @@
 {
-  "version": "0.6.5.6",
+  "version": "0.6.5.7",
   "generated_at": "2026-10-23T00:00:00+00:00",
   "checks": {
     "javascript_syntax": {
@@ -83,38 +83,23 @@
     }
   },
   "maintenance_update": {
-    "status": "DEPLOY_PENDING_REGRESSION",
-    "commits": {
-      "method_group_matching": "c65fc39427e0f4e2849f6c45b8bd9c48f6f39d91",
-      "importer_group_enrichment": "2700618d4e0512d4884a11f8ccec189eac726ac1",
-      "persist_enrichment_fix": "f718e14dd0be3c6d60fee51b2b1294935535e7b8",
-      "release": "6fc0bc1cab902db5135e64e5cf30a048936393f3",
-      "readme": "4fc5eb2f0ed12ac2d06b53b740785e87abe3d9a9"
-    },
+    "status": "DEPLOY_PENDING_E2E",
     "checks": {
-      "version_alignment": {
-        "status": "PASS",
-        "details": "index.html build, title, visible version, ENGINE_VERSION and script cache parameters set to v0.6.5.6"
-      },
-      "method_group_matching": {
-        "status": "CODE_UPDATED",
-        "details": "PDF review candidates match group_key; parent-confirmed labels continue to match by skill."
-      },
-      "metadata_persistence": {
+      "import_ui": {
         "status": "CODE_FIXED",
-        "details": "The importer now saves when records are enriched with group_key even if no new records are added, and reports added/enriched counts."
+        "details": "Compute missing and enrich separately; enable action when either exists."
       },
-      "live_import": {
-        "status": "NOT_RUN",
-        "details": "The import button is a user-initiated action; no live user data was mutated by this maintenance turn."
+      "import_persistence": {
+        "status": "CODE_FIXED",
+        "details": "Persist added or enriched PDF tags and trigger normal cloud sync scheduling."
       },
-      "browser_regression": {
-        "status": "PENDING_DEPLOY",
-        "details": "Need verify deployed version, import stats, review panel, daily selection, and cloud sync."
+      "historical_scores": {
+        "status": "NO_WRITE",
+        "details": "No live user state or Supabase SQL modified."
       },
-      "data_safety": {
-        "status": "NO_BACKEND_CHANGE",
-        "details": "No Supabase schema/data operations; no scores or answers changed."
+      "deployed_browser_e2e": {
+        "status": "PENDING",
+        "details": "Build/deploy and user-specific browser-side restore have not yet been validated."
       }
     }
   }
