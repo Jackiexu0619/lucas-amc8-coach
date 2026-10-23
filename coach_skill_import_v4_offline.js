@@ -63,8 +63,8 @@ async function importBank(){
  // Preserve the legacy reviewed tag map entirely: v0.6.4.x treats reviewed as mastery evidence.
  // PDF explanation review is not a parent-confirmed or independently verified tag.
  S.v064_specific_skills=result.tags;
- S.v064_skills_import_meta={schema:'pdf-reviewed-v4-safe',...checked.counts,added:result.added};
- if(typeof saveStateLocal==='function'&&result.added)saveStateLocal(false);
+ S.v064_skills_import_meta={schema:'pdf-reviewed-v4-safe',...checked.counts,added:result.added,enriched:result.enriched||0};
+ if(typeof saveStateLocal==='function'&&(result.added||(result.enriched||0)>0))saveStateLocal(false);
  return {applied:true,...S.v064_skills_import_meta};
 }
 if(typeof module!=='undefined'&&module.exports)module.exports={legacy,validate,mergePreservingParent};
