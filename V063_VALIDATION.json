@@ -1,5 +1,5 @@
 {
-  "version": "0.6.5.2",
+  "version": "0.6.5.3",
   "generated_at": "2026-10-23T00:00:00+00:00",
   "checks": {
     "javascript_syntax": {
@@ -83,27 +83,32 @@
     }
   },
   "maintenance_update": {
-    "status": "CODE_UPDATED_BROWSER_E2E_PENDING",
+    "status": "CODE_UPDATED_DEPLOY_PENDING",
+    "commits": {
+      "review_queue_fix": "2471291bf2d258c58956eb267006b5277abaea4d",
+      "version_bump": "77de73de31aa946c5e2c44b2a37aaed9a674b02f",
+      "readme": "234e493dd1b26696c55c6bed8fa47bd6dcb7312d"
+    },
     "checks": {
       "version_metadata": {
         "status": "PASS",
-        "details": "index.html BUILD comment, title and ENGINE_VERSION aligned to 0.6.5.2"
+        "details": "index.html build comment, title, visible version and ENGINE_VERSION aligned to 0.6.5.3"
       },
-      "explicit_weekend_diagnostic_choice": {
-        "status": "CODE_UPDATED",
-        "details": "submitPrintableMockAnswers asks whether this is a four-week full diagnostic; stores paper_type diagnostic/practice in mock_detail_history and mock_history"
+      "review_queue_null_guard": {
+        "status": "CODE_FIXED",
+        "details": "Do not store undefined task values; filter Boolean before rendering task lists. Live v0.6.5.2 state previously contained null in v065_review_cycle.tasks, consistent with the reported panel failure."
       },
-      "four_week_diagnostic_detection": {
-        "status": "CODE_PATH_MATCHES",
-        "details": "knowledge panel already detects paper_type==='diagnostic'; browser end-to-end verification pending"
+      "diagnostic_choice": {
+        "status": "CODE_PRESENT",
+        "details": "Weekend 25-question submission stores paper_type diagnostic/practice; browser E2E still pending."
       },
       "browser_regression": {
-        "status": "NOT_RUN",
-        "details": "Must test actual GitHub Pages in browser before claiming release acceptance"
+        "status": "PENDING_DEPLOY",
+        "details": "Recheck live report panel, daily selection, weekend submission, diagnostic detection and cloud sync after Pages deploy."
       },
       "cloud_data_preservation": {
         "status": "NO_SCHEMA_CHANGE",
-        "details": "This commit changes frontend HTML and documentation only; no Supabase writes/schema changes were made"
+        "details": "No Supabase schema/data operation performed; only frontend code and docs changed."
       }
     }
   }
