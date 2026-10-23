@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Lucas AMC8 Coach v0.6.4.2.6</title>
+<title>Lucas AMC8 Coach v0.6.4.2.7</title>
 <style>
 :root{--bg:#f4f7fb;--card:#fff;--text:#162235;--muted:#657287;--accent:#2d67d9;--line:#dbe3ef;--good:#137a4e;--warn:#a86400;--bad:#b42318}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
@@ -167,14 +167,14 @@ hr{border:0;border-top:1px solid var(--line);margin:15px 0}.two{display:grid;gri
   }
 }
 
-/* v0.6.4.2.6: five learning pages; parental settings stays accessible. */
+/* v0.6.4.2.7: five learning pages; parental settings stays accessible. */
 .parent-settings{background:#dbe6f7;color:#20314b;border:1px solid #9db1cb}
 </style>
 <script src="official_bank.js"></script>
 </head>
 <body>
 <header>
-<div><h1>Lucas AMC8 Coach <span style="font-size:12px;font-weight:400">v0.6.4.2.6</span></h1><div class=sub>真实AMC8题库核心 · Daily Adaptive Engine · Authentic Exam Assembly · 每日锁卷 · 免注册云同步</div></div>
+<div><h1>Lucas AMC8 Coach <span style="font-size:12px;font-weight:400">v0.6.4.2.7</span></h1><div class=sub>真实AMC8题库核心 · Daily Adaptive Engine · Authentic Exam Assembly · 每日锁卷 · 免注册云同步</div></div>
 <nav aria-label="主导航">
 <button onclick="show('home')">主页</button>
 <button onclick="show('practice')">每日训练</button>
@@ -1482,7 +1482,7 @@ function renderReport(){
   renderDailyReviewIntoReport();
 }
 
-// v0.6.4.2.6 — read-only, persistent per-question review for daily paper sessions.
+// v0.6.4.2.7 — read-only, persistent per-question review for daily paper sessions.
 // Never modifies S, and never assumes old legacy attempts have selected answers.
 function renderDailyReviewIntoReport(){
   const host=document.getElementById('report');if(!host)return;
@@ -1740,6 +1740,9 @@ function generateDailyPlan(excludeIds=new Set()){
   // Slot 2：到期/历史复测，目标中心约 Q17。
   let dueCandidates=pool.filter(q=>q.problem_number>=14&&q.problem_number<=21&&!used.some(x=>x.id===q.id)&&S.skill_state?.[skillKey(q)]?.next_review<=today());
   let bPool=dueCandidates.length?dueCandidates:pool.filter(q=>q.problem_number>=14&&q.problem_number<=21&&!used.some(x=>x.id===q.id)&&superDomain(q)!==superDomain(a));
+  // Most scanned archival questions currently have domain=misc. Domain diversity is soft, not a blocker.
+  if(!bPool.length)bPool=pool.filter(q=>q.problem_number>=14&&q.problem_number<=21&&!used.some(x=>x.id===q.id));
+  if(!bPool.length)bPool=pool.filter(q=>!used.some(x=>x.id===q.id));
   let b=bPool.sort((x,y)=>authenticScore(y,17,used,'due')-authenticScore(x,17,used,'due'))[0];
   if(b)used.push(b);
 
@@ -1748,6 +1751,8 @@ function generateDailyPlan(excludeIds=new Set()){
   let cPool=pool.filter(q=>!used.some(x=>x.id===q.id)&&q.problem_number>=17&&!used.some(x=>superDomain(x)===superDomain(q)));
   if(dow===5){const hard=cPool.filter(q=>q.problem_number>=22);if(hard.length)cPool=hard;}
   else {const midhard=cPool.filter(q=>q.problem_number>=18&&q.problem_number<=22);if(midhard.length)cPool=midhard;}
+  if(!cPool.length)cPool=pool.filter(q=>q.problem_number>=17&&!used.some(x=>x.id===q.id));
+  if(!cPool.length)cPool=pool.filter(q=>!used.some(x=>x.id===q.id));
   let c=cPool.sort((x,y)=>authenticScore(y,targetPos,used,'coverage')-authenticScore(x,targetPos,used,'coverage'))[0];
   if(c)used.push(c);
   return used.slice(0,3);
@@ -1995,7 +2000,7 @@ initV063();
 <!-- Legacy panel disabled: knowledge lives in its dedicated view, owned by index.html. -->
 <script src="coach_mock_submission_guard.js"></script>
 <!-- AMC8 v0.6.4.2 SAFE SKILL MODULE: END -->
-<!-- v0.6.4.2.6: one knowledge panel, mounted only in #knowledge. -->
+<!-- v0.6.4.2.7: one knowledge panel, mounted only in #knowledge. -->
 <script>
 (function(){
 'use strict';
