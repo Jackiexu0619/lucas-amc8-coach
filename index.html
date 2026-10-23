@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Lucas AMC8 Coach v0.6.4.1</title>
+<title>Lucas AMC8 Coach v0.6.4.2.1</title>
 <style>
 :root{--bg:#f4f7fb;--card:#fff;--text:#162235;--muted:#657287;--accent:#2d67d9;--line:#dbe3ef;--good:#137a4e;--warn:#a86400;--bad:#b42318}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
@@ -469,7 +469,9 @@ function generateDailyPlan(){
 function dailyPaperIdFromIds(ids,date=today()){return `D-${date.replaceAll('-','')}-${ids.map(id=>String(id).replace(/^q/,'')).join('-')}`}
 function lockedDailyPlan(){
   const p=S.daily_plan;
-  if(!p||p.date!==today()||!Array.isArray(p.question_ids)||p.question_ids.length!==3)return null;
+  if(!p||!Array.isArray(p.question_ids)||p.question_ids.length!==3)return null;
+  // A pending paper remains locked even after midnight. Submitted papers stay visible only on their day.
+  if(p.submitted && p.date!==today())return null;
   const qs=p.question_ids.map(qById);
   return qs.every(Boolean)?qs:null;
 }
@@ -486,8 +488,33 @@ function dailyPlan(){
 }
 function dailyPaperId(){
   const p=S.daily_plan;
-  if(p?.date===today()&&p.paper_id)return p.paper_id;
+  if(p?.paper_id && (!p.submitted || p.date===today()))return p.paper_id;
   const qs=dailyPlan();return dailyPaperIdFromIds(qs.map(q=>q.id));
+}
+function restorePreviousDailyPaper(){
+  if(S.daily_plan?.submitted&&S.daily_plan.date===today()){
+    alert('今日已提交，不能修改已完成的卷子。');return;
+  }
+  const raw=prompt('找回旧纸质卷：请依次输入三道真题的“年份 Q题号”，用逗号分开。\n例如：2017 Q16, 2018 Q19, 2020 Q22\n必须与纸上原题完全相同；取消则不修改任何记录。','');
+  if(raw===null||!raw.trim())return;
+  const pieces=raw.split(/[,，;；\n]+/).map(x=>x.trim()).filter(Boolean);
+  const found=[];
+  for(const piece of pieces){
+    const m=piece.match(/^(20\d{2})\s*(?:年)?\s*(?:Q|q|第)?\s*0*(\d{1,2})\s*(?:题)?$/);
+    if(!m){alert('格式无法识别：'+piece+'。没有修改数据。');return;}
+    const y=Number(m[1]),n=Number(m[2]);
+    const q=ARCHIVE_BANK.find(x=>x.year===y&&x.problem_number===n);
+    if(!q){alert('无法从575道真题中找到：'+piece+'。没有修改数据。');return;}
+    found.push(q);
+  }
+  if(found.length!==3||new Set(found.map(x=>x.id)).size!==3){alert('需要三道互不重复的真题；没有修改数据。');return;}
+  const oldDate=prompt('这三道题原来打印的日期（YYYY-MM-DD），请以纸质卷日期为准：',S.daily_plan?.date||today());
+  if(oldDate===null)return;
+  if(!/^20\d{2}-\d{2}-\d{2}$/.test(oldDate)||Number.isNaN(Date.parse(oldDate+'T00:00:00Z'))){alert('日期格式不正确；未修改数据。');return;}
+  const ids=found.map(q=>q.id),pid=dailyPaperIdFromIds(ids,oldDate);
+  if(!confirm('请仔细核对：\n'+found.map((q,i)=>(i+1)+'. '+q.year+' Q'+q.problem_number).join('\n')+'\n卷号：'+pid+'\n确定将当前未提交卷恢复为这三道题吗？'))return;
+  S.daily_plan={date:oldDate,question_ids:ids,paper_id:pid,created_at:new Date().toISOString(),engine_version:ENGINE_VERSION,submitted:false,recovered_from_paper:true};
+  saveStateLocal();renderAll();alert('已恢复原纸卷。请再次核对题图，再提交成绩。');
 }
 function dailyReason(q,i){
   const target=targetDifficulty(q),labels=['近期弱项迁移','到期复测','广度/陌生题型'];
@@ -1238,7 +1265,7 @@ function submitPrintableMockAnswers(){
 
 function submitDailyPaperResults(){
   const plan=dailyPlan();
-  if(S.daily_plan?.date===today()&&S.daily_plan.submitted){alert(`今日3题已经提交过。\n卷号：${dailyPaperId()}\n如需更正，请先使用“撤销今日提交”。`);return}
+  if(S.daily_plan?.submitted && (S.daily_plan.date===today()||lockedDailyPlan())){alert(`这张3题卷已经提交过。\n卷号：${dailyPaperId()}`);return}
   let correctCount=0,totalSec=0,wrong=[],unable=[],skipped=[];
   for(let i=0;i<plan.length;i++){
     const q=plan[i];
@@ -1270,7 +1297,7 @@ function submitDailyPaperResults(){
     }
 
     const rec={
-      question_id:q.id,date:today(),correct,selected_answer:answered?ans:null,
+      question_id:q.id,date:(S.daily_plan?.date||today()),correct,selected_answer:answered?ans:null,
       result_status:isUnable?'unable':isSkipped?'skipped':correct?'correct':'wrong',
       duration_sec:sec,guessed:answered?guessed:false,hint_level:0,error_type:et,error_detail:ed,
       independent:correct&&!guessed,source:'paper_daily',
@@ -1280,10 +1307,10 @@ function submitDailyPaperResults(){
   }
   S.daily_sessions=S.daily_sessions||[];
   S.daily_sessions.push({
-    date:today(),paper_id:dailyPaperId(),question_ids:plan.map(q=>q.id),question_count:plan.length,total_sec:totalSec||null,
+    date:(S.daily_plan?.date||today()),paper_id:dailyPaperId(),question_ids:plan.map(q=>q.id),question_count:plan.length,total_sec:totalSec||null,
     correct:correctCount,wrong_questions:wrong,unable_questions:unable,skipped_questions:skipped,source:'paper_daily'
   });
-  if(S.daily_plan?.date===today()){S.daily_plan.submitted=true;S.daily_plan.submitted_at=new Date().toISOString()}
+  if(S.daily_plan){S.daily_plan.submitted=true;S.daily_plan.submitted_at=new Date().toISOString()}
   saveStateLocal();
   alert(`今日3题已录入。\n正确：${correctCount}/3\n答错：${wrong.join(',')||'无'}\n不会：${unable.join(',')||'无'}\n未做：${skipped.join(',')||'无'}${totalSec?`\n总用时：${secFmt(totalSec)}`:''}`);
   renderAll();
@@ -1325,9 +1352,10 @@ function renderPractice(){
   <div class=card>
     <div class=row>
       <h3 style="margin:0">今日3题 · Lucas纸上作答 <span class="progress-pill">${dailyPaperId()}</span></h3>
-      <button class=primary onclick=printDailyStudent()>打印今日3题学生卷</button><button onclick="refreshArchiveDaily()">重新生成今日双语卷</button>
+      <button class=primary onclick=printDailyStudent()>打印当前3题学生卷</button><button onclick=restorePreviousDailyPaper()>找回旧纸质卷</button><button onclick="refreshArchiveDaily()">重新生成今日双语卷</button>
       <button onclick=printDailyAnswer()>打印家长答案页</button>
     </div>
+    ${S.daily_plan&&!S.daily_plan.submitted&&S.daily_plan.date!==today()?`<div class=notice><b>旧卷尚未提交：</b>${S.daily_plan.date} 的原卷已继续锁定；请核对纸质卷号后再录入，不会自动换题。</div>`:''}
     <div class=notice style="margin-top:10px">
       正确流程：Lucas 在纸上做；家长负责记录每题用时，做完后把答案和时间录到网页。这里不让 Lucas 在线答题，也不自动计时。
     </div>
@@ -1561,8 +1589,8 @@ async function loadArchiveBank(){
 }
 function refreshArchiveDaily(){
  const p=S.daily_plan;
- if(p?.date===today()&&p.submitted){alert('今日成绩已经提交，为保护记录不可重新组卷');return}
- if(!confirm('确定重新生成今日双语卷？原今日锁卷会被替换，但历史作答记录不会删除。'))return;
+ if(p?.submitted&&p.date===today()){alert('今日成绩已经提交，为保护记录不可重新组卷');return}
+ if(!confirm('警告：当前未提交的纸质卷将被放弃！如果Lucas已经做过，请先提交或找回原卷。确定主动放弃并重新生成吗？'))return;
  delete S.daily_plan;saveStateLocal();renderAll();
 }
 function archivePaperPicker(){

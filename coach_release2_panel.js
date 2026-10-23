@@ -26,7 +26,13 @@ async function inspect(host){
 function init(){if(document.getElementById(ID))return;
  const root=document.createElement('section');root.id=ID;
  root.innerHTML=`<style>#${ID}{max-width:980px;margin:18px auto;padding:16px;border:1px solid #bfcfdf;background:#fff;border-radius:12px;font:14px/1.65 system-ui;color:#23334c}#${ID} button{margin:4px;padding:7px 12px;border:0;border-radius:7px;background:#e4eefc;cursor:pointer}#${ID} .r2warn{color:#9a5800}#${ID} small{display:block;color:#677a90}</style><h3>知识点与四周诊断</h3><small>页面只读取现有成绩；只有手动点击“导入”才新增 PDF 解法核对标签（不代表独立数学验算）。不会重组已锁定试卷，也不会导入研发成绩。</small><p class="r2status" aria-live="polite">正在核对题库……</p><p class="r2notice" aria-live="polite"></p><button type="button" data-r2="check">刷新检查</button><button type="button" data-r2="import">导入PDF方法资料（不计能力分）</button><button type="button" data-r2="research">展开研发试卷</button><div class="r2diag"></div>`;
- (document.querySelector('main')||document.body).appendChild(root);
+ const practice=document.getElementById('practice');
+ (practice||document.querySelector('main')||document.body).appendChild(root);
+ // Practice gets fully re-rendered; reattach this same live panel instead of cloning it.
+ if(practice && typeof renderPractice==='function'){
+   const baseRenderPractice=renderPractice;
+   renderPractice=function(){baseRenderPractice.apply(this,arguments);practice.appendChild(root);};
+ }
  const host={state:()=>S,archive:()=>ARCHIVE_BANK,fetch:(...args)=>fetch(...args),validator:window.LucasAMC8SkillImport,today:()=>today()};
  async function refresh(){try{const o=await inspect(host);root.querySelector('.r2status').innerHTML=`题库：575 道｜PDF 解法核对：${o.check.counts.methodReviewed}｜旧能力兼容：${o.check.counts.compatible}｜可新增细分标签：${o.missing}｜历史训练：${o.attempted+o.trueAttempted} 条（含可能重复记录）`;
  root.querySelector('.r2diag').innerHTML=`<p><b>四周真题诊断：</b>${esc(o.diagnostic.reason)}${o.diagnostic.last?'（上次：'+esc(o.diagnostic.last)+'）':''}</p><p class="r2warn">${o.lock?'已存在锁定试卷（'+esc(o.lockDate)+'），本模块不会覆盖。':'当前未发现25题锁定卷。'} 诊断需在原有周末页面选择“完整年份诊断”；此处只提示，不替你自动切换或重组。</p>`;
