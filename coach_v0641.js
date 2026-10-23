@@ -1,24 +1,32 @@
 /* Lucas AMC8 Coach v0.6.4.1 — audited skill tags + explainable daily selection.
- * No fabricated auto-tags. This module extends existing v0.6.4; legacy data preserved.
+ * v0.6.4.2.10 precise PDF fine labels; untrusted category mapping cannot affect weakness.
  */
 (function(){
 'use strict';
 const SKILLS=['因数与倍数','余数与整除','质因数分解与因数个数','排列与空位法','分类计数与容斥','递推与路径','概率与补集','面积与面积比','相似三角形','坐标变换','比例与行程','代数方程','数列与周期','数据与平均数','逻辑推理','其他'];
 const safe=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const tags=()=>S.v064_question_tags||{};
-/* Prefer a parent-confirmed label. If absent, use the PDF-reviewed legacy mapping
-   only as a provisional grouping key; never promote it to "reviewed" or mastery. */
-const skill=q=>{
- const parent=tags()[q.id];
- if(parent?.status==='reviewed'&&SKILLS.includes(parent.skill))return parent.skill;
- const fine=S.v064_specific_skills?.[q.id];
- if(fine?.status==='pdf_explanation_reviewed'&&SKILLS.includes(fine.legacy_skill))return fine.legacy_skill;
- const staged=S.v064_question_tags?.[q.id];
- if(staged?.status==='pdf_method_reviewed'&&SKILLS.includes(staged.skill))return staged.skill;
- return null;
+/* Only a parent-verified label or an EXACTLY identical PDF fine/legacy label is
+   eligible for 16-category adaptive scoring. Heuristic legacy translations have
+   known false positives: 2013 Q16 (ratios->divisibility), 2016 Q23 (angles->area). */
+const fineTag=q=>{
+ const t=S.v064_specific_skills?.[q.id];
+ return t?.status==='pdf_explanation_reviewed'&&typeof t.skill==='string'&&t.skill.trim()?t:null;
 };
 const isParentReviewed=q=>tags()[q.id]?.status==='reviewed'&&SKILLS.includes(tags()[q.id]?.skill);
-const tagSource=q=>isParentReviewed(q)?'家长已核对':(S.v064_specific_skills?.[q.id]?.status==='pdf_explanation_reviewed'&&S.v064_specific_skills?.[q.id]?.legacy_skill?'PDF方法映射，待人工确认':(S.v064_question_tags?.[q.id]?.status==='pdf_method_reviewed'?'PDF方法映射，待人工确认':'未标注'));
+const skill=q=>{
+ if(isParentReviewed(q))return tags()[q.id].skill;
+ const f=fineTag(q);
+ if(f&&f.skill===f.legacy_skill&&SKILLS.includes(f.legacy_skill))return f.legacy_skill;
+ return null;
+};
+const displayTag=q=>{
+ const f=fineTag(q);
+ const parent=isParentReviewed(q)?tags()[q.id].skill:null;
+ if(parent)return '家长已核对主技能：'+parent+(f?'；PDF细分方法：'+f.skill:'');
+ if(f)return 'PDF细分知识点（待人工确认）：'+f.skill+(f.method?'；解题思路：'+f.method:'');
+ return '尚无可靠方法标签，当前按题号与难度选取';
+};
 const all=()=>Array.isArray(ARCHIVE_BANK)?ARCHIVE_BANK:[];
 const attempts=()=>Array.isArray(S.attempts)?S.attempts:[];
 const unique=a=>[...new Set(a)];
@@ -85,7 +93,7 @@ function showReview(){
  const options=dataForReview(),stat=tagStatus();
  if(!reviewId||!options.some(x=>x.id===reviewId))reviewId=options[0]?.id;
  const q=options.find(x=>x.id===reviewId);
- root.innerHTML='<h3>能力训练 · 真题知识点核对</h3><p class="small">家长已核对 '+stat.reviewed+' / '+stat.total+' 道；PDF方法映射只用于初步归类，不算人工审核或能力证据。未核对 '+stat.pending+' 道。</p>'+
+ root.innerHTML='<h3>能力训练 · 真题知识点核对</h3><p class="small">家长已核对 '+stat.reviewed+' / '+stat.total+' 道；PDF细分方法仅用于展示；模糊的大类映射不计入自适应能力证据。未核对 '+stat.pending+' 道。</p>'+
   (!q?'<p>所有题目均已由家长核对。</p>':'<div class="row" style="gap:8px;flex-wrap:wrap"><label>待审核真题 <select id="v0641-qpick" style="max-width:240px">'+options.slice(0,180).map(x=>'<option value="'+safe(x.id)+'" '+(x.id===reviewId?'selected':'')+'>'+x.year+' Q'+x.problem_number+(new Set(attempts().map(a=>a.question_id)).has(x.id)?' · 做过':'')+'</option>').join('')+'</select></label><label>主要技能 <select id="v0641-skill">'+SKILLS.map(x=>'<option>'+x+'</option>').join('')+'</select></label><button id="v0641-save">看过题目，确认标签</button><button id="v0641-next">下一题</button></div><div style="max-width:680px;margin:10px auto"><img src="'+safe(q.archive_image)+'" alt="'+q.year+' AMC8 Q'+q.problem_number+'" style="width:100%;height:auto"></div>')+
   '<p class="small">PDF方法映射不等于家长核验。只有看过原题并确认后，才会写入家长已核对标签。</p>';
  if(!q)return;
@@ -104,7 +112,7 @@ renderBank=function(){beforeBank();reviewPanel()};
 const beforeReport=renderReport;
 renderReport=function(){beforeReport();const node=document.getElementById('report');if(!node)return;
  const data=evidence().filter(x=>x.n),stat=tagStatus();const el=document.createElement('div');el.className='card';el.style.marginBottom='12px';
- el.innerHTML='<h3>已审核技能证据与初步方法归类</h3><p class="small">家长已核对 '+stat.reviewed+' / '+stat.total+' 道题。PDF方法映射可用于把真实作答按大类汇总，但不是独立数学验算，也不会自动算作已掌握。猜对不算独立正确，样本不足明确标示。</p>'+
+ el.innerHTML='<h3>已审核技能证据与初步方法归类</h3><p class="small">家长已核对 '+stat.reviewed+' / '+stat.total+' 道题。仅家长确认标签或精确匹配的PDF分类进入16类统计。含糊的PDF类别转换已排除，以免误判弱项。猜对不算独立正确，样本不足明确标示。</p>'+
  (data.length?'<table><tr><th>技能分类</th><th>记录</th><th>独立正确</th><th>错/猜</th><th>跨天</th><th>状态</th></tr>'+data.sort((a,b)=>b.weak-a.weak).map(x=>'<tr><td>'+safe(x.skill)+'</td><td>'+x.n+'</td><td>'+x.independent+'</td><td>'+x.fail+'/'+x.guess+'</td><td>'+x.days+'</td><td>'+x.status+'</td></tr>').join('')+'</table>':'<p class="small">还没有足够的作答记录；完成真实训练后，这里会逐步积累证据。</p>');node.prepend(el);
 };
 const beforePractice=renderPractice;
@@ -113,8 +121,7 @@ renderPractice=function(){beforePractice();const node=document.getElementById('p
  if(q.length!==3)return;
  const el=document.createElement('div');el.className='card';el.style.marginBottom='10px';
  el.innerHTML='<h3>今日选题依据</h3>'+q.map((x,i)=>{
-   const k=skill(x),source=tagSource(x);
-   const label=k?(source==='家长已核对'?'家长已核对技能：':'PDF方法映射（待人工确认）：')+safe(k):'知识点尚未归类，按题号与难度保守选取';
+   const label=safe(displayTag(x));
    return '<p><b>第'+(i+1)+'题：</b>'+['弱项训练','复测验证','能力突破'][i]+' · '+safe(x.year+' AMC8 Q'+x.problem_number)+' · '+label+'</p>';
  }).join('');node.prepend(el);
 };
