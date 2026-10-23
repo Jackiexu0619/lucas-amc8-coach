@@ -48,13 +48,13 @@ function validate(bank,archive){
   if(q.quality_gate!=='pdf_explanation_reviewed'){pending.push(q.id);continue;}
   if(typeof q.reviewed_skill!=='string'||!q.reviewed_skill.trim()||typeof q.reviewed_method!=='string'||!q.reviewed_method.trim()||!Number.isInteger(+q.source_page)||+q.source_page<1||+q.source_page>231)throw Error('invalid review evidence: '+q.id);
   const compat=legacy(q);
-  fine[q.id]={skill:q.reviewed_skill,method:q.reviewed_method,pdf_page:+q.source_page,status:'pdf_explanation_reviewed',independent_math_verified:false,legacy_skill:compat};
+  fine[q.id]={skill:q.reviewed_skill,method:q.reviewed_method,group_key:q.group_key||q.reviewed_skill,pdf_page:+q.source_page,status:'pdf_explanation_reviewed',independent_math_verified:false,legacy_skill:compat};
   // Do not add unsafe "其他" evidence to the legacy mastery aggregator.
   if(compat&&LEGACY.has(compat))staged[q.id]={skill:compat,status:'pdf_method_reviewed',source_skill:q.reviewed_skill,method:q.reviewed_method,pdf_page:+q.source_page,review_method:'pdf_explanation_only',independent_math_verified:false};
  }
  return {staged,fine,pending,counts:{total:seen.size,methodReviewed:Object.keys(fine).length,compatible:Object.keys(staged).length,unmapped:Object.keys(fine).length-Object.keys(staged).length,pending:pending.length}};
 }
-function mergePreservingParent(existing,staged){const out={...(existing||{})};let added=0;for(const [id,x] of Object.entries(staged))if(!Object.prototype.hasOwnProperty.call(out,id)){out[id]=x;added++}return {tags:out,added};}
+function mergePreservingParent(existing,staged){const out={...(existing||{})};let added=0,enriched=0;for(const [id,x] of Object.entries(staged)){if(!Object.prototype.hasOwnProperty.call(out,id)){out[id]=x;added++;continue;}const old=out[id];if(old&&old.status==='pdf_explanation_reviewed'&&!old.group_key&&x.group_key){out[id]={...old,group_key:x.group_key,method:old.method||x.method,pdf_page:old.pdf_page||x.pdf_page};enriched++;}}return {tags:out,added,enriched};}
 async function importBank(){
  if(typeof S==='undefined'||typeof ARCHIVE_BANK==='undefined'||ARCHIVE_BANK.length!==575)return {applied:false,reason:'archive-not-ready'};
  const response=await fetch('coach_skill_bank.json',{cache:'no-store'});if(!response.ok)throw Error('bank fetch '+response.status);
