@@ -1,5 +1,5 @@
 {
-  "version": "0.6.5.5",
+  "version": "0.6.5.6",
   "generated_at": "2026-10-23T00:00:00+00:00",
   "checks": {
     "javascript_syntax": {
@@ -85,35 +85,36 @@
   "maintenance_update": {
     "status": "DEPLOY_PENDING_REGRESSION",
     "commits": {
-      "importer": "2700618d4e0512d4884a11f8ccec189eac726ac1",
-      "review_matcher": "c65fc39427e0f4e2849f6c45b8bd9c48f6f39d91",
-      "release": "fb3830671ad115e1c82b22521bdb33624654bd2f",
-      "readme": "b8e1ab0a22d5877d327f11515f5d01403b766a8e"
+      "method_group_matching": "c65fc39427e0f4e2849f6c45b8bd9c48f6f39d91",
+      "importer_group_enrichment": "2700618d4e0512d4884a11f8ccec189eac726ac1",
+      "persist_enrichment_fix": "f718e14dd0be3c6d60fee51b2b1294935535e7b8",
+      "release": "6fc0bc1cab902db5135e64e5cf30a048936393f3",
+      "readme": "4fc5eb2f0ed12ac2d06b53b740785e87abe3d9a9"
     },
     "checks": {
       "version_alignment": {
         "status": "PASS",
-        "details": "Build comment, title, visible version and ENGINE_VERSION set to 0.6.5.5."
+        "details": "index.html build, title, visible version, ENGINE_VERSION and script cache parameters set to v0.6.5.6"
       },
       "method_group_matching": {
         "status": "CODE_UPDATED",
-        "details": "PDF candidates match group_key; parent-confirmed tags remain same-skill transfer. Imported PDF metadata is enriched when the parent explicitly runs the PDF-method import action."
+        "details": "PDF review candidates match group_key; parent-confirmed labels continue to match by skill."
       },
-      "import_preservation": {
-        "status": "CODE_UPDATED",
-        "details": "Existing PDF reviewed tags missing group_key are enriched without replacing existing skill labels or training records."
+      "metadata_persistence": {
+        "status": "CODE_FIXED",
+        "details": "The importer now saves when records are enriched with group_key even if no new records are added, and reports added/enriched counts."
       },
-      "candidate_pool_audit": {
-        "status": "PASS_STATIC",
-        "details": "575 source records and 575 PDF method records; among 2015-2018 Q13-Q25, 52 candidates have PDF method records, 33 group keys, 11 groups have at least two candidates and 22 are singletons."
+      "live_import": {
+        "status": "NOT_RUN",
+        "details": "The import button is a user-initiated action; no live user data was mutated by this maintenance turn."
       },
       "browser_regression": {
         "status": "PENDING_DEPLOY",
-        "details": "Still verify the live report queue, legacy queue rebuild, daily three-question selection, and sync preservation after deployment."
+        "details": "Need verify deployed version, import stats, review panel, daily selection, and cloud sync."
       },
       "data_safety": {
         "status": "NO_BACKEND_CHANGE",
-        "details": "No Supabase schema or data changes performed."
+        "details": "No Supabase schema/data operations; no scores or answers changed."
       }
     }
   }
