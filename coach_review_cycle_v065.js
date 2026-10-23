@@ -46,9 +46,9 @@ function rebuildQueue(){
     else{t.status='pending';t.due=latestScheduled(addDay(a.date,[0,7,14,30][t.stage]));}
     t.last_question_id=q.id;
   }
-  taskMap.set(tag.key,t);
+  if(t)taskMap.set(tag.key,t);
  }
- const tasks=[...taskMap.values()];
+ const tasks=[...taskMap.values()].filter(Boolean);
  // Preserve only explicit presentation info from prior state; never trust stale queue to modify training results.
  const snapshot={version:1,tasks,unidentified,updated_at:new Date().toISOString()};
  const changed=JSON.stringify({tasks:old.tasks,unidentified:old.unidentified})!==JSON.stringify({tasks,unidentified});
