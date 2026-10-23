@@ -6,7 +6,19 @@
 const SKILLS=['因数与倍数','余数与整除','质因数分解与因数个数','排列与空位法','分类计数与容斥','递推与路径','概率与补集','面积与面积比','相似三角形','坐标变换','比例与行程','代数方程','数列与周期','数据与平均数','逻辑推理','其他'];
 const safe=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const tags=()=>S.v064_question_tags||{};
-const skill=q=>tags()[q.id]?.status==='reviewed'?tags()[q.id].skill:null;
+/* Prefer a parent-confirmed label. If absent, use the PDF-reviewed legacy mapping
+   only as a provisional grouping key; never promote it to "reviewed" or mastery. */
+const skill=q=>{
+ const parent=tags()[q.id];
+ if(parent?.status==='reviewed'&&SKILLS.includes(parent.skill))return parent.skill;
+ const fine=S.v064_specific_skills?.[q.id];
+ if(fine?.status==='pdf_explanation_reviewed'&&SKILLS.includes(fine.legacy_skill))return fine.legacy_skill;
+ const staged=S.v064_question_tags?.[q.id];
+ if(staged?.status==='pdf_method_reviewed'&&SKILLS.includes(staged.skill))return staged.skill;
+ return null;
+};
+const isParentReviewed=q=>tags()[q.id]?.status==='reviewed'&&SKILLS.includes(tags()[q.id]?.skill);
+const tagSource=q=>isParentReviewed(q)?'家长已核对':(S.v064_specific_skills?.[q.id]?.status==='pdf_explanation_reviewed'&&S.v064_specific_skills?.[q.id]?.legacy_skill?'PDF方法映射，待人工确认':(S.v064_question_tags?.[q.id]?.status==='pdf_method_reviewed'?'PDF方法映射，待人工确认':'未标注'));
 const all=()=>Array.isArray(ARCHIVE_BANK)?ARCHIVE_BANK:[];
 const attempts=()=>Array.isArray(S.attempts)?S.attempts:[];
 const unique=a=>[...new Set(a)];
@@ -25,7 +37,7 @@ function evidence(){
    weak:e.n?(e.fail+e.guess*.8+e.slow*.35)/e.n:0}));
 }
 window.amc8V0641Evidence=evidence;
-function tagStatus(){const p=all();let reviewed=0;for(const q of p)if(skill(q))reviewed++;return {total:p.length,reviewed,pending:p.length-reviewed}}
+function tagStatus(){const p=all();let reviewed=0;for(const q of p)if(isParentReviewed(q))reviewed++;return {total:p.length,reviewed,pending:p.length-reviewed}}
 function setLabel(qid,label){
  const q=qById(qid);if(!q||!q.archive_image||!SKILLS.includes(label))throw Error('题目或标签无效');
  S.v064_question_tags=S.v064_question_tags||{};
@@ -49,9 +61,8 @@ function pickDaily(){
   if(e&&e.n>=2){if(objective==='weak')s+=Math.min(6,e.weak*7);if(objective==='review')s+=e.status==='需要加强'?3:e.status==='继续复测'?2:0;}
   if(k&&chosenSkill.has(k))s-=5;
   if(k&&e?.status==='初步稳定')s-=2;
-  if(!k)s-=objective==='breakthrough'?0:0.75; // uncertain labels have no fabricated weakness
+  if(!k)s-=objective==='breakthrough'?0:0.75;
   if(existingToday.has(q.id))s+=0.01;
-  // Favor novel questions, but eligibility already enforces question-specific cooldown.
   if(attempts().some(a=>a.question_id===q.id))s-=3;
   s+=stableNoise('skill_daily_v0641:'+q.id)*.15;
   return s;
@@ -61,11 +72,9 @@ function pickDaily(){
  return selected.slice(0,3);
 }
 window.amc8V0641PickDaily=pickDaily;
-// Override just the NEW daily selection, not dailyPlan/lockedDailyPlan — locks remain authoritative.
 generateDailyPlan=pickDaily;
 function dataForReview(){
- const options=all().filter(q=>q.problem_number>=13&&!skill(q));
- // Prioritize recent attempted questions so tagging immediately improves evidence.
+ const options=all().filter(q=>q.problem_number>=13&&!isParentReviewed(q));
  const seen=new Set(attempts().map(a=>a.question_id));
  options.sort((a,b)=>Number(seen.has(b.id))-Number(seen.has(a.id))||b.problem_number-a.problem_number||b.year-a.year);
  return options;
@@ -76,9 +85,9 @@ function showReview(){
  const options=dataForReview(),stat=tagStatus();
  if(!reviewId||!options.some(x=>x.id===reviewId))reviewId=options[0]?.id;
  const q=options.find(x=>x.id===reviewId);
- root.innerHTML='<h3>能力训练 · 真题知识点核对</h3><p class="small">已审核 '+stat.reviewed+' / '+stat.total+' 道；未审核 '+stat.pending+' 道。只允许看过原题后确认，不根据题号猜标签。</p>'+
-  (!q?'<p>所有题目均已审核。</p>':'<div class="row" style="gap:8px;flex-wrap:wrap"><label>待审核真题 <select id="v0641-qpick" style="max-width:240px">'+options.slice(0,180).map(x=>'<option value="'+safe(x.id)+'" '+(x.id===reviewId?'selected':'')+'>'+x.year+' Q'+x.problem_number+(new Set(attempts().map(a=>a.question_id)).has(x.id)?' · 做过':'')+'</option>').join('')+'</select></label><label>主要技能 <select id="v0641-skill">'+SKILLS.map(x=>'<option>'+x+'</option>').join('')+'</select></label><button id="v0641-save">看过题目，确认标签</button><button id="v0641-next">下一题</button></div><div style="max-width:680px;margin:10px auto"><img src="'+safe(q.archive_image)+'" alt="'+q.year+' AMC8 Q'+q.problem_number+'" style="width:100%;height:auto"></div>')+
-  '<p class="small">有图形或多知识点的题，先标主方法；如果无法明确识别，保持未审核并跳过。此处修改会通过现有训练状态同步。</p>';
+ root.innerHTML='<h3>能力训练 · 真题知识点核对</h3><p class="small">家长已核对 '+stat.reviewed+' / '+stat.total+' 道；PDF方法映射只用于初步归类，不算人工审核或能力证据。未核对 '+stat.pending+' 道。</p>'+
+  (!q?'<p>所有题目均已由家长核对。</p>':'<div class="row" style="gap:8px;flex-wrap:wrap"><label>待审核真题 <select id="v0641-qpick" style="max-width:240px">'+options.slice(0,180).map(x=>'<option value="'+safe(x.id)+'" '+(x.id===reviewId?'selected':'')+'>'+x.year+' Q'+x.problem_number+(new Set(attempts().map(a=>a.question_id)).has(x.id)?' · 做过':'')+'</option>').join('')+'</select></label><label>主要技能 <select id="v0641-skill">'+SKILLS.map(x=>'<option>'+x+'</option>').join('')+'</select></label><button id="v0641-save">看过题目，确认标签</button><button id="v0641-next">下一题</button></div><div style="max-width:680px;margin:10px auto"><img src="'+safe(q.archive_image)+'" alt="'+q.year+' AMC8 Q'+q.problem_number+'" style="width:100%;height:auto"></div>')+
+  '<p class="small">PDF方法映射不等于家长核验。只有看过原题并确认后，才会写入家长已核对标签。</p>';
  if(!q)return;
  root.querySelector('#v0641-qpick').onchange=e=>{reviewId=e.target.value;showReview()};
  root.querySelector('#v0641-next').onclick=()=>{reviewId=options[(options.findIndex(x=>x.id===q.id)+1)%options.length]?.id;showReview()};
@@ -95,15 +104,18 @@ renderBank=function(){beforeBank();reviewPanel()};
 const beforeReport=renderReport;
 renderReport=function(){beforeReport();const node=document.getElementById('report');if(!node)return;
  const data=evidence().filter(x=>x.n),stat=tagStatus();const el=document.createElement('div');el.className='card';el.style.marginBottom='12px';
- el.innerHTML='<h3>v0.6.4.1 · 已审核技能证据</h3><p class="small">已核对 '+stat.reviewed+' / '+stat.total+' 道题；未审核题不参与以下技能判断。猜对不算独立正确，样本不足明确标示。</p>'+
- (data.length?'<table><tr><th>技能</th><th>记录</th><th>独立正确</th><th>错/猜</th><th>跨天</th><th>状态</th></tr>'+data.sort((a,b)=>b.weak-a.weak).map(x=>'<tr><td>'+safe(x.skill)+'</td><td>'+x.n+'</td><td>'+x.independent+'</td><td>'+x.fail+'/'+x.guess+'</td><td>'+x.days+'</td><td>'+x.status+'</td></tr>').join('')+'</table>':'<p class="small">还没有足够的已核对技能记录；进入「训练题库」看题图并核对标签后，这里会自动出现证据。</p>');node.prepend(el);
+ el.innerHTML='<h3>已审核技能证据与初步方法归类</h3><p class="small">家长已核对 '+stat.reviewed+' / '+stat.total+' 道题。PDF方法映射可用于把真实作答按大类汇总，但不是独立数学验算，也不会自动算作已掌握。猜对不算独立正确，样本不足明确标示。</p>'+
+ (data.length?'<table><tr><th>技能分类</th><th>记录</th><th>独立正确</th><th>错/猜</th><th>跨天</th><th>状态</th></tr>'+data.sort((a,b)=>b.weak-a.weak).map(x=>'<tr><td>'+safe(x.skill)+'</td><td>'+x.n+'</td><td>'+x.independent+'</td><td>'+x.fail+'/'+x.guess+'</td><td>'+x.days+'</td><td>'+x.status+'</td></tr>').join('')+'</table>':'<p class="small">还没有足够的作答记录；完成真实训练后，这里会逐步积累证据。</p>');node.prepend(el);
 };
-// Add visible reason text without regenerating current locked paper.
 const beforePractice=renderPractice;
 renderPractice=function(){beforePractice();const node=document.getElementById('practice');if(!node)return;
  const q=S.daily_plan?.date===today()?S.daily_plan.question_ids.map(qById).filter(Boolean):[];
  if(q.length!==3)return;
  const el=document.createElement('div');el.className='card';el.style.marginBottom='10px';
- el.innerHTML='<h3>今日选题依据</h3>'+q.map((x,i)=>'<p><b>第'+(i+1)+'题：</b>'+['弱项训练','复测验证','能力突破'][i]+' · '+safe(x.year+' AMC8 Q'+x.problem_number)+' · '+(skill(x)?'已核对技能：'+safe(skill(x)):'知识点未核对，按题号难度保守选取')+'</p>').join('');node.prepend(el);
+ el.innerHTML='<h3>今日选题依据</h3>'+q.map((x,i)=>{
+   const k=skill(x),source=tagSource(x);
+   const label=k?(source==='家长已核对'?'家长已核对技能：':'PDF方法映射（待人工确认）：')+safe(k):'知识点尚未归类，按题号与难度保守选取';
+   return '<p><b>第'+(i+1)+'题：</b>'+['弱项训练','复测验证','能力突破'][i]+' · '+safe(x.year+' AMC8 Q'+x.problem_number)+' · '+label+'</p>';
+ }).join('');node.prepend(el);
 };
 })();
