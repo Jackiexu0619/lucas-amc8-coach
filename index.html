@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Lucas AMC8 Coach v0.6.4.2.5</title>
+<title>Lucas AMC8 Coach v0.6.4.2.6</title>
 <style>
 :root{--bg:#f4f7fb;--card:#fff;--text:#162235;--muted:#657287;--accent:#2d67d9;--line:#dbe3ef;--good:#137a4e;--warn:#a86400;--bad:#b42318}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
@@ -167,14 +167,14 @@ hr{border:0;border-top:1px solid var(--line);margin:15px 0}.two{display:grid;gri
   }
 }
 
-/* v0.6.4.2.5: five learning pages; parental settings stays accessible. */
+/* v0.6.4.2.6: five learning pages; parental settings stays accessible. */
 .parent-settings{background:#dbe6f7;color:#20314b;border:1px solid #9db1cb}
 </style>
 <script src="official_bank.js"></script>
 </head>
 <body>
 <header>
-<div><h1>Lucas AMC8 Coach <span style="font-size:12px;font-weight:400">v0.6.4.2.5</span></h1><div class=sub>真实AMC8题库核心 · Daily Adaptive Engine · Authentic Exam Assembly · 每日锁卷 · 免注册云同步</div></div>
+<div><h1>Lucas AMC8 Coach <span style="font-size:12px;font-weight:400">v0.6.4.2.6</span></h1><div class=sub>真实AMC8题库核心 · Daily Adaptive Engine · Authentic Exam Assembly · 每日锁卷 · 免注册云同步</div></div>
 <nav aria-label="主导航">
 <button onclick="show('home')">主页</button>
 <button onclick="show('practice')">每日训练</button>
@@ -1358,52 +1358,40 @@ function renderHome(){let p=dailyPlan(),est=scoreEstimate(),due=(S.skill_state?O
 </div>`}
 function renderPractice(){
   const plan=dailyPlan();
+  const submitted=Boolean(S.daily_plan?.submitted);
   document.getElementById('practice').innerHTML=`
   <div class=card>
     <div class=row>
       <h3 style="margin:0">今日3题 · Lucas纸上作答 <span class="progress-pill">${dailyPaperId()}</span></h3>
-      <button class=primary onclick=printDailyStudent()>打印当前3题学生卷</button><button onclick=restorePreviousDailyPaper()>找回旧纸质卷</button><button onclick="refreshArchiveDaily()">重新生成今日双语卷</button>
+      <button class=primary onclick=printDailyStudent()>打印当前3题学生卷</button><button onclick=restorePreviousDailyPaper()>找回旧纸质卷</button><button onclick=refreshArchiveDaily()>重新生成今日双语卷</button>
       <button onclick=printDailyAnswer()>打印家长答案页</button>
     </div>
-    ${S.daily_plan&&!S.daily_plan.submitted&&S.daily_plan.date!==today()?`<div class=notice><b>旧卷尚未提交：</b>${S.daily_plan.date} 的原卷已继续锁定；请核对纸质卷号后再录入，不会自动换题。</div>`:''}
-    <div class=notice style="margin-top:10px">
-      正确流程：Lucas 在纸上做；家长负责记录每题用时，做完后把答案和时间录到网页。这里不让 Lucas 在线答题，也不自动计时。
-    </div>
+    ${S.daily_plan&&!S.daily_plan.submitted&&S.daily_plan.date!==today()?`<div class=notice><b>旧卷尚未提交：</b>${S.daily_plan.date} 的原卷已继续锁定；请核对纸质卷号后再录入。</div>`:''}
+    <div class=notice style="margin-top:10px">Lucas 在纸上作答；家长可以对照下方每道题直接录入答案、用时、是否猜测和错误原因。主动重新组卷会更换全部3题。</div>
   </div>
   <div class=card style="margin-top:13px">
-    <h3>家长录入今日结果</h3>
-    <div class="entry-grid header">
-      <div>#</div><div>题型</div><div>答案</div><div>用时(秒)</div><div class=guesscol>猜的</div>
-    </div>
-    ${plan.map((q,i)=>`<div class="entry-grid rowitem">
-      <div><b>${i+1}</b></div>
-      <div>${zhDomain(q.domain)} / ${zhSkill(q.skill)}</div>
-      <div><select id="daily_ans_${i}">
-        <option value="">请选择</option><option value="N">不会</option><option value="X">未做</option>
-        <option>A</option><option>B</option><option>C</option><option>D</option><option>E</option>
-      </select></div>
-      <div><input id="daily_sec_${i}" type="number" min="0" placeholder="如95"></div>
-      <div class=guesscol><input id="daily_guess_${i}" type="checkbox"></div>
-      <div style="grid-column:2/-1">
-        <span class=small>如果答错，主要原因：</span>
-        <select id="daily_err_${i}">
-          <option value="method_gap">方法没想到</option>
-          <option value="knowledge_gap">知识/公式不会</option>
-          <option value="execution_error">漏条件/计算/执行错误</option>
-          <option value="time_issue">时间不够/卡住</option>
-        </select>
+    <h3>逐题预览与家长录入</h3>
+    ${plan.map((q,i)=>`<div class="daily-q-card" style="padding:16px 0;border-bottom:1px solid var(--line)">
+      <div class=row><b>第${i+1}题　${zhDomain(q.domain)} / ${zhSkill(q.skill)}</b>${questionSourceBadge(q)}</div>
+      <div style="margin-top:8px">${questionPromptHtml(q)}</div>${figureHtml(q)}
+      <div class="entry-grid rowitem" style="margin-top:12px;border:1px solid var(--line);border-radius:9px;padding:12px">
+        <div style="grid-column:1/-1"><b>家长录入</b>${submitted?' · 本卷已提交，请到学习报告查看结果':''}</div>
+        <div style="grid-column:1/-1;display:flex;gap:12px;flex-wrap:wrap;align-items:center">
+          <label>Lucas 的答案 <select id="daily_ans_${i}" ${submitted?'disabled':''}>
+            <option value="">请选择</option><option value="N">不会</option><option value="X">未做</option>
+            <option>A</option><option>B</option><option>C</option><option>D</option><option>E</option>
+          </select></label>
+          <label>用时（秒） <input id="daily_sec_${i}" type="number" min="0" placeholder="如95" style="width:110px" ${submitted?'disabled':''}></label>
+          <label style="display:flex;align-items:center;gap:5px"> <input id="daily_guess_${i}" type="checkbox" ${submitted?'disabled':''}> 猜的</label>
+          <label>答错主要原因 <select id="daily_err_${i}" ${submitted?'disabled':''}>
+            <option value="method_gap">方法没想到</option><option value="knowledge_gap">知识/公式不会</option>
+            <option value="execution_error">漏条件/计算错误</option><option value="time_issue">时间不够/卡住</option>
+          </select></label>
+        </div>
       </div>
     </div>`).join('')}
-    <div class=paper-tools><button class=primary onclick=submitDailyPaperResults()>提交今日3题记录</button><button onclick=undoTodayDailySubmission()>撤销今日提交</button></div>
-    <div class=notice><b>核对卷号：</b>纸质学生卷、家长答案页和本页必须都是 <b>${dailyPaperId()}</b>。如果卷号不同，不要提交答案。</div>
-    <p class=small>每日只有3题，所以保留单题时间很有价值：它能区分“真正熟练”和“虽然做对但速度不足”。</p>
-  </div>
-  <div class=card style="margin-top:13px">
-    <h3>题目预览</h3>
-    ${plan.map((q,i)=>`<div style="padding:10px 0;border-bottom:1px solid var(--line)">
-      <b>${i+1}. ${zhDomain(q.domain)} / ${zhSkill(q.skill)}</b>
-      <div>${questionPromptHtml(q)}</div>${figureHtml(q)}
-    </div>`).join('')}
+    <div class=paper-tools><button class=primary onclick=submitDailyPaperResults() ${submitted?'disabled':''}>${submitted?'本卷已提交':'提交这3题的成绩'}</button><button onclick=undoTodayDailySubmission()>撤销今日提交</button></div>
+    <div class=notice><b>提交前核对：</b>纸质卷、答案页、本页卷号都应为 <b>${dailyPaperId()}</b>。三题录完后只提交一次。</div>
   </div>`;
 }
 function submitDaily(){
@@ -1494,7 +1482,7 @@ function renderReport(){
   renderDailyReviewIntoReport();
 }
 
-// v0.6.4.2.5 — read-only, persistent per-question review for daily paper sessions.
+// v0.6.4.2.6 — read-only, persistent per-question review for daily paper sessions.
 // Never modifies S, and never assumes old legacy attempts have selected answers.
 function renderDailyReviewIntoReport(){
   const host=document.getElementById('report');if(!host)return;
@@ -1636,8 +1624,14 @@ async function loadArchiveBank(){
 function refreshArchiveDaily(){
  const p=S.daily_plan;
  if(p?.submitted&&p.date===today()){alert('今日成绩已经提交，为保护记录不可重新组卷');return}
- if(!confirm('警告：当前未提交的纸质卷将被放弃！如果Lucas已经做过，请先提交或找回原卷。确定主动放弃并重新生成吗？'))return;
- delete S.daily_plan;saveStateLocal();renderAll();
+ const previous=Array.isArray(p?.question_ids)?p.question_ids:dailyPlan().map(q=>q.id);
+ if(!confirm('重新生成将放弃当前未提交的3题纸质卷及未保存的录入内容。\n如果Lucas已经做过这张卷，请先提交或找回原卷。\n\n确定更换为三道不同的真题吗？'))return;
+ const next=generateDailyPlan(new Set(previous));
+ if(next.length!==3||next.some(q=>previous.includes(q.id))){alert('目前无法找到三道与旧卷完全不同的合适真题，旧卷已保留。');return}
+ const ids=next.map(q=>q.id);
+ S.daily_plan={date:today(),question_ids:ids,paper_id:dailyPaperIdFromIds(ids),created_at:new Date().toISOString(),engine_version:ENGINE_VERSION,submitted:false};
+ saveStateLocal();renderAll();
+ alert('已生成新的3题卷。旧题不会混入新卷；请重新打印并核对卷号。');
 }
 function archivePaperPicker(){
  const years=[...new Set(ARCHIVE_BANK.map(q=>q.year))];
@@ -1730,8 +1724,8 @@ function authenticScore(q,targetProblem,used,mode){
   s+=stableNoise(`${mode}:${q.id}`)*.35;
   return s;
 }
-function generateDailyPlan(){
-  const pool=eligibleDailyBank();
+function generateDailyPlan(excludeIds=new Set()){
+  const pool=eligibleDailyBank().filter(q=>!excludeIds.has(q.id));
   if(pool.length<3)return [];
   const used=[];
   const weakMap=recentWeakSuperDomains();
@@ -2001,7 +1995,7 @@ initV063();
 <!-- Legacy panel disabled: knowledge lives in its dedicated view, owned by index.html. -->
 <script src="coach_mock_submission_guard.js"></script>
 <!-- AMC8 v0.6.4.2 SAFE SKILL MODULE: END -->
-<!-- v0.6.4.2.5: one knowledge panel, mounted only in #knowledge. -->
+<!-- v0.6.4.2.6: one knowledge panel, mounted only in #knowledge. -->
 <script>
 (function(){
 'use strict';
