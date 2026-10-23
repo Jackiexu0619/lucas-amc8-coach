@@ -16,7 +16,7 @@ const nextTrainDay=d=>{let n=addDay(d,1),i=0;while(!isTrainDay(n)&&i++<8)n=addDa
 const latestScheduled=d=>{let t=d,i=0;while(!isTrainDay(t)&&i++<8)t=addDay(t,1);return t};
 function fine(q){let f=S.v064_specific_skills?.[q?.id];return f?.status==='pdf_explanation_reviewed'&&f.skill?f:null}
 function parent(q){const t=S.v064_question_tags?.[q?.id];return t?.status==='reviewed'&&t.skill?t:null}
-function descriptor(q){const p=parent(q);if(p)return {key:'parent:'+p.skill,skill:p.skill,source:'家长确认'};const f=fine(q);return f?{key:'pdf:'+f.skill,skill:f.skill,source:'PDF方法候选·待核对'}:null}
+function descriptor(q){const p=parent(q);if(p)return {key:'parent-skill:'+p.skill,skill:p.skill,source:'家长确认·同技能迁移'};const f=fine(q);return f?{key:'pdf-method:'+(f.group_key||f.skill),skill:f.skill,method:f.method||'',source:'PDF方法分组·待核对'}:null}
 function recordKey(a,i){return [a.paper_id||'',a.question_id||'',a.date||'',a.source||'',a.paper_question_index||'',i].join('|')}
 const resultOK=a=>a.correct&&!a.guessed&&a.result_status!=='skipped'&&a.result_status!=='unable';
 function rebuildQueue(){
@@ -84,7 +84,7 @@ generateDailyPlan=function(excludeIds){
 };
 function reviewText(){const tasks=rebuildQueue().tasks;const pending=tasks.filter(t=>t.status==='pending');const due=pending.filter(t=>t.due<=today());const missing=due.filter(t=>!candidates(t,new Set()).length);
  let text='<div class="card" style="margin:12px 0"><h3>专项复测队列</h3>';
- text+='<p class="small">待复测 '+pending.length+' 项；当前到期 '+due.length+' 项。每天最多占用2道题，第3题保留能力拓展。错题只产生同知识点复测任务；复测优先从未做过的同方法真题中挑选。PDF分类仅是待核对候选，不视为已掌握。</p>';
+ text+='<p class="small">待复测 '+pending.length+' 项；当前到期 '+due.length+' 项。每天最多占用2道题，第3题保留能力拓展。家长确认标签按同技能迁移；PDF方法资料按方法分组匹配未做过的新题。PDF分类仅是待核对候选，不视为已掌握；找不到同组新题时保留待匹配状态。</p>';
  if(pending.length){text+='<table><tr><th>考点</th><th>来源</th><th>验收阶段</th><th>下次日期</th></tr>';
  for(const t of pending.slice(0,12))text+='<tr><td>'+safe(t.skill)+'</td><td>'+safe(t.source)+'</td><td>'+['次日迁移','7天保持','14天进阶','30天回测'][Math.min(3,t.stage)]+'</td><td>'+safe(t.due)+(missing.includes(t)?'（暂无未做过的同方法真题，待匹配）':'')+'</td></tr>';
  text+='</table>';}else text+='<p class="small">暂无待复测任务。提交错题后自动建立。</p>';
