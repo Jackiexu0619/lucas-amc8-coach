@@ -1,5 +1,5 @@
 {
-  "version": "0.6.5.3",
+  "version": "0.6.5.5",
   "generated_at": "2026-10-23T00:00:00+00:00",
   "checks": {
     "javascript_syntax": {
@@ -83,32 +83,37 @@
     }
   },
   "maintenance_update": {
-    "status": "CODE_UPDATED_DEPLOY_PENDING",
+    "status": "DEPLOY_PENDING_REGRESSION",
     "commits": {
-      "review_queue_fix": "2471291bf2d258c58956eb267006b5277abaea4d",
-      "version_bump": "77de73de31aa946c5e2c44b2a37aaed9a674b02f",
-      "readme": "234e493dd1b26696c55c6bed8fa47bd6dcb7312d"
+      "importer": "2700618d4e0512d4884a11f8ccec189eac726ac1",
+      "review_matcher": "c65fc39427e0f4e2849f6c45b8bd9c48f6f39d91",
+      "release": "fb3830671ad115e1c82b22521bdb33624654bd2f",
+      "readme": "b8e1ab0a22d5877d327f11515f5d01403b766a8e"
     },
     "checks": {
-      "version_metadata": {
+      "version_alignment": {
         "status": "PASS",
-        "details": "index.html build comment, title, visible version and ENGINE_VERSION aligned to 0.6.5.3"
+        "details": "Build comment, title, visible version and ENGINE_VERSION set to 0.6.5.5."
       },
-      "review_queue_null_guard": {
-        "status": "CODE_FIXED",
-        "details": "Do not store undefined task values; filter Boolean before rendering task lists. Live v0.6.5.2 state previously contained null in v065_review_cycle.tasks, consistent with the reported panel failure."
+      "method_group_matching": {
+        "status": "CODE_UPDATED",
+        "details": "PDF candidates match group_key; parent-confirmed tags remain same-skill transfer. Imported PDF metadata is enriched when the parent explicitly runs the PDF-method import action."
       },
-      "diagnostic_choice": {
-        "status": "CODE_PRESENT",
-        "details": "Weekend 25-question submission stores paper_type diagnostic/practice; browser E2E still pending."
+      "import_preservation": {
+        "status": "CODE_UPDATED",
+        "details": "Existing PDF reviewed tags missing group_key are enriched without replacing existing skill labels or training records."
+      },
+      "candidate_pool_audit": {
+        "status": "PASS_STATIC",
+        "details": "575 source records and 575 PDF method records; among 2015-2018 Q13-Q25, 52 candidates have PDF method records, 33 group keys, 11 groups have at least two candidates and 22 are singletons."
       },
       "browser_regression": {
         "status": "PENDING_DEPLOY",
-        "details": "Recheck live report panel, daily selection, weekend submission, diagnostic detection and cloud sync after Pages deploy."
+        "details": "Still verify the live report queue, legacy queue rebuild, daily three-question selection, and sync preservation after deployment."
       },
-      "cloud_data_preservation": {
-        "status": "NO_SCHEMA_CHANGE",
-        "details": "No Supabase schema/data operation performed; only frontend code and docs changed."
+      "data_safety": {
+        "status": "NO_BACKEND_CHANGE",
+        "details": "No Supabase schema or data changes performed."
       }
     }
   }
