@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Lucas AMC8 Coach v0.6.4.2.7</title>
+<title>Lucas AMC8 Coach v0.6.4.2.8</title>
 <style>
 :root{--bg:#f4f7fb;--card:#fff;--text:#162235;--muted:#657287;--accent:#2d67d9;--line:#dbe3ef;--good:#137a4e;--warn:#a86400;--bad:#b42318}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
@@ -167,14 +167,14 @@ hr{border:0;border-top:1px solid var(--line);margin:15px 0}.two{display:grid;gri
   }
 }
 
-/* v0.6.4.2.7: five learning pages; parental settings stays accessible. */
+/* v0.6.4.2.8: five learning pages; parental settings stays accessible. */
 .parent-settings{background:#dbe6f7;color:#20314b;border:1px solid #9db1cb}
 </style>
 <script src="official_bank.js"></script>
 </head>
 <body>
 <header>
-<div><h1>Lucas AMC8 Coach <span style="font-size:12px;font-weight:400">v0.6.4.2.7</span></h1><div class=sub>真实AMC8题库核心 · Daily Adaptive Engine · Authentic Exam Assembly · 每日锁卷 · 免注册云同步</div></div>
+<div><h1>Lucas AMC8 Coach <span style="font-size:12px;font-weight:400">v0.6.4.2.8</span></h1><div class=sub>真实AMC8题库核心 · Daily Adaptive Engine · Authentic Exam Assembly · 每日锁卷 · 免注册云同步</div></div>
 <nav aria-label="主导航">
 <button onclick="show('home')">主页</button>
 <button onclick="show('practice')">每日训练</button>
@@ -1482,7 +1482,7 @@ function renderReport(){
   renderDailyReviewIntoReport();
 }
 
-// v0.6.4.2.7 — read-only, persistent per-question review for daily paper sessions.
+// v0.6.4.2.8 — read-only, persistent per-question review for daily paper sessions.
 // Never modifies S, and never assumes old legacy attempts have selected answers.
 function renderDailyReviewIntoReport(){
   const host=document.getElementById('report');if(!host)return;
@@ -2000,7 +2000,42 @@ initV063();
 <!-- Legacy panel disabled: knowledge lives in its dedicated view, owned by index.html. -->
 <script src="coach_mock_submission_guard.js"></script>
 <!-- AMC8 v0.6.4.2 SAFE SKILL MODULE: END -->
-<!-- v0.6.4.2.7: one knowledge panel, mounted only in #knowledge. -->
+<!-- v0.6.4.2.8: Resolve coach_v0641.js override; preserve its ordinary daily selector. -->
+<script>
+(function(){
+  'use strict';
+  // coach_v0641.js reassigns generateDailyPlan to pickDaily() without an excludeIds
+  // parameter. A replacement must therefore be selected AFTER that override loads.
+  const normalDailySelector=generateDailyPlan;
+  generateDailyPlan=function(excludeIds){
+    const excluded=excludeIds&&typeof excludeIds.has==='function'?excludeIds:new Set(Array.isArray(excludeIds)?excludeIds:[]);
+    if(!excluded.size)return normalDailySelector();
+    const available=eligibleDailyBank().filter(q=>!excluded.has(q.id));
+    if(available.length<3)return [];
+    const chosen=[];
+    const usedIds=new Set();
+    const targets=[16,17,new Date().getDay()===5?23:20];
+    const ranges=[[13,19],[14,21],[17,25]];
+    for(let i=0;i<3;i++){
+      let candidates=available.filter(q=>!usedIds.has(q.id)&&q.problem_number>=ranges[i][0]&&q.problem_number<=ranges[i][1]);
+      if(!candidates.length)candidates=available.filter(q=>!usedIds.has(q.id));
+      if(!candidates.length)return [];
+      // Favor realistic AMC8 question positions and variety; neither can block a valid replacement.
+      candidates.sort((a,b)=>{
+        const score=q=>-Math.abs(q.problem_number-targets[i])*3
+          -(chosen.some(x=>x.year===q.year)?0.5:0)
+          -(chosen.some(x=>superDomain(x)===superDomain(q))?0.4:0)
+          +stableNoise('daily_replacement_v06428:'+q.id)*0.1;
+        return score(b)-score(a);
+      });
+      const selected=candidates[0];chosen.push(selected);usedIds.add(selected.id);
+    }
+    if(chosen.some(q=>excluded.has(q.id))||new Set(chosen.map(q=>q.id)).size!==3)return [];
+    return chosen;
+  };
+})();
+</script>
+<!-- v0.6.4.2.8: one knowledge panel, mounted only in #knowledge. -->
 <script>
 (function(){
 'use strict';
