@@ -64,7 +64,7 @@ async function importBank(){
  // PDF explanation review is not a parent-confirmed or independently verified tag.
  S.v064_specific_skills=result.tags;
  S.v064_skills_import_meta={schema:'pdf-reviewed-v4-safe',...checked.counts,added:result.added,enriched:result.enriched||0};
- if(typeof saveStateLocal==='function'&&(result.added||(result.enriched||0)>0))saveStateLocal(false);
+ if(typeof saveStateLocal==='function'&&(result.added||(result.enriched||0)>0))saveStateLocal(true);
  return {applied:true,...S.v064_skills_import_meta};
 }
 if(typeof module!=='undefined'&&module.exports)module.exports={legacy,validate,mergePreservingParent};
