@@ -1,6 +1,6 @@
 {
-  "version": "0.6.3",
-  "generated_at": "2026-10-21T12:06:36.559904+00:00",
+  "version": "0.6.5.2",
+  "generated_at": "2026-10-23T00:00:00+00:00",
   "checks": {
     "javascript_syntax": {
       "status": "PASS",
@@ -80,6 +80,31 @@
     "browser_runtime": {
       "status": "PENDING_DEPLOY",
       "reason": "Cloud-bound build is ready; GitHub Pages must redeploy after these files are uploaded."
+    }
+  },
+  "maintenance_update": {
+    "status": "CODE_UPDATED_BROWSER_E2E_PENDING",
+    "checks": {
+      "version_metadata": {
+        "status": "PASS",
+        "details": "index.html BUILD comment, title and ENGINE_VERSION aligned to 0.6.5.2"
+      },
+      "explicit_weekend_diagnostic_choice": {
+        "status": "CODE_UPDATED",
+        "details": "submitPrintableMockAnswers asks whether this is a four-week full diagnostic; stores paper_type diagnostic/practice in mock_detail_history and mock_history"
+      },
+      "four_week_diagnostic_detection": {
+        "status": "CODE_PATH_MATCHES",
+        "details": "knowledge panel already detects paper_type==='diagnostic'; browser end-to-end verification pending"
+      },
+      "browser_regression": {
+        "status": "NOT_RUN",
+        "details": "Must test actual GitHub Pages in browser before claiming release acceptance"
+      },
+      "cloud_data_preservation": {
+        "status": "NO_SCHEMA_CHANGE",
+        "details": "This commit changes frontend HTML and documentation only; no Supabase writes/schema changes were made"
+      }
     }
   }
 }
