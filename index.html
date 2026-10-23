@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Lucas AMC8 Coach v0.6.4.2.1</title>
+<title>Lucas AMC8 Coach v0.6.4.2.3</title>
 <style>
 :root{--bg:#f4f7fb;--card:#fff;--text:#162235;--muted:#657287;--accent:#2d67d9;--line:#dbe3ef;--good:#137a4e;--warn:#a86400;--bad:#b42318}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
@@ -166,31 +166,30 @@ hr{border:0;border-top:1px solid var(--line);margin:15px 0}.two{display:grid;gri
     margin-top: 1mm !important; font-size: 7pt !important;
   }
 }
+
+/* v0.6.4.2.3: five learning pages; parental settings stays accessible. */
+.parent-settings{background:#dbe6f7;color:#20314b;border:1px solid #9db1cb}
 </style>
 <script src="official_bank.js"></script>
 </head>
 <body>
 <header>
-<div><h1>Lucas AMC8 Coach <span style="font-size:12px;font-weight:400">v0.6.4.1</span></h1><div class=sub>真实AMC8题库核心 · Daily Adaptive Engine · Authentic Exam Assembly · 每日锁卷 · 免注册云同步</div></div>
-<nav>
+<div><h1>Lucas AMC8 Coach <span style="font-size:12px;font-weight:400">v0.6.4.2.3</span></h1><div class=sub>真实AMC8题库核心 · Daily Adaptive Engine · Authentic Exam Assembly · 每日锁卷 · 免注册云同步</div></div>
+<nav aria-label="主导航">
 <button onclick="show('home')">主页</button>
 <button onclick="show('practice')">每日训练</button>
-<button onclick="show('truePractice')">真题训练</button>
 <button onclick="show('mock')">周末模拟</button>
 <button onclick="show('report')">学习报告</button>
-<button onclick="show('archive')">真题中心</button>
-<button onclick="show('bank')">训练题库</button>
-<button onclick="show('data')">数据</button>
+<button onclick="show('knowledge')">知识点</button>
+<button type="button" class="parent-settings" onclick="show('data')" title="备份和云同步">⚙ 家长设置</button>
 </nav>
 </header>
 <div class=wrap>
 <section id=home class="view active"></section>
 <section id=practice class=view></section>
-<section id=truePractice class=view></section>
 <section id=mock class=view></section>
 <section id=report class=view></section>
-<section id=archive class=view></section>
-<section id=bank class=view></section>
+<section id=knowledge class=view><div class="card"><h3>知识点与四周诊断</h3><p>正在加载知识点资料……</p></div></section>
 <section id=data class=view></section>
 </div>
 <div id=printRoot class=print-root></div>
@@ -294,7 +293,17 @@ function qById(id){return BANK.find(q=>q.id===id)}
 function trueById(id){return TRUE_REG.find(q=>q.id===id)}
 function zhDomain(x){return ZH_DOMAIN[x]||x||'未标注'}
 function zhSkill(x){return ZH_SKILL[x]||x||'未标注'}
-function show(id){document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.getElementById(id).classList.add('active');renderAll()}
+function toggleExtraNav(){
+ const menu=document.getElementById('extraNavLinks'),btn=document.getElementById('extraNavToggle');
+ if(!menu||!btn)return;
+ const opening=menu.hidden;menu.hidden=!opening;btn.setAttribute('aria-expanded',String(opening));
+}
+function show(id){
+ document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+ const dest=document.getElementById(id);if(!dest)return;
+ dest.classList.add('active');
+ renderAll();
+}
 function recentAttempts(days=7){return (S.attempts||[]).filter(a=>{let d=dd(a.date,today());return d>=0&&d<=days})}
 function recentTrue(days=7){return (S.true_attempts||[]).filter(a=>{let d=dd(a.date,today());return d>=0&&d<=days})}
 function allRecent(days=7){return [...recentAttempts(days).map(x=>({...x,kind:'训练题'})),...recentTrue(days).map(x=>({...x,kind:'真题'}))]}
@@ -1428,10 +1437,9 @@ function renderMock(){
     main+='<div class=card style="margin-top:13px"><details><summary><b>展开整套25题预览 / 快速跳题</b></summary><div id=fullMockPreview style="margin-top:10px"></div></details></div>';
   }
 
-  main+='<div class=two style="margin-top:13px"><div class=card><h3>真题混编任务单</h3><p class=small>用于查漏补缺。</p><button onclick=genMock()>生成25题任务单</button></div>';
-  main+='<div class=card><h3>整套成绩趋势</h3>';
+  main+='<div class=card style="margin-top:13px"><h3>整套成绩趋势</h3>';
   main+=est?`<p>训练参考区间：<b style="font-size:22px">${est.low}-${est.high}/25</b></p>`:'<p class=small>样本不足，暂不估计。</p>';
-  main+='</div></div>';
+  main+='</div>';
 
   main+='<div class=card style="margin-top:13px"><h3>整套历史</h3><table><tr><th>卷号</th><th>日期</th><th>名称</th><th>得分</th><th>独立正确</th><th>用时</th></tr>';
   history.forEach(x=>{main+=`<tr><td>${x.paper_id||'—'}</td><td>${x.date}</td><td>${x.name}</td><td>${x.score}</td><td>${x.independent_score}</td><td>${x.minutes}m</td></tr>`});
@@ -1943,7 +1951,7 @@ function renderData(){
   </div>`;
 }
 
-function renderAll(){renderHome();renderPractice();renderTruePractice();renderMock();renderReport();renderArchive();renderBank();renderData()}
+function renderAll(){renderHome();renderPractice();renderMock();renderReport();renderData()}
 async function initV063(){await loadAuthenticBank();try{await loadArchiveBank()}catch(e){console.error('双语真题库载入失败',e)}S=migrateState(S);saveStateLocal(false);renderAll();if(cloudConfigured()&&getSyncCode())cloudSyncAuto().catch(e=>console.warn(e));}
 initV063();
 </script>
