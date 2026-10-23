@@ -1,10 +1,10 @@
 <!doctype html>
-<!-- BUILD: Lucas AMC8 Coach v0.6.3.4 / archive_official_v1 -->
+<!-- BUILD: Lucas AMC8 Coach v0.6.5.2 / archive_official_v1 -->
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Lucas AMC8 Coach v0.6.5.1</title>
+<title>Lucas AMC8 Coach v0.6.5.2</title>
 <style>
 :root{--bg:#f4f7fb;--card:#fff;--text:#162235;--muted:#657287;--accent:#2d67d9;--line:#dbe3ef;--good:#137a4e;--warn:#a86400;--bad:#b42318}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
@@ -174,7 +174,7 @@ hr{border:0;border-top:1px solid var(--line);margin:15px 0}.two{display:grid;gri
 </head>
 <body>
 <header>
-<div><h1>Lucas AMC8 Coach <span style="font-size:12px;font-weight:400">v0.6.5.1</span></h1><div class=sub>真实AMC8题库核心 · Daily Adaptive Engine · Authentic Exam Assembly · 每日锁卷 · 免注册云同步</div></div>
+<div><h1>Lucas AMC8 Coach <span style="font-size:12px;font-weight:400">v0.6.5.2</span></h1><div class=sub>真实AMC8题库核心 · Daily Adaptive Engine · Authentic Exam Assembly · 每日锁卷 · 免注册云同步</div></div>
 <nav aria-label="主导航">
 <button onclick="show('home')">主页</button>
 <button onclick="show('practice')">每日训练</button>
@@ -204,7 +204,7 @@ const SEED={"version":"0.6.3","profile":{"name":"Lucas","goal":"2027-01 AMC 8","
 const ZH_DOMAIN={"arithmetic":"基础运算","ratio":"比例","rate":"速度与行程","algebra":"代数/应用","number_theory":"数论","coordinate":"坐标与变换","data":"数据与统计","patterns":"数列与规律","combinatorics":"组合/概率","geometry":"几何","probability":"概率","spatial":"立体与空间","logic":"逻辑与逆推","misc":"综合","meta":"综合习惯"};
 const ZH_SKILL={"percent_two_step":"连续百分比","ratio_change":"比例变化","average_speed":"平均速度","divisible_but_not":"整除但不整除","composite_divisibility":"复合整除","transformations":"坐标变换","median_change":"中位数变化","arithmetic_series":"等差求和","round_robin":"两两配对计数","area_ratio":"面积比","exactly_two_colors":"恰好两种颜色","distribution":"分配与角色","painted_cuboid":"涂色长方体","machine_reverse":"机器逆推","execution_complete":"做题完整性","rectangle_cutout":"割补与周长","right_triangle_altitude":"直角三角形高","trapezoid_area":"梯形面积","rectangle_midpoint":"长方形与中点","square_point_area":"正方形面积关系","sector_area":"扇形面积","parallelogram_area":"平行四边形面积","triangle_angle_ratio":"三角形角度比","fraction_remainder":"分数连续变化","reverse_percent":"反求原价","percent_change_chain":"连续百分比变化","unit_price":"单价与包装","map_scale":"地图比例尺","proportional_sharing":"按比分配","mixture_ratio":"混合比例","ratio_transfer":"转移后的比例","fraction_ratio":"分数化比例","distance_speed_time":"路程速度时间","catch_up":"追及问题","meeting":"相遇问题","work_rate":"工程问题","upstream_downstream":"流水行船","average_speed_equal_distance":"等路程平均速度","average_speed_equal_time":"等时间平均速度","rectangle_perimeter":"长方形周长","triangle_area":"三角形面积","pythagorean":"勾股关系","similar_triangles":"相似三角形","triangle_angle_sum":"三角形内角和","coordinate_distance":"坐标距离","coordinate_midpoint":"坐标中点","reflection_translation":"对称与平移","painted_cuboid_one_face":"恰一面涂色","prism_volume":"长方体体积","prism_surface_area":"长方体表面积","handshakes":"握手计数","permutations":"全排列","adjacent_arrangements":"相邻排列","identical_distribution":"相同物分配","lattice_paths":"格点路径","single_draw_probability":"单次抽取概率","at_least_one":"至少一个","two_dice_sum":"两骰点数和","exact_heads":"恰好若干正面","inclusion_exclusion":"容斥计数","divisor_count":"因数个数","gcd":"最大公因数","lcm":"最小公倍数","modular_remainder":"幂的余数","digit_divisibility":"数字整除","last_digit":"个位循环","square_divisors":"平方因数","multiples_union":"倍数并集","remainder_count":"余数类计数","palindrome_divisibility":"回文与整除","arithmetic_sequence":"等差数列第n项","recurrence":"递推数列","repeating_cycle":"循环规律","growing_blocks":"增长图案","machine_reverse_even":"奇偶机器逆推","relative_order":"相对次序","pigeonhole":"抽屉原理","mean_change":"平均数变化","weighted_average":"加权平均","range_change":"极差变化","mode_change":"众数变化","frequency_mean":"频数平均数","frequency_median":"频数中位数","frequency_percent":"频数百分比"};
 
-const ENGINE_VERSION='0.6.3.3';
+const ENGINE_VERSION='0.6.5.2';
 const MOCK_TOPIC_MAP={
   arithmetic:'application',ratio:'application',rate:'application',algebra:'application',misc:'patterns_logic',
   geometry:'geometry',coordinate:'geometry',spatial:'geometry',
@@ -1247,6 +1247,7 @@ function applyMockBatch(){
 
 function submitPrintableMockAnswers(){
   const qs=printableMock();if(qs.length!==25){alert('请先生成本周25题');return}
+  const paperType=confirm('本次25题是否作为四周完整诊断？\n确定=记录完整诊断日期；取消=仅作普通周末模拟。')?'diagnostic':'practice';
   const d=currentDraft(),per=[];
   let score=0,indep=0,attempted=0,wrong=[],unable=[],skipped=[],guessedQs=[];
   for(let i=0;i<25;i++){
@@ -1263,9 +1264,9 @@ function submitPrintableMockAnswers(){
     const rec={question_id:q.id,date:S.printable_mock_date||today(),correct,selected_answer:answered?ans:null,result_status:isUnable?'unable':isSkipped?'skipped':correct?'correct':'wrong',duration_sec:null,guessed:answered?guessed:false,hint_level:0,error_type:isUnable?'method_gap':isSkipped?'time_issue':null,error_detail:isUnable?'unable':isSkipped?'not_attempted':null,independent:correct&&!guessed,source:'weekend_mock',speed_label:null,paper_id:ensurePaperId(),paper_question_index:i+1};
     S.attempts=S.attempts||[];S.attempts.push(rec);updateSkill(q,rec);
   }
-  const detail={mock_key:ensurePaperId(),paper_id:ensurePaperId(),date:S.printable_mock_date||today(),question_ids:qs.map(q=>q.id),per_question:per,wrong_questions:wrong,unable_questions:unable,skipped_questions:skipped,guessed_questions:guessedQs,score,independent_score:indep,attempted,total_minutes:d.total_minutes??null};
+  const detail={mock_key:ensurePaperId(),paper_id:ensurePaperId(),date:S.printable_mock_date||today(),paper_type:paperType,question_ids:qs.map(q=>q.id),per_question:per,wrong_questions:wrong,unable_questions:unable,skipped_questions:skipped,guessed_questions:guessedQs,score,independent_score:indep,attempted,total_minutes:d.total_minutes??null};
   S.mock_detail_history=S.mock_detail_history||[];S.mock_detail_history.push(detail);
-  S.mock_history=S.mock_history||[];S.mock_history.push({date:detail.date,name:`系统25题 ${ensurePaperId()}`,paper_id:ensurePaperId(),score,independent_score:indep,attempted,minutes:d.total_minutes||40,kind:'训练模拟',count_in_estimate:true,note:`答错：${wrong.join(',')||'无'}；不会：${unable.join(',')||'无'}；未做：${skipped.join(',')||'无'}；猜：${guessedQs.join(',')||'无'}`});
+  S.mock_history=S.mock_history||[];S.mock_history.push({date:detail.date,name:`系统25题 ${ensurePaperId()}`,paper_id:ensurePaperId(),paper_type:paperType,score,independent_score:indep,attempted,minutes:d.total_minutes||40,kind:'训练模拟',count_in_estimate:true,note:`答错：${wrong.join(',')||'无'}；不会：${unable.join(',')||'无'}；未做：${skipped.join(',')||'无'}；猜：${guessedQs.join(',')||'无'}`});
   saveStateLocal();
   alert(`试卷 ${ensurePaperId()} 已录入。\n得分：${score}/25\n独立正确：${indep}\n答错：${wrong.join(',')||'无'}\n不会：${unable.join(',')||'无'}\n未做：${skipped.join(',')||'无'}`);
   renderAll();
