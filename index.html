@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Lucas AMC8 Coach v0.6.4.2.3</title>
+<title>Lucas AMC8 Coach v0.6.4.2.4</title>
 <style>
 :root{--bg:#f4f7fb;--card:#fff;--text:#162235;--muted:#657287;--accent:#2d67d9;--line:#dbe3ef;--good:#137a4e;--warn:#a86400;--bad:#b42318}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
@@ -167,14 +167,14 @@ hr{border:0;border-top:1px solid var(--line);margin:15px 0}.two{display:grid;gri
   }
 }
 
-/* v0.6.4.2.3: five learning pages; parental settings stays accessible. */
+/* v0.6.4.2.4: five learning pages; parental settings stays accessible. */
 .parent-settings{background:#dbe6f7;color:#20314b;border:1px solid #9db1cb}
 </style>
 <script src="official_bank.js"></script>
 </head>
 <body>
 <header>
-<div><h1>Lucas AMC8 Coach <span style="font-size:12px;font-weight:400">v0.6.4.2.3</span></h1><div class=sub>真实AMC8题库核心 · Daily Adaptive Engine · Authentic Exam Assembly · 每日锁卷 · 免注册云同步</div></div>
+<div><h1>Lucas AMC8 Coach <span style="font-size:12px;font-weight:400">v0.6.4.2.4</span></h1><div class=sub>真实AMC8题库核心 · Daily Adaptive Engine · Authentic Exam Assembly · 每日锁卷 · 免注册云同步</div></div>
 <nav aria-label="主导航">
 <button onclick="show('home')">主页</button>
 <button onclick="show('practice')">每日训练</button>
@@ -1323,6 +1323,7 @@ function submitDailyPaperResults(){
   saveStateLocal();
   alert(`今日3题已录入。\n正确：${correctCount}/3\n答错：${wrong.join(',')||'无'}\n不会：${unable.join(',')||'无'}\n未做：${skipped.join(',')||'无'}${totalSec?`\n总用时：${secFmt(totalSec)}`:''}`);
   renderAll();
+  show('report');
 }
 
 function undoTodayDailySubmission(){
@@ -1490,7 +1491,44 @@ function renderReport(){
     <div class=card><h3>当前训练参考</h3>${est?`<p style="font-size:28px;font-weight:750">${est.low}-${est.high}/25</p><p>加权中心约 <b>${est.avg.toFixed(1)}</b>。</p><div class=notice>这是训练数据区间，不是对正式考试成绩的承诺或预测。</div>`:'<div class=notice>整套样本不足，暂不估计。</div>'}</div>
   </div>
   <div class=card style="margin-top:13px"><h3>整套趋势</h3>${mh.length?`<table><tr><th>日期</th><th>独立正确</th></tr>${mh.map(x=>`<tr><td>${x.date}</td><td>${x.independent_score}/25</td></tr>`).join('')}</table>`:'<p class=muted>暂无</p>'}</div>`;
+  renderDailyReviewIntoReport();
 }
+
+// v0.6.4.2.4 — read-only, persistent per-question review for daily paper sessions.
+// Never modifies S, and never assumes old legacy attempts have selected answers.
+function renderDailyReviewIntoReport(){
+  const host=document.getElementById('report');if(!host)return;
+  const sessions=(S.daily_sessions||[]).filter(x=>x&&x.source==='paper_daily').slice().reverse();
+  const wrap=document.createElement('div');wrap.className='card';wrap.style.marginTop='13px';
+  wrap.id='dailyReviewHistory';
+  let html='<h3>每日3题 · 历史答卷与错题复盘</h3><p class="small">提交后可随时回来查看：题号、你的答案、正确答案、错误原因和复习提示。旧数据若缺少答案则如实标注。</p>';
+  if(!sessions.length)html+='<p class="muted">尚无已提交的每日3题记录。</p>';
+  sessions.slice(0,30).forEach((ss,i)=>{
+    const ids=Array.isArray(ss.question_ids)?ss.question_ids:[];
+    const pid=ss.paper_id||'';
+    // Prefer paper ID if present; never mix with another paper on same date.
+    let attempts=(S.attempts||[]).filter(a=>a&&a.source==='paper_daily'&&a.date===ss.date);
+    let items=ids.map(id=>{
+      const options=attempts.filter(a=>a.question_id===id);
+      return options.length?options[options.length-1]:null;
+    });
+    const good=items.filter(a=>a?.correct).length;
+    html+=`<details ${i===0?'open':''} style="margin:10px 0;border:1px solid #d8e2ee;border-radius:8px;padding:10px"><summary><b>${esc(ss.date||'日期未知')}</b>　${esc(pid||'旧版未保存卷号')}　${Number.isFinite(+ss.correct)?ss.correct:good}/${ss.question_count||3} 题正确</summary>`;
+    if(!ids.length)html+='<p class="muted">旧版只保存了总分，未保存逐题 ID，无法准确恢复题目。</p>';
+    ids.forEach((id,n)=>{
+      const q=qById(id),a=items[n];
+      const status=!a?'未找到逐题记录':a.result_status==='unable'?'不会':a.result_status==='skipped'?'未做':a.correct?(a.guessed?'猜对':'正确'):'答错';
+      const own=!a?'未保存':a.result_status==='unable'?'不会':a.result_status==='skipped'?'未做':a.selected_answer||'旧版未保存';
+      const correct=q?.answer||'题库未找到';
+      const type=q?(q.year?`${q.year} AMC8 Q${q.problem_number}`:q.id):id;
+      const method=q?.core_method||q?.skill||'暂无经过核对的方法讲解';
+      html+=`<div style="padding:10px 0;border-bottom:1px solid #e7edf4"><div><b>第${n+1}题 · ${esc(type)}</b>　<strong style="color:${a?.correct?'#17663a':'#a12d2d'}">${esc(status)}</strong></div><div>你的答案：<b>${esc(own)}</b>　正确答案：<b>${esc(correct)}</b>${a?.duration_sec!=null?'　用时：'+esc(a.duration_sec)+'秒':''}${a?.guessed?'　（猜测）':''}</div><div class="small">考点：${esc(q?zhDomain(q.domain)+' / '+zhSkill(q.skill):'旧题目可能已停用')}；${a?.error_type?'错误类型：'+esc(errorLabel(a.error_type))+'；':''}方法线索：${esc(method)}</div></div>`;
+    });
+    html+='</details>';
+  });
+  wrap.innerHTML=html;host.appendChild(wrap);
+}
+
 function renderArchive(){let byYear={};TRUE_REG.forEach(q=>(byYear[q.year]=byYear[q.year]||[]).push(q));document.getElementById('archive').innerHTML=`<div class=grid><div class=card><div class=muted>真题索引</div><div class=big>175</div><div class=small>7套×25题</div></div><div class=card><div class=muted>本地PDF</div><div class=big>5套</div><div class=small>2019、2020、2022-2024</div></div><div class=card><div class=muted>在线接入</div><div class=big>2套</div><div class=small>2025、2026</div></div></div><div class=card style="margin-top:13px"><h3>真题年份</h3><div class=notice>2021年未举行AMC8。2025、2026当前保留在线原卷入口；本地包不重新分发这两套外部PDF。</div><hr><table><tr><th>年份</th><th>题数</th><th>难度索引</th><th>入口</th></tr>${Object.entries(byYear).map(([y,qs])=>{let q=qs[0];return `<tr><td><b>${y}</b></td><td>25</td><td>Q1-8基础；Q9-16中等；Q17-21中高；Q22-25高</td><td>${q.local_pdf?`<a class="btn primary" href="${q.local_pdf}" target="_blank">本地PDF</a>`:''} <a class=btn href="${q.online_url}" target="_blank">在线原卷</a></td></tr>`}).join('')}</table></div><div class=card style="margin-top:13px"><h3>结构化进度说明</h3><p>175题已经建立“年份 / 题号 / 难度带 / 来源”索引。扫描PDF中有些页面的公式、图片和选项无法可靠提取，所以没有把“不完整文字”冒充成可训练题干。</p><p>真题做完后，可在“真题训练”里记录领域和技能；这些标签会逐步沉淀成 Lucas 自己的真题画像。</p></div>`}
 function renderBank(){let C={};BANK.forEach(q=>C[q.domain]=(C[q.domain]||0)+1);document.getElementById('bank').innerHTML=`<div class=card><h3>已校验的结构化训练题</h3><p class=small>这300题用于每日自适应调度与周末结构化组卷；真题原卷与训练题库分开，避免扫描提取错误污染题库。</p><div>${Object.entries(C).map(([k,v])=>`<span class=tag>${zhDomain(k)} ${v}</span>`).join('')}</div><hr><table><tr><th>ID</th><th>领域</th><th>技能</th><th>难度</th></tr>${BANK.map(q=>`<tr><td>${q.id}</td><td>${zhDomain(q.domain)}</td><td>${zhSkill(q.skill)}</td><td>${q.difficulty}</td></tr>`).join('')}</table></div>`}
 function dl(name,text){let b=new Blob([text],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;a.click();URL.revokeObjectURL(a.href)}
@@ -1963,4 +2001,16 @@ initV063();
 <script src="coach_release2_panel.js"></script>
 <script src="coach_mock_submission_guard.js"></script>
 <!-- AMC8 v0.6.4.2 SAFE SKILL MODULE: END -->
+<!-- v0.6.4.2.4 knowledge loading fail-safe: never leave a permanent spinner -->
+<script>
+(function(){
+  function status(){
+    var el=document.getElementById('knowledge');if(!el)return;
+    if(el.querySelector('#amc8-release2-panel'))return;
+    el.innerHTML='<div class="card"><h3>知识点与四周诊断</h3><p>知识点扩展模块没有完成加载。每日训练、已保存成绩不受影响。</p><p>请先按 Ctrl+F5 刷新。如果仍然出现此提示，请检查 coach_release2_panel.js 和 coach_skill_import_v4_offline.js 是否存在于仓库根目录。</p><button onclick="location.reload()">重新加载</button></div>';
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(status,2500)});
+  else setTimeout(status,2500);
+})();
+</script>
 </body></html>
