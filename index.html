@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Lucas AMC8 Coach v0.6.4.2.4</title>
+<title>Lucas AMC8 Coach v0.6.4.2.5</title>
 <style>
 :root{--bg:#f4f7fb;--card:#fff;--text:#162235;--muted:#657287;--accent:#2d67d9;--line:#dbe3ef;--good:#137a4e;--warn:#a86400;--bad:#b42318}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
@@ -167,14 +167,14 @@ hr{border:0;border-top:1px solid var(--line);margin:15px 0}.two{display:grid;gri
   }
 }
 
-/* v0.6.4.2.4: five learning pages; parental settings stays accessible. */
+/* v0.6.4.2.5: five learning pages; parental settings stays accessible. */
 .parent-settings{background:#dbe6f7;color:#20314b;border:1px solid #9db1cb}
 </style>
 <script src="official_bank.js"></script>
 </head>
 <body>
 <header>
-<div><h1>Lucas AMC8 Coach <span style="font-size:12px;font-weight:400">v0.6.4.2.4</span></h1><div class=sub>真实AMC8题库核心 · Daily Adaptive Engine · Authentic Exam Assembly · 每日锁卷 · 免注册云同步</div></div>
+<div><h1>Lucas AMC8 Coach <span style="font-size:12px;font-weight:400">v0.6.4.2.5</span></h1><div class=sub>真实AMC8题库核心 · Daily Adaptive Engine · Authentic Exam Assembly · 每日锁卷 · 免注册云同步</div></div>
 <nav aria-label="主导航">
 <button onclick="show('home')">主页</button>
 <button onclick="show('practice')">每日训练</button>
@@ -1494,7 +1494,7 @@ function renderReport(){
   renderDailyReviewIntoReport();
 }
 
-// v0.6.4.2.4 — read-only, persistent per-question review for daily paper sessions.
+// v0.6.4.2.5 — read-only, persistent per-question review for daily paper sessions.
 // Never modifies S, and never assumes old legacy attempts have selected answers.
 function renderDailyReviewIntoReport(){
   const host=document.getElementById('report');if(!host)return;
@@ -1998,19 +1998,59 @@ initV063();
 
 <!-- AMC8 v0.6.4.2 SAFE SKILL MODULE: BEGIN -->
 <script src="coach_skill_import_v4_offline.js"></script>
-<script src="coach_release2_panel.js"></script>
+<!-- Legacy panel disabled: knowledge lives in its dedicated view, owned by index.html. -->
 <script src="coach_mock_submission_guard.js"></script>
 <!-- AMC8 v0.6.4.2 SAFE SKILL MODULE: END -->
-<!-- v0.6.4.2.4 knowledge loading fail-safe: never leave a permanent spinner -->
+<!-- v0.6.4.2.5: one knowledge panel, mounted only in #knowledge. -->
 <script>
 (function(){
-  function status(){
-    var el=document.getElementById('knowledge');if(!el)return;
-    if(el.querySelector('#amc8-release2-panel'))return;
-    el.innerHTML='<div class="card"><h3>知识点与四周诊断</h3><p>知识点扩展模块没有完成加载。每日训练、已保存成绩不受影响。</p><p>请先按 Ctrl+F5 刷新。如果仍然出现此提示，请检查 coach_release2_panel.js 和 coach_skill_import_v4_offline.js 是否存在于仓库根目录。</p><button onclick="location.reload()">重新加载</button></div>';
-  }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(status,2500)});
-  else setTimeout(status,2500);
+'use strict';
+var panel=document.getElementById('knowledge');
+if(!panel)return;
+panel.innerHTML='<div class="card"><h3>知识点与四周诊断</h3><p id="kcStatus">正在核对题库，请稍候……</p><div id="kcStats"></div><div class="row"><button type="button" id="kcRetry">重新检查</button><button type="button" id="kcImport" disabled>导入PDF方法标签（不计能力分）</button></div><p class="small">方法资料仅用于识别知识点，不代表已经独立验算。不会更改已有训练成绩、已锁定试卷或家长标签。</p></div>';
+var status=document.getElementById('kcStatus'),stats=document.getElementById('kcStats');
+var importer=document.getElementById('kcImport'),retry=document.getElementById('kcRetry'),lastCheck=null;
+function setError(message){status.textContent='知识点资料未能加载：'+message;stats.textContent='可继续正常使用每日训练和学习报告。';importer.disabled=true;}
+async function inspect(){
+ if(typeof ARCHIVE_BANK==='undefined'||!Array.isArray(ARCHIVE_BANK)||ARCHIVE_BANK.length!==575)throw Error('575 道真题尚未就绪，请检查题库是否加载成功');
+ if(!window.LucasAMC8SkillImport||typeof window.LucasAMC8SkillImport.validate!=='function')throw Error('coach_skill_import_v4_offline.js 没有正常加载');
+ var res=await fetch('coach_skill_bank.json',{cache:'no-store'});
+ if(!res.ok)throw Error('coach_skill_bank.json 返回 HTTP '+res.status);
+ var check=window.LucasAMC8SkillImport.validate(await res.json(),ARCHIVE_BANK);
+ var done=Object.keys(S.v064_specific_skills||{}).length;
+ var diagnostic=(S.mock_history||[]).filter(function(x){return x&&(/真题诊断/.test(String(x.kind||''))||x.paper_type==='diagnostic'||x.kind==='diagnostic')&&/^\d{4}-\d{2}-\d{2}$/.test(String(x.date||''));}).sort(function(a,b){return String(b.date).localeCompare(String(a.date));})[0];
+ return {check:check,done:done,missing:Object.keys(check.fine).filter(function(id){return !Object.prototype.hasOwnProperty.call(S.v064_specific_skills||{},id);}).length,diagnostic:diagnostic};
+}
+async function refresh(){
+ retry.disabled=true;importer.disabled=true;status.textContent='正在检查575道真题和知识点资料……';stats.textContent='';
+ try{
+  lastCheck=await inspect();
+  var o=lastCheck;
+  status.textContent='知识点资料加载成功。';
+  var p=document.createElement('p');p.textContent='真题 '+o.check.counts.total+' 道 · 已核对PDF方法 '+o.check.counts.methodReviewed+' 道 · 已保存方法标签 '+o.done+' 条 · 待导入 '+o.missing+' 条';
+  var d=document.createElement('p');
+  if(!o.diagnostic){d.textContent='四周诊断：尚无明确标记的完整年份诊断记录，可在「周末模拟」进行完整真题诊断。';}
+  else {var days=Math.floor((Date.now()-new Date(o.diagnostic.date+'T00:00:00').getTime())/86400000);d.textContent='最近一次完整年份诊断：'+o.diagnostic.date+'；'+(days>=28?'已满28天，可安排新诊断。':'距离下一次四周诊断还有 '+(28-Math.max(0,days))+' 天。');}
+  stats.replaceChildren(p,d);
+  importer.disabled=o.missing===0;
+ }catch(e){lastCheck=null;setError(e&&e.message||String(e));}
+ finally{retry.disabled=false;}
+}
+retry.addEventListener('click',refresh);
+importer.addEventListener('click',async function(){
+ if(!lastCheck||!lastCheck.missing||typeof window.lucasAMC8ImportReviewedTagsV3!=='function')return;
+ if(!confirm('只导入 '+lastCheck.missing+' 条PDF方法标签，不计入Lucas能力成绩，也不覆盖已保存记录。确认导入？'))return;
+ importer.disabled=true;
+ try{var r=await window.lucasAMC8ImportReviewedTagsV3();if(!r.applied)throw Error(r.reason||'导入未完成');await refresh();status.textContent='方法资料已导入 '+r.added+' 条；不会据此提升能力评分。';}
+ catch(e){setError(e&&e.message||String(e));}
+});
+// Load after the original async archive init; errors become actionable instead of a permanent spinner.
+var attempts=0;
+async function startup(){
+ if((typeof ARCHIVE_BANK==='undefined'||!Array.isArray(ARCHIVE_BANK)||ARCHIVE_BANK.length!==575)&&attempts++<25){setTimeout(startup,400);return;}
+ await refresh();
+}
+startup();
 })();
 </script>
 </body></html>
