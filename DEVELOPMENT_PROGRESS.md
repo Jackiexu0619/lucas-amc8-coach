@@ -72,3 +72,14 @@ The current production path was not fully using the reviewed weekly weakness sel
 ## Next priority
 
 Finish browser-level integration review, then open/review the release PR. Do not claim the production site has the fix until it is merged and deployed.
+
+
+## Live cloud sync round-trip QA — 2026-10-25
+
+- Result: PASS — https://github.com/Jackiexu0619/lucas-amc8-coach/actions/runs/40111616475
+- Exercised the production `amc8-sync` Edge Function with a random one-time test sync code.
+- Verified ping, first upload, pull and exact JSON equality, stale revision rejection (HTTP 409), no overwrite after conflict, valid revision increment, and a second exact pull.
+- Confirmed the isolated test row existed with revision 2, deleted only the row matching the exact test hash and QA marker, then queried again: remaining test rows = 0.
+- No real learner state was used or changed.
+- GitHub Pages deployment for v0.6.5.15: PASS — https://github.com/Jackiexu0619/lucas-amc8-coach/actions/runs/40110075753
+- Remaining acceptance item: visual/interactive browser check of the deployed home page and locked-paper flow. Static regression tests pass; this is not yet claimed as completed end-to-end browser testing.
