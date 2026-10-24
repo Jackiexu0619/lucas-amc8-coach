@@ -1,0 +1,27 @@
+name: AI transfer review QA
+
+on:
+  push:
+    paths:
+      - 'coach_ai_transfer_review_v066.js'
+      - 'qa_ai_transfer_review_v066.cjs'
+      - '.github/workflows/ai-transfer-review-qa.yml'
+  pull_request:
+    paths:
+      - 'coach_ai_transfer_review_v066.js'
+      - 'qa_ai_transfer_review_v066.cjs'
+      - '.github/workflows/ai-transfer-review-qa.yml'
+  workflow_dispatch:
+
+jobs:
+  review-loop:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Syntax check
+        run: node --check coach_ai_transfer_review_v066.js
+      - name: Integration QA
+        run: node qa_ai_transfer_review_v066.cjs
