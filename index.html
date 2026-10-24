@@ -865,7 +865,7 @@ function findMockTopicPlan(profile,blocked){
   }
   return solve(0,{...profile})?.plan||null;
 }
-function buildPrintableMockCore(){
+function buildPrintableMockCoreLegacy(){
   resetWeeklyWeaknessCache();
   const recentMocks=recentWeekendQuestionIds(4),recentWeekdays=recentWeekdayQuestionIds(7);
   const blocked=new Set([...recentMocks,...recentWeekdays]);
