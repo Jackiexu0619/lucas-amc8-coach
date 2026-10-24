@@ -49,12 +49,12 @@
   "test_result": {
     "automated_ci": "PASS — AI transfer review QA run #10 (commit 282b808f5b136423ea6b70f9b81ef3f262e1fae8)",
     "expected_assertions": 21,
-    "browser_end_to_end": "NOT_YET_RUN",
+    "browser_end_to_end": "NOT_YET_RUN — current browser tab was loaded before the latest deployment; a fresh reload and real UI interaction remain necessary.",
     "supabase_cloud_roundtrip": "NOT_YET_RUN",
     "failures_observed": [
       "Earlier QA workflow failures were caused by missing browser-function stubs and incorrect test references in qa_ai_transfer_review_v066.cjs; fixed in commit 282b808f5b136423ea6b70f9b81ef3f262e1fae8. The QA workflow now passes."
     ],
-    "note": "Automated QA and GitHub Pages deployment pass. Do not claim final release acceptance until real browser end-to-end and Supabase cloud roundtrip checks are completed.",
+    "note": "AI review automated QA and GitHub Pages deployment pass. Selector regressions pass in an in-session runtime harness. Do not claim final release acceptance until a fresh browser end-to-end check and Supabase cloud roundtrip are completed.",
     "model_level_runtime_harness": {
       "status": "PASS",
       "assertions": 65,
@@ -80,6 +80,27 @@
         "QA harness included",
         "report refreshes after AI submission"
       ]
+    },
+    "weekday_selector_regression": {
+      "status": "PASS",
+      "checks": [
+        "Only one eligibleDailyBank definition remains; the 30-day policy is not shadowed by a later duplicate.",
+        "Exact question IDs attempted within 30 days are excluded when at least three eligible official AMC8 Q13-Q25 questions remain.",
+        "When only two unseen candidates remain, the selector relaxes its window and still returns the full 299-question Q13-Q25 bank as last resort."
+      ],
+      "harness": "In-session runtime simulation against all 575 official archive records; 50 recent attempts were excluded."
+    },
+    "weekend_mixed_mock_regression": {
+      "status": "PASS",
+      "papers_generated": 10,
+      "checks": [
+        "Every paper contains 25 unique questions.",
+        "Each mock position preserves the original AMC8 question number.",
+        "Unattempted questions are preferred over any previously attempted question.",
+        "All 10 simulated papers avoided repeats while enough unseen candidates existed.",
+        "Each paper drew from 23 source years with balanced year usage."
+      ],
+      "harness": "In-session runtime simulation against the 575-question official archive."
     }
   },
   "release_decision": "MODEL_QA_PASS_BROWSER_AND_CLOUD_ACCEPTANCE_PENDING"
