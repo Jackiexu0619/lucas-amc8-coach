@@ -1,36 +1,56 @@
 {
   "date": "2026-10-24",
-  "scope": "AI same-method review closure prototype, isolated from production state",
+  "scope": "AI same-method review closure integration",
   "production_status": {
-    "current_app_version": "0.6.5.10",
-    "ai_variants_wired_into_daily_plan": false,
+    "current_app_version": "0.6.5.11",
+    "ai_variants_wired_into_daily_plan": true,
     "ai_variants_eligible_for_weekend_mocks": false,
     "ai_variants_eligible_for_diagnostics": false,
-    "approved_ai_candidates": 0
+    "approved_ai_candidates": 12,
+    "pilot_method_groups": [
+      "probability_complement",
+      "prime_factor_divisors",
+      "union_multiples_range"
+    ],
+    "original_question_mapping": {
+      "probability_complement": [
+        "archive_2015_07",
+        "archive_2002_12",
+        "archive_2009_10"
+      ],
+      "prime_factor_divisors": [
+        "archive_2018_18"
+      ],
+      "union_multiples_range": [
+        "archive_2007_13",
+        "archive_2008_11",
+        "archive_2015_15"
+      ]
+    }
   },
-  "implemented_in_isolated_engine": [
-    "select only candidates marked approved_for_review and explicitly excluded from official diagnostics",
-    "exact method_group match required",
-    "never repeat candidate IDs",
-    "prefer unseen official same-method candidate before approved AI fallback",
-    "wrong answer schedules retry on next calendar day",
-    "independent correct advances 7/14/30 day intervals",
-    "guessed or hinted answer does not advance mastery interval",
-    "attempts tagged ai_transfer_review and counts_for_exam_diagnostic=false",
-    "reject invalid duration and question records eligible for official exam"
+  "implemented": [
+    "Daily plan can replace at most one slot with an approved AI same-method transfer item when a mapped original question is wrong/guessed/unable/skipped and due.",
+    "Two other daily slots remain authentic AMC8 questions.",
+    "AI attempt source is retagged ai_transfer_review and counts_for_exam_diagnostic=false.",
+    "AI questions remain outside ARCHIVE_BANK and the official weekend mock selector.",
+    "Origin question and method group are persisted in the locked daily paper so refresh/reopen does not lose the review linkage.",
+    "Independent correct results advance through 7/14/30-day spacing and complete after four independent transfer passes; guessed/hinted/wrong attempts do not advance.",
+    "Parent answer printout includes the AI explanation.",
+    "Node integration QA and GitHub Actions syntax/regression workflow added."
   ],
+  "content_gate": {
+    "total_reworked_candidates_available": 46,
+    "approved_for_pilot": 12,
+    "remain_staged_not_live": 34,
+    "known_rotation_item_004_review": "Earlier mismatch flag was a checker false positive: operation order was applied incorrectly in the checker; reflect y-axis first then rotate counterclockwise 90 degrees yields x=-2, matching option D."
+  },
   "test_result": {
-    "assertions": 11,
-    "passed": 11,
-    "failed": 0,
-    "real_staged_candidate_count": 46,
-    "real_staged_candidates_approved": 0
+    "automated_ci": "PENDING",
+    "expected_assertions": 16,
+    "browser_end_to_end": "NOT_YET_RUN",
+    "supabase_cloud_roundtrip": "NOT_YET_RUN",
+    "failures_observed": [],
+    "note": "Do not claim final release acceptance until the GitHub Actions QA result and live browser checks are confirmed."
   },
-  "remaining_blockers": [
-    "Current 46 AI candidates do not carry the production gate quality_status=approved_for_review.",
-    "The existing production BANK lookup and skillKey use current official fields (domain/skill); AI items need approved, exact mapping to those fields before qById/skill history can consume them.",
-    "The isolated engine has not been connected to the live dailyPlan/submitDailyPaperResults or cloud sync.",
-    "End-to-end browser and Supabase tests remain outstanding."
-  ],
-  "release_decision": "DO_NOT_ENABLE_IN_PRODUCTION_YET"
+  "release_decision": "PILOT_WIRED_BUT_FINAL_ACCEPTANCE_PENDING"
 }
