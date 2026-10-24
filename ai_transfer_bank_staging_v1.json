@@ -415,24 +415,25 @@
       "language": "zh-CN",
       "purpose": "same_method_transfer_only",
       "skill": "排列与空位法",
-      "method_group": "nonadjacent_distinct",
-      "question": "有 5 名不同的同学排成一排，其中甲、乙不能相邻。共有多少种不同排法？",
+      "method_group": "two_people_one_between",
+      "question": "有5名不同的同学排成一排，要求甲、乙之间恰好隔着一名同学。不同的排法共有多少种？",
       "options": [
+        "30",
+        "36",
         "42",
-        "73",
-        "71",
-        "72",
-        "102"
+        "48",
+        "54"
       ],
-      "answer": "D",
-      "numeric_answer": 72,
-      "solution": "先算所有排列 5!，再扣除把甲乙看成一块的 2×(5-1)! 种相邻排法，所以共有 72 种。",
+      "answer": "B",
+      "numeric_answer": 36,
+      "solution": "甲、乙之间固定有一个座位，中间位置可由其他3人之一占据；甲乙方向有2种，三人整体可放在3个起始位置，其余2人排列。总计2×(3)×(3)!=36。",
       "parameters": {
-        "n": 5
+        "n": 5,
+        "pattern": "one_between"
       },
       "validation": {
-        "formula_result": 72,
-        "independent_result": 72,
+        "formula_result": 36,
+        "independent_result": 36,
         "unique_options": true,
         "solver_checked": true
       },
@@ -445,24 +446,25 @@
       "language": "zh-CN",
       "purpose": "same_method_transfer_only",
       "skill": "排列与空位法",
-      "method_group": "nonadjacent_distinct",
-      "question": "有 6 名不同的同学排成一排，其中甲、乙不能相邻。共有多少种不同排法？",
+      "method_group": "two_people_one_between",
+      "question": "有6名不同的同学排成一排，要求甲、乙之间恰好隔着一名同学。不同的排法共有多少种？",
       "options": [
-        "482",
-        "478",
-        "480",
-        "481",
-        "479"
+        "168",
+        "192",
+        "216",
+        "240",
+        "264"
       ],
-      "answer": "C",
-      "numeric_answer": 480,
-      "solution": "先算所有排列 6!，再扣除把甲乙看成一块的 2×(6-1)! 种相邻排法，所以共有 480 种。",
+      "answer": "B",
+      "numeric_answer": 192,
+      "solution": "甲、乙之间固定有一个座位，中间位置可由其他4人之一占据；甲乙方向有2种，三人整体可放在4个起始位置，其余3人排列。总计2×(4)×(4)!=192。",
       "parameters": {
-        "n": 6
+        "n": 6,
+        "pattern": "one_between"
       },
       "validation": {
-        "formula_result": 480,
-        "independent_result": 480,
+        "formula_result": 192,
+        "independent_result": 192,
         "unique_options": true,
         "solver_checked": true
       },
@@ -475,24 +477,25 @@
       "language": "zh-CN",
       "purpose": "same_method_transfer_only",
       "skill": "排列与空位法",
-      "method_group": "nonadjacent_distinct",
-      "question": "有 7 名不同的同学排成一排，其中甲、乙不能相邻。共有多少种不同排法？",
+      "method_group": "two_people_one_between",
+      "question": "有7名不同的同学排成一排，要求甲、乙之间恰好隔着一名同学。不同的排法共有多少种？",
       "options": [
-        "3597",
-        "3600",
-        "3602",
-        "3598",
-        "3603"
+        "1080",
+        "1200",
+        "1320",
+        "1440",
+        "1560"
       ],
       "answer": "B",
-      "numeric_answer": 3600,
-      "solution": "先算所有排列 7!，再扣除把甲乙看成一块的 2×(7-1)! 种相邻排法，所以共有 3600 种。",
+      "numeric_answer": 1200,
+      "solution": "甲、乙之间固定有一个座位，中间位置可由其他5人之一占据；甲乙方向有2种，三人整体可放在5个起始位置，其余4人排列。总计2×(5)×(5)!=1200。",
       "parameters": {
-        "n": 7
+        "n": 7,
+        "pattern": "one_between"
       },
       "validation": {
-        "formula_result": 3600,
-        "independent_result": 3600,
+        "formula_result": 1200,
+        "independent_result": 1200,
         "unique_options": true,
         "solver_checked": true
       },
@@ -505,24 +508,25 @@
       "language": "zh-CN",
       "purpose": "same_method_transfer_only",
       "skill": "排列与空位法",
-      "method_group": "nonadjacent_distinct",
-      "question": "有 8 名不同的同学排成一排，其中甲、乙不能相邻。共有多少种不同排法？",
+      "method_group": "two_people_one_between",
+      "question": "有8名不同的同学排成一排，要求甲、乙之间恰好隔着一名同学。不同的排法共有多少种？",
       "options": [
-        "30240",
-        "30243",
-        "30237",
-        "30244",
-        "30236"
+        "7920",
+        "8640",
+        "9360",
+        "10080",
+        "10800"
       ],
-      "answer": "A",
-      "numeric_answer": 30240,
-      "solution": "先算所有排列 8!，再扣除把甲乙看成一块的 2×(8-1)! 种相邻排法，所以共有 30240 种。",
+      "answer": "B",
+      "numeric_answer": 8640,
+      "solution": "甲、乙之间固定有一个座位，中间位置可由其他6人之一占据；甲乙方向有2种，三人整体可放在6个起始位置，其余5人排列。总计2×(6)×(6)!=8640。",
       "parameters": {
-        "n": 8
+        "n": 8,
+        "pattern": "one_between"
       },
       "validation": {
-        "formula_result": 30240,
-        "independent_result": 30240,
+        "formula_result": 8640,
+        "independent_result": 8640,
         "unique_options": true,
         "solver_checked": true
       },
