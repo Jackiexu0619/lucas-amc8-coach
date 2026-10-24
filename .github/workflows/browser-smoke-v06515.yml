@@ -11,17 +11,17 @@ permissions:
 
 jobs:
   deployed-browser-smoke:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
       - name: Install Playwright
         run: |
           npm init -y
-          npm install --no-save playwright@1.55.0
+          npm install --no-save playwright@latest
           npx playwright install --with-deps chromium
       - name: Exercise deployed site in isolated browser storage
         env:
