@@ -52,7 +52,33 @@
     "browser_end_to_end": "NOT_YET_RUN",
     "supabase_cloud_roundtrip": "NOT_YET_RUN",
     "failures_observed": [],
-    "note": "Do not claim final release acceptance until the GitHub Actions QA result and live browser checks are confirmed."
+    "note": "Do not claim final release acceptance until the GitHub Actions QA result and live browser checks are confirmed.",
+    "model_level_runtime_harness": {
+      "status": "PASS",
+      "assertions": 65,
+      "checks": [
+        "12 pilot candidates independently recomputed against their answer options",
+        "daily paper remains three questions with at most one AI review item",
+        "two remaining slots are official AMC8 items",
+        "locked paper origin survives reload",
+        "submitted AI attempt is retagged and excluded from diagnostics",
+        "7/14/30-day spacing and completion after four independent passes",
+        "guessed correct does not advance and retries next training day"
+      ]
+    },
+    "static_integration_checks": {
+      "status": "PASS",
+      "passed": 6,
+      "total": 6,
+      "checks": [
+        "version aligned to v0.6.5.11",
+        "AI script loaded after legacy review queue",
+        "AI candidates not inserted into official archive",
+        "undo removes AI review attempts",
+        "QA harness included",
+        "report refreshes after AI submission"
+      ]
+    }
   },
-  "release_decision": "CODE_WIRED_QA_PENDING_LIVE_ACCEPTANCE"
+  "release_decision": "MODEL_QA_PASS_BROWSER_AND_CLOUD_ACCEPTANCE_PENDING"
 }
