@@ -288,5 +288,4 @@ if(typeof renderReport==='function'){
   const baseReport=renderReport;
   renderReport=function(){const result=baseReport.apply(this,arguments);try{renderClosurePanel();}catch(e){console.warn('AMC learning closure panel failed',e);}return result;};
 }
-loadTagBank();
 })(typeof window!=='undefined'?window:globalThis);
