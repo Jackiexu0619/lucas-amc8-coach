@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- BUILD: Lucas AMC8 Coach v0.6.5.11 / archive_official_v1 -->
+<!-- BUILD: Lucas AMC8 Coach v0.6.5.12 / archive_official_v1 -->
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
@@ -448,7 +448,7 @@ function weeklyWeakRecords(){
     if(age<0||age>7||a.source==='weekend_mock'||!isWeakLearningAttempt(a))continue;
     const q=qById(a.question_id);if(!q)continue;
     const tags=learningTags(q);
-    const severity=(!a.correct||a.result_status==='unable'||a.result_status==='skipped')?1:(a.guessed?.8:.6);
+    const severity=(!a.correct||a.result_status==='unable'||a.result_status==='skipped')?1:(a.guessed ? 0.8 : 0.6);
     rows.push({question_id:a.question_id,date:a.date,source:a.source||'weekday_training',age,tags,severity,reason:!a.correct?(a.result_status==='unable'?'不会做':'答错'):a.guessed?'猜对/不确定':'正确但偏慢'});
   }
   return rows;
