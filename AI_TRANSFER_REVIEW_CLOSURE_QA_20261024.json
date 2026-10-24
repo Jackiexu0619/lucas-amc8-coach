@@ -46,11 +46,11 @@
   },
   "test_result": {
     "automated_ci": "PENDING",
-    "expected_assertions": 18,
+    "expected_assertions": 21,
     "browser_end_to_end": "NOT_YET_RUN",
     "supabase_cloud_roundtrip": "NOT_YET_RUN",
     "failures_observed": [],
     "note": "Do not claim final release acceptance until the GitHub Actions QA result and live browser checks are confirmed."
   },
-  "release_decision": "PILOT_WIRED_BUT_FINAL_ACCEPTANCE_PENDING"
+  "release_decision": "CODE_WIRED_QA_PENDING_LIVE_ACCEPTANCE"
 }
