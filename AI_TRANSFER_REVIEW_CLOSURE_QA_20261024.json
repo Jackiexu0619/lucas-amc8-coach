@@ -1,0 +1,36 @@
+{
+  "date": "2026-10-24",
+  "scope": "AI same-method review closure prototype, isolated from production state",
+  "production_status": {
+    "current_app_version": "0.6.5.10",
+    "ai_variants_wired_into_daily_plan": false,
+    "ai_variants_eligible_for_weekend_mocks": false,
+    "ai_variants_eligible_for_diagnostics": false,
+    "approved_ai_candidates": 0
+  },
+  "implemented_in_isolated_engine": [
+    "select only candidates marked approved_for_review and explicitly excluded from official diagnostics",
+    "exact method_group match required",
+    "never repeat candidate IDs",
+    "prefer unseen official same-method candidate before approved AI fallback",
+    "wrong answer schedules retry on next calendar day",
+    "independent correct advances 7/14/30 day intervals",
+    "guessed or hinted answer does not advance mastery interval",
+    "attempts tagged ai_transfer_review and counts_for_exam_diagnostic=false",
+    "reject invalid duration and question records eligible for official exam"
+  ],
+  "test_result": {
+    "assertions": 11,
+    "passed": 11,
+    "failed": 0,
+    "real_staged_candidate_count": 46,
+    "real_staged_candidates_approved": 0
+  },
+  "remaining_blockers": [
+    "Current 46 AI candidates do not carry the production gate quality_status=approved_for_review.",
+    "The existing production BANK lookup and skillKey use current official fields (domain/skill); AI items need approved, exact mapping to those fields before qById/skill history can consume them.",
+    "The isolated engine has not been connected to the live dailyPlan/submitDailyPaperResults or cloud sync.",
+    "End-to-end browser and Supabase tests remain outstanding."
+  ],
+  "release_decision": "DO_NOT_ENABLE_IN_PRODUCTION_YET"
+}
