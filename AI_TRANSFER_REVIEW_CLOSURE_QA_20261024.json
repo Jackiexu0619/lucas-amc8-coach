@@ -47,12 +47,14 @@
     "known_rotation_item_004_review": "Earlier mismatch flag was a checker false positive: operation order was applied incorrectly in the checker; reflect y-axis first then rotate counterclockwise 90 degrees yields x=-2, matching option D."
   },
   "test_result": {
-    "automated_ci": "PENDING_STATUS_UNAVAILABLE",
+    "automated_ci": "PASS — AI transfer review QA run #10 (commit 282b808f5b136423ea6b70f9b81ef3f262e1fae8)",
     "expected_assertions": 21,
     "browser_end_to_end": "NOT_YET_RUN",
     "supabase_cloud_roundtrip": "NOT_YET_RUN",
-    "failures_observed": [],
-    "note": "Do not claim final release acceptance until the GitHub Actions QA result and live browser checks are confirmed.",
+    "failures_observed": [
+      "Earlier QA workflow failures were caused by missing browser-function stubs and incorrect test references in qa_ai_transfer_review_v066.cjs; fixed in commit 282b808f5b136423ea6b70f9b81ef3f262e1fae8. The QA workflow now passes."
+    ],
+    "note": "Automated QA and GitHub Pages deployment pass. Do not claim final release acceptance until real browser end-to-end and Supabase cloud roundtrip checks are completed.",
     "model_level_runtime_harness": {
       "status": "PASS",
       "assertions": 65,
