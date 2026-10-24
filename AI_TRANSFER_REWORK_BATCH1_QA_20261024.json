@@ -1,0 +1,24 @@
+{
+  "date": "2026-10-24",
+  "source": "ai_transfer_rework_batch1_20261024.json",
+  "counts": {
+    "total": 22,
+    "mechanical_checks_passed": 22,
+    "coordinate": 6,
+    "probability": 8,
+    "area": 8
+  },
+  "accepted_for_production": 0,
+  "editorial_status": "STAGED_PEDAGOGICAL_REVIEW",
+  "improvements": [
+    "Coordinates ask transformed coordinates, reverse mappings, and multistep rotation/reflection rather than invariant absolute-value sum.",
+    "Probability asks actual reduced probabilities, using complements and exhaustive event counting.",
+    "Areas cover reconstruction, border subtraction, shared-height triangle splits, and area ratios."
+  ],
+  "outstanding": [
+    "Need check against grade-five comprehension and difficulty calibrated to AMC8 Q13-Q25; some reconstructed rectangle/frame questions may still be below target.",
+    "Questions remain parametrically related; broad transfer should use varied contexts rather than only changed dimensions.",
+    "Need link newly defined method_group IDs to source AMC8 problem groups before automatic matching.",
+    "No real-user automatic scheduling, score update, or Supabase writes authorized/performed."
+  ]
+}
