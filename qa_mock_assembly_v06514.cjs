@@ -29,6 +29,13 @@ baseline.chosen.forEach(function(q, i) {
 });
 assert.deepEqual(baseline.summary.personalized_positions, DEFAULT_PERSONALIZED_POSITIONS, 'seven configured personalized positions should remain stable');
 
+const reservedYears = new Set([2017, 2018, 2019, 2020, 2022, 2023]);
+const personalizedArchive = archive.filter(function(q) { return !reservedYears.has(q.year); });
+const reservedProtected = selectArchiveMock({ archive: personalizedArchive, random: function() { return 0.5; } });
+assert.equal(reservedProtected.ok, true, 'personalized selector should still build with diagnostic years reserved');
+assert.equal(reservedProtected.chosen.some(function(q) { return reservedYears.has(q.year); }), false, 'personalized papers must not consume years reserved for full-year diagnostics');
+
+
 const attemptedAndRecent = selectArchiveMock({
   archive: archive,
   attemptedIds: ['archive_2000_01', 'archive_2002_01'],
@@ -78,14 +85,20 @@ assert.equal(missingPosition.ok, false);
 assert.equal(missingPosition.reason, 'missing-position-13');
 
 const html = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf8');
+const coach = fs.readFileSync(path.join(__dirname, 'coach_v064.js'), 'utf8');
 const changelog = fs.readFileSync(path.join(__dirname, 'CHANGELOG.md'), 'utf8');
 assert.equal((html.match(/function buildPrintableMockCore\s*\(/g) || []).length, 1, 'only one active buildPrintableMockCore definition may exist');
 assert.match(html, /coach_mock_assembly_v06514\.js\?v=0\.6\.5\.14/, 'new selector module must be cache-busted and loaded');
 assert.match(html, /function archiveWeaknessScore\s*\(/, 'application must calculate a same-method weakness score');
 assert.match(html, /selectArchiveMock\s*\(/, 'active archive selector must use the tested selector module');
 assert.match(html, /weekly_weakness_coverage/, 'mock metadata must retain traceable weakness coverage');
+assert.match(html, /coach_v064\.js\?v=0\.6\.5\.14/, 'the production override must be cache-busted');
+assert.match(coach, /buildArchiveMockCore\(\{\s*archive:allowedArchive,reservedYears:RESERVED_YEARS\}\)/, 'production personalized mode must use the tested selector and reserve diagnostic years');
+assert.match(coach, /chosen=pickDiagnostic\(\)/, 'full-year diagnostic mode must remain independent');
+assert.match(coach, /paper_type:'personalized_practice'/, 'personalized mock type must be preserved for submission history');
+assert.match(coach, /paper_type:'diagnostic'/, 'diagnostic paper type must remain explicit');
 assert.match(html, /const ENGINE_VERSION='0\.6\.5\.14'/, 'engine version must be bumped');
 assert.match(changelog, /v0\.6\.5\.14/, 'changelog must record this release');
 assert.doesNotMatch(html, /0\.6\.5\.13/, 'old version/cache keys should not remain in the active page');
 
-console.log('PASS: AMC8 weakness-aware weekend mock assembly QA (25 assertions)');
+console.log('PASS: AMC8 weakness-aware weekend mock assembly QA');
