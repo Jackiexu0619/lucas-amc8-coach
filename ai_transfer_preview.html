@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AMC8 AI同方法变式题 · 待验收题库</title>
+<style>body{font-family:system-ui,-apple-system,"Microsoft YaHei",sans-serif;max-width:900px;margin:auto;padding:20px;color:#20314c;background:#f5f7fb}.card{background:white;padding:20px;border-radius:12px;margin:16px 0;box-shadow:0 1px 6px #d9dfed}h1{font-size:24px}select,button{padding:10px;border:1px solid #bac6da;border-radius:6px;background:white}button{cursor:pointer}.alert{padding:13px;border-left:5px solid #c67413;background:#fff0d9}li{margin:10px 0}details{margin-top:12px}small{color:#526077}#status{color:#6b7687}@media print{body{background:white}.noprint,details{display:none}.card{box-shadow:none;page-break-inside:avoid}} </style></head>
+<body><h1>AMC8 · AI 同方法变式题库</h1>
+<p class="alert"><b>质检预览版 · 尚未加入正式自动出题。</b>本页仅供审核题目、解法与排版，不记录 Lucas 的训练成绩，也不计入周末模拟或四周诊断。</p>
+<div class="noprint"><label>方法类别 <select id="skill"><option value="">全部方法</option></select></label> <button id="print">打印当前题目</button> <span id="status"></span></div><main id="list"></main>
+<script>
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+let questions=[];
+function draw(){
+ const f=document.querySelector('#skill').value;
+ const list=questions.filter(q=>!f||q.skill===f);
+ document.querySelector('#status').textContent='当前 '+list.length+' / '+questions.length+' 题';
+ document.querySelector('#list').innerHTML=list.map(q=>'<section class="card"><small>'+esc(q.id)+' · '+esc(q.skill)+' · 方法分组：'+esc(q.method_group)+'</small><p><b>'+esc(q.question)+'</b></p><ol type="A">'+q.options.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ol><details><summary>查看标准答案和解析（审核用）</summary><p>答案：<b>'+esc(q.answer)+'</b>；数值：'+esc(q.numeric_answer)+'</p><p>'+esc(q.solution)+'</p><p><small>独立校验值：'+esc(q.validation.independent_result)+'</small></p></details></section>').join('');
+}
+fetch('ai_transfer_bank_staging_v1.json',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('HTTP '+r.status);return r.json()}).then(data=>{if(data.deployment_gate!=='STAGED_NOT_LIVE')throw Error('题库状态异常');questions=data.questions||[];const types=[...new Set(questions.map(q=>q.skill))];document.querySelector('#skill').innerHTML='<option value="">全部方法</option>'+types.map(t=>'<option>'+esc(t)+'</option>').join('');draw()}).catch(e=>{document.querySelector('#status').textContent='载入失败：'+e.message});
+document.querySelector('#skill').addEventListener('change',draw);
+document.querySelector('#print').addEventListener('click',()=>window.print());
+</script></body></html>
