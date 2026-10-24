@@ -139,7 +139,7 @@ submitDailyPaperResults=function(){
    if(ids.has(a.question_id)&&byId.has(a.question_id)){
     a.source='ai_transfer_review';a.counts_for_exam_diagnostic=false;
     a.method_group=byId.get(a.question_id).method_group;
-    a.review_origin_question_id=window.__amcAiTransferSelected?.id===a.question_id?window.__amcAiTransferSelected.review_origin_question_id:null;
+    a.review_origin_question_id=window.__amcAiTransferSelected?.id===a.question_id?window.__amcAiTransferSelected.review_origin_question_id:(p?.ai_transfer_context?.question_id===a.question_id?p.ai_transfer_context.origin_question_id:null);
     if(!a.review_origin_question_id){
      const active=window.__amcAiTransferSelected;
      if(active?.id===a.question_id)a.review_origin_question_id=active.review_origin_question_id;
