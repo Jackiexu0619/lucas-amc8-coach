@@ -121,6 +121,13 @@ function renderQueue(){
 }
 const oldRenderReport=renderReport;
 renderReport=function(){oldRenderReport();const node=document.getElementById('report');if(node)node.insertAdjacentHTML('beforeend',renderQueue())};
+const oldPrintDailyAnswer=printDailyAnswer;
+printDailyAnswer=function(){
+ oldPrintDailyAnswer.apply(this,arguments);
+ const ai=(dailyPlan()||[]).filter(q=>q?.source==='ai_generated_review');
+ const root=document.getElementById('printRoot');
+ if(root&&ai.length)root.insertAdjacentHTML('beforeend',ai.map(q=>'<div class="answer-row"><b>AI迁移题解析：</b>'+esc(q.solution)+'</div>').join(''));
+};
 const oldSubmit=submitDailyPaperResults;
 submitDailyPaperResults=function(){
  const before=(S.daily_sessions||[]).length;
