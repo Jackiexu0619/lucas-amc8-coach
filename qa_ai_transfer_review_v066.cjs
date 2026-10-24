@@ -26,8 +26,8 @@ const ctx={
  renderReport:()=>{},
  submitDailyPaperResults:function(){
   const plan=ctx.dailyPlan();
-  for(const q of plan)S.attempts.push({question_id:q.id,date:today(),correct:true,selected_answer:q.answer,result_status:'correct',guessed:false,hint_level:0,source:'paper_daily'});
-  S.daily_sessions.push({date:today(),source:'paper_daily'});
+  for(const q of plan)S.attempts.push({question_id:q.id,date:ctx.today(),correct:true,selected_answer:q.answer,result_status:'correct',guessed:false,hint_level:0,source:'paper_daily'});
+  S.daily_sessions.push({date:ctx.today(),source:'paper_daily'});
   return true;
  },
  esc:x=>String(x),
