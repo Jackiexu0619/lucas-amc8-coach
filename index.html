@@ -421,14 +421,78 @@ function targetDifficulty(q){
   return streak>=2?Math.min(4,Math.max(2,d+1)):Math.max(2,d);
 }
 function difficultyFitScore(q){return 4-Math.abs((q.difficulty||2)-targetDifficulty(q))*2.2}
+function learningTags(q){
+  if(!q)return {skill:'',method:'',domain:''};
+  const reviewed=(S.v064_specific_skills||{})[q.id]||{};
+  const parent=(S.v064_question_tags||{})[q.id]||{};
+  return {
+    skill:String(parent.skill||reviewed.skill||q.skill||'').trim(),
+    method:String(parent.method||reviewed.method||q.core_method||'').trim(),
+    domain:String(q.domain||'').trim()
+  };
+}
+function isWeakLearningAttempt(a){
+  if(!a)return false;
+  const result=String(a.result_status||'').toLowerCase();
+  const error=String(a.error_type||'').toLowerCase();
+  const detail=String(a.error_detail||'').toLowerCase();
+  const speed=String(a.speed_label||'');
+  return !a.correct||!!a.guessed||['unable','skipped','not_attempted','wrong'].includes(result)||
+    ['time_issue','correct_but_slow'].includes(error)||['correct_but_slow','unable','not_attempted'].includes(detail)||
+    speed.includes('偏慢')||speed.includes('需复盘');
+}
+function weeklyWeakRecords(){
+  const rows=[];
+  for(const a of (S.attempts||[])){
+    const age=dd(a.date,today());
+    if(age<0||age>7||a.source==='weekend_mock'||!isWeakLearningAttempt(a))continue;
+    const q=qById(a.question_id);if(!q)continue;
+    const tags=learningTags(q);
+    const severity=(!a.correct||a.result_status==='unable'||a.result_status==='skipped')?1:(a.guessed?.8:.6);
+    rows.push({question_id:a.question_id,date:a.date,source:a.source||'weekday_training',age,tags,severity,reason:!a.correct?(a.result_status==='unable'?'不会做':'答错'):a.guessed?'猜对/不确定':'正确但偏慢'});
+  }
+  return rows;
+}
+function weeklyWeaknessSummary(){
+  const records=weeklyWeakRecords(),groups=new Map();
+  for(const r of records){
+    const key=[r.tags.skill,r.tags.method,r.tags.domain].join('|');
+    if(!groups.has(key))groups.set(key,{skill:r.tags.skill,method:r.tags.method,domain:r.tags.domain,count:0,weight:0,question_ids:[],dates:[]});
+    const g=groups.get(key);g.count++;g.weight+=r.severity/(1+r.age/4);
+    if(!g.question_ids.includes(r.question_id))g.question_ids.push(r.question_id);
+    if(!g.dates.includes(r.date))g.dates.push(r.date);
+  }
+  return [...groups.values()].sort((a,b)=>b.weight-a.weight).slice(0,8);
+}
+function weeklyWeakMatch(q){
+  const tags=learningTags(q);
+  return weeklyWeakRecords().filter(r=>
+    (tags.skill&&r.tags.skill&&tags.skill===r.tags.skill)||
+    (tags.method&&r.tags.method&&tags.method===r.tags.method)
+  );
+}
+function weeklyWeakAffinity(q){
+  const tags=learningTags(q);let score=0;
+  for(const r of weeklyWeakRecords()){
+    const w=r.severity/(1+r.age/4);
+    if(tags.skill&&r.tags.skill&&tags.skill===r.tags.skill)score+=6*w;
+    if(tags.method&&r.tags.method&&tags.method===r.tags.method)score+=4.5*w;
+    if(tags.domain&&r.tags.domain&&tags.domain===r.tags.domain)score+=1.1*w;
+    const trapsA=new Set((qById(r.question_id)?.trap_tags)||[]);
+    if((q.trap_tags||[]).some(t=>trapsA.has(t)))score+=.5*w;
+  }
+  return Math.min(12,score);
+}
 function recentWeakAffinity(q){
   let s=0;
-  const cutoff=(S.attempts||[]).filter(a=>{const d=dd(a.date,today());return d>=0&&d<=21&&(!a.correct||a.guessed||a.error_type)});
+  const cutoff=(S.attempts||[]).filter(a=>{const d=dd(a.date,today());return d>=0&&d<=21&&(!a.correct||a.guessed||a.error_type||a.error_detail==='correct_but_slow'||String(a.speed_label||'').includes('偏慢'))});
   for(const a of cutoff){
     const aq=qById(a.question_id);if(!aq)continue;
     const age=Math.max(0,dd(a.date,today())),w=1/(1+age/5);
-    if(skillKey(aq)===skillKey(q))s+=6*w;
+    const qa=learningTags(aq),qb=learningTags(q);
+    if(qa.skill&&qb.skill&&qa.skill===qb.skill)s+=6*w;
     else if(aq.domain===q.domain)s+=2.4*w;
+    if(qa.method&&qb.method&&qa.method===qb.method)s+=3*w;
     const trapsA=new Set(aq.trap_tags||[]);
     if((q.trap_tags||[]).some(t=>trapsA.has(t)))s+=1.2*w;
   }
@@ -728,8 +792,12 @@ function mockCandidateScore(q,i,profile,topicCount,domainCount,chosen){
   s-=(methodFreq()[q.core_method]||0)*.18;
   s-=(domainCount[q.domain]||0)*.10;
   if(chosen.length&&chosen.at(-1).domain===q.domain)s-=.45;
-  // 仅7个位置（28%）加入个性化弱项权重；其余位置优先保持正式卷结构和广度。
-  if(MOCK_PERSONALIZED_POSITIONS.has(i))s+=(1-mastery(q))*2.4+Math.max(0,recentWeakAffinity(q))*.35;
+  // 7个个性化位置优先吸收本周专项暴露的弱项；其余位置维持正式卷结构与广度。
+  if(MOCK_PERSONALIZED_POSITIONS.has(i)){
+    s+=(1-mastery(q))*2.0+Math.max(0,recentWeakAffinity(q))*.22;
+    s+=weeklyWeakAffinity(q)*1.15;
+    if(weeklyWeakMatch(q).length)s+=2.5;
+  }
   // 后五题主动鼓励跨领域，确保Q21-25不是一串同类难题。
   if(i>=20&&!new Set(chosen.slice(20).map(x=>x.domain)).has(q.domain))s+=1.5;
   return s;
@@ -845,8 +913,11 @@ function buildPrintableMockCore(){
       difficulty_by_position:[...EXAM_DIFFICULTY_BY_POSITION],
       difficulty_sections:['Q1-5','Q6-10','Q11-15','Q16-20','Q21-23','Q24-25'],
       personalized_positions:[...MOCK_PERSONALIZED_POSITIONS].map(x=>x+1),personalized_ratio:7/25,
+      weekly_weakness_focus:weeklyWeaknessSummary(),
+      weekly_weakness_attempt_count:weeklyWeakRecords().length,
+      weekly_weakness_coverage:chosen.map((q,i)=>({position:i+1,question_id:q.id,matches:weeklyWeakMatch(q).map(r=>({question_id:r.question_id,skill:r.tags.skill,method:r.tags.method,reason:r.reason}))})).filter(x=>x.matches.length),
       late_domains:check.late_domains,
-      constraints:{last_4_mocks_excluded:true,last_7_weekdays_excluded:true,same_method_max:2,same_family_max:1,no_three_consecutive_same_domain:true,q21_25_min_domains:3}
+      constraints:{last_4_mocks_excluded:true,last_7_weekdays_excluded:true,same_method_max:2,same_family_max:1,no_three_consecutive_same_domain:true,q21_25_min_domains:3,weekday_weakness_weighted:true,weekly_weakness_slots:7}
     };
     saveStateLocal();renderAll();return;
   }
