@@ -1,10 +1,10 @@
 <!doctype html>
-<!-- BUILD: Lucas AMC8 Coach v0.6.5.8 / archive_official_v1 -->
+<!-- BUILD: Lucas AMC8 Coach v0.6.5.9 / archive_official_v1 -->
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Lucas AMC8 Coach v0.6.5.8</title>
+<title>Lucas AMC8 Coach v0.6.5.9</title>
 <style>
 :root{--bg:#f4f7fb;--card:#fff;--text:#162235;--muted:#657287;--accent:#2d67d9;--line:#dbe3ef;--good:#137a4e;--warn:#a86400;--bad:#b42318}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
@@ -174,7 +174,7 @@ hr{border:0;border-top:1px solid var(--line);margin:15px 0}.two{display:grid;gri
 </head>
 <body>
 <header>
-<div><h1>Lucas AMC8 Coach <span style="font-size:12px;font-weight:400">v0.6.5.8</span></h1><div class=sub>真实AMC8题库核心 · Daily Adaptive Engine · Authentic Exam Assembly · 每日锁卷 · 免注册云同步</div></div>
+<div><h1>Lucas AMC8 Coach <span style="font-size:12px;font-weight:400">v0.6.5.9</span></h1><div class=sub>真实AMC8题库核心 · Daily Adaptive Engine · Authentic Exam Assembly · 每日锁卷 · 免注册云同步</div></div>
 <nav aria-label="主导航">
 <button onclick="show('home')">主页</button>
 <button onclick="show('practice')">每日训练</button>
@@ -204,7 +204,7 @@ const SEED={"version":"0.6.3","profile":{"name":"Lucas","goal":"2027-01 AMC 8","
 const ZH_DOMAIN={"arithmetic":"基础运算","ratio":"比例","rate":"速度与行程","algebra":"代数/应用","number_theory":"数论","coordinate":"坐标与变换","data":"数据与统计","patterns":"数列与规律","combinatorics":"组合/概率","geometry":"几何","probability":"概率","spatial":"立体与空间","logic":"逻辑与逆推","misc":"综合","meta":"综合习惯"};
 const ZH_SKILL={"percent_two_step":"连续百分比","ratio_change":"比例变化","average_speed":"平均速度","divisible_but_not":"整除但不整除","composite_divisibility":"复合整除","transformations":"坐标变换","median_change":"中位数变化","arithmetic_series":"等差求和","round_robin":"两两配对计数","area_ratio":"面积比","exactly_two_colors":"恰好两种颜色","distribution":"分配与角色","painted_cuboid":"涂色长方体","machine_reverse":"机器逆推","execution_complete":"做题完整性","rectangle_cutout":"割补与周长","right_triangle_altitude":"直角三角形高","trapezoid_area":"梯形面积","rectangle_midpoint":"长方形与中点","square_point_area":"正方形面积关系","sector_area":"扇形面积","parallelogram_area":"平行四边形面积","triangle_angle_ratio":"三角形角度比","fraction_remainder":"分数连续变化","reverse_percent":"反求原价","percent_change_chain":"连续百分比变化","unit_price":"单价与包装","map_scale":"地图比例尺","proportional_sharing":"按比分配","mixture_ratio":"混合比例","ratio_transfer":"转移后的比例","fraction_ratio":"分数化比例","distance_speed_time":"路程速度时间","catch_up":"追及问题","meeting":"相遇问题","work_rate":"工程问题","upstream_downstream":"流水行船","average_speed_equal_distance":"等路程平均速度","average_speed_equal_time":"等时间平均速度","rectangle_perimeter":"长方形周长","triangle_area":"三角形面积","pythagorean":"勾股关系","similar_triangles":"相似三角形","triangle_angle_sum":"三角形内角和","coordinate_distance":"坐标距离","coordinate_midpoint":"坐标中点","reflection_translation":"对称与平移","painted_cuboid_one_face":"恰一面涂色","prism_volume":"长方体体积","prism_surface_area":"长方体表面积","handshakes":"握手计数","permutations":"全排列","adjacent_arrangements":"相邻排列","identical_distribution":"相同物分配","lattice_paths":"格点路径","single_draw_probability":"单次抽取概率","at_least_one":"至少一个","two_dice_sum":"两骰点数和","exact_heads":"恰好若干正面","inclusion_exclusion":"容斥计数","divisor_count":"因数个数","gcd":"最大公因数","lcm":"最小公倍数","modular_remainder":"幂的余数","digit_divisibility":"数字整除","last_digit":"个位循环","square_divisors":"平方因数","multiples_union":"倍数并集","remainder_count":"余数类计数","palindrome_divisibility":"回文与整除","arithmetic_sequence":"等差数列第n项","recurrence":"递推数列","repeating_cycle":"循环规律","growing_blocks":"增长图案","machine_reverse_even":"奇偶机器逆推","relative_order":"相对次序","pigeonhole":"抽屉原理","mean_change":"平均数变化","weighted_average":"加权平均","range_change":"极差变化","mode_change":"众数变化","frequency_mean":"频数平均数","frequency_median":"频数中位数","frequency_percent":"频数百分比"};
 
-const ENGINE_VERSION='0.6.5.8';
+const ENGINE_VERSION='0.6.5.9';
 const MOCK_TOPIC_MAP={
   arithmetic:'application',ratio:'application',rate:'application',algebra:'application',misc:'patterns_logic',
   geometry:'geometry',coordinate:'geometry',spatial:'geometry',
@@ -2013,7 +2013,7 @@ initV063();
 <script src="coach_v0641.js"></script>
 
 <!-- AMC8 v0.6.4.2 SAFE SKILL MODULE: BEGIN -->
-<script src="coach_skill_import_v4_offline.js?v=0.6.5.8"></script>
+<script src="coach_skill_import_v4_offline.js?v=0.6.5.9"></script>
 <!-- Legacy panel disabled: knowledge lives in its dedicated view, owned by index.html. -->
 <script src="coach_mock_submission_guard.js"></script>
 <!-- AMC8 v0.6.4.2 SAFE SKILL MODULE: END -->
@@ -2058,7 +2058,7 @@ initV063();
 'use strict';
 var panel=document.getElementById('knowledge');
 if(!panel)return;
-panel.innerHTML='<div class="card"><h3>知识点与四周诊断</h3><p id="kcStatus">正在核对题库，请稍候……</p><div id="kcStats"></div><div class="row"><button type="button" id="kcRetry">重新检查</button><button type="button" id="kcImport" disabled>导入或补齐PDF方法标签（不计能力分）</button></div><p class="small">方法资料仅用于识别知识点，不代表已经独立验算。不会更改已有训练成绩、已锁定试卷或家长标签。</p></div>';
+panel.innerHTML='<div class="card"><h3>知识点与四周诊断</h3><p id="kcStatus">正在核对题库，请稍候……</p><div id="kcStats"></div><div class="row"><button type="button" id="kcRetry">重新检查</button><button type="button" id="kcImport" disabled>导入或补齐PDF方法标签（不计能力分）</button></div><p class="small">方法资料仅用于识别知识点，不代表已经独立验算。不会更改已有训练成绩、已锁定试卷或家长标签。</p><p class="small"><a href="ai_transfer_preview.html" target="_blank" rel="noopener">查看AI同方法变式题（60题质检预览，不计入成绩）↗</a></p></div>';
 var status=document.getElementById('kcStatus'),stats=document.getElementById('kcStats');
 var importer=document.getElementById('kcImport'),retry=document.getElementById('kcRetry'),lastCheck=null;
 function setError(message){status.textContent='知识点资料未能加载：'+message;stats.textContent='可继续正常使用每日训练和学习报告。';importer.disabled=true;}
@@ -2105,5 +2105,5 @@ async function startup(){
 startup();
 })();
 </script>
-<script src="coach_review_cycle_v065.js?v=0.6.5.8"></script>
+<script src="coach_review_cycle_v065.js?v=0.6.5.9"></script>
 </body></html>
