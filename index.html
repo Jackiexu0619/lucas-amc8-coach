@@ -1652,22 +1652,38 @@ function refreshArchiveDaily(){
  alert('已生成新的3题卷。旧题不会混入新卷；请重新打印并核对卷号。');
 }
 function archivePaperPicker(){
- const years=[...new Set(ARCHIVE_BANK.map(q=>q.year))];
- const recent=new Set([...(S.printable_mock_ids||[]),...recentWeekendQuestionIds(4)]);
- let candidates=years.filter(y=>ARCHIVE_BANK.filter(q=>q.year===y).length===25&&!ARCHIVE_BANK.some(q=>q.year===y&&recent.has(q.id)));
- if(!candidates.length)candidates=years.filter(y=>ARCHIVE_BANK.filter(q=>q.year===y).length===25);
- if(!candidates.length)return null;
- const year=candidates[Math.floor(Math.random()*candidates.length)];
- return ARCHIVE_BANK.filter(q=>q.year===year).sort((a,b)=>a.problem_number-b.problem_number);
+ // Mix official questions across years while preserving each question's original AMC8 position.
+ // Position 1 uses an original Q1, position 2 uses an original Q2, ... position 25 uses an original Q25.
+ // This keeps the authentic difficulty curve better than randomly shuffling 25 questions.
+ const recent=new Set([
+   ...(S.printable_mock_ids||[]),
+   ...recentWeekendQuestionIds(4),
+   ...recentWeekdayQuestionIds(7)
+ ]);
+ const chosen=[],usedIds=new Set(),yearUse={};
+ for(let pos=1;pos<=25;pos++){
+   let pool=ARCHIVE_BANK.filter(q=>q.problem_number===pos&&!usedIds.has(q.id)&&!recent.has(q.id));
+   // If recent-use filtering exhausts this position, allow an older question, but never duplicate within this paper.
+   if(!pool.length)pool=ARCHIVE_BANK.filter(q=>q.problem_number===pos&&!usedIds.has(q.id));
+   if(!pool.length)return null;
+   // Prefer years not yet used in this paper; when all available years are represented, balance repeats.
+   const minUse=Math.min(...pool.map(q=>yearUse[q.year]||0));
+   const balanced=pool.filter(q=>(yearUse[q.year]||0)===minUse);
+   const q=balanced[Math.floor(Math.random()*balanced.length)];
+   chosen.push(q);usedIds.add(q.id);yearUse[q.year]=(yearUse[q.year]||0)+1;
+ }
+ return chosen.length===25?chosen:null;
 }
 function buildArchiveMockCore(){
  if(!ARCHIVE_BANK.length)return false;
  const chosen=archivePaperPicker();
- if(!chosen){alert('双语真题库没有完整年份可组卷');return true}
+ if(!chosen){alert('真题混编失败：当前题库无法为25个原始题号位置各选出一道不重复的题');return true}
  S.printable_mock_ids=chosen.map(q=>q.id); S.printable_mock_date=today();
- S.printable_mock_meta={engine:'official_bilingual_pdf_archive_v1',engine_version:ENGINE_VERSION,
-  source_year:chosen[0].year,difficulty_by_position:[...EXAM_DIFFICULTY_BY_POSITION],
-  constraints:{original_year_complete:true,answer_key_linked:true}};
+ const sourceYears=[...new Set(chosen.map(q=>q.year))].sort((a,b)=>a-b);
+ S.printable_mock_meta={engine:'official_mixed_position_v1',engine_version:ENGINE_VERSION,
+  source_years:sourceYears,source_mix:chosen.map(q=>({id:q.id,year:q.year,original_position:q.problem_number})),
+  difficulty_by_position:[...EXAM_DIFFICULTY_BY_POSITION],
+  constraints:{mixed_years:true,original_position_preserved:true,unique_questions:true,answer_key_linked:true}};
  saveStateLocal(); renderAll();return true;
 }
 
