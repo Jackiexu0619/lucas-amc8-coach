@@ -39,7 +39,7 @@ function render(){
  document.querySelector('#history').innerHTML=state.history.length?state.history.slice(-15).reverse().map(h=>'<p><small>'+esc(h.date)+' '+esc(h.group)+' '+esc(h.qid)+' '+(h.pass?'独立正确':'未通过')+'；阶段 '+h.stage+'</small></p>').join(''):'<small>尚无试验记录</small>';
  showPaper();
 }
-function start(group,origin){if(!allowed.has(group))return;selectedSource={group,origin};const state=get(),key=group+':'+origin;if(!state.tasks[key]){state.tasks[key]={group,origin,stage:0,due:trainDate(today(),1),seen:[],status:'pending'};put(state)}active=key;showPaper()}
+function start(group,origin){if(!allowed.has(group))return;selectedSource={group,origin};const state=get(),key=group+':'+origin;if(!state.tasks[key]){state.tasks[key]={group,origin,stage:0,due:trainDate(today(),1),seen:[],status:'pending'};if(origin==='DEMO_ONLY')state.tasks[key].due=today();put(state)}active=key;showPaper()}
 function showPaper(){
  const node=document.querySelector('#paper');
  if(!active){node.innerHTML='<p>请先从上方选择真实错题方法，或启动明确标注的虚拟演示。</p>';return}
