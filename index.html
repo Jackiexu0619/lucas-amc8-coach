@@ -169,6 +169,23 @@ hr{border:0;border-top:1px solid var(--line);margin:15px 0}.two{display:grid;gri
 
 /* v0.6.5.1: five learning pages; parental settings stays accessible. */
 .parent-settings{background:#dbe6f7;color:#20314b;border:1px solid #9db1cb}
+
+/* Weekend archive mock: crop the blank lower portion of each full-page question image. */
+@media print {
+  @page { size: A4; margin: 9mm; }
+  #printRoot .print-q:has(.archive-question-crop) {
+    break-inside: avoid !important; page-break-inside: avoid !important;
+    margin: 0 0 2mm !important; padding: 0 !important; line-height: 1.15 !important;
+  }
+  #printRoot .archive-question-crop {
+    width: 190mm !important; max-width: 100% !important;
+    overflow: hidden !important; margin: 0 auto !important; padding: 0 !important;
+  }
+  #printRoot .archive-question-crop .archive-paper-img {
+    display: block !important; width: 190mm !important; max-width: none !important;
+    height: auto !important; margin: 0 !important;
+  }
+}
 </style>
 <script src="official_bank.js"></script>
 </head>
@@ -603,11 +620,45 @@ function questionSourceBadge(q){
 }
 
 function printChoices(q){if(q?.archive_image)return '';return q.choices.map((c,i)=>`${'ABCDE'[i]}. ${choiceDisplay(c)}`).join('　　')}
+function prepareArchiveQuestionCrops(root){
+  const wrappers=[...root.querySelectorAll('.archive-question-crop')];
+  for(const box of wrappers){
+    const img=box.querySelector('img.archive-paper-img');
+    if(!img||!img.naturalWidth||!img.naturalHeight){box.style.height='64mm';continue;}
+    try{
+      const canvas=document.createElement('canvas');
+      canvas.width=img.naturalWidth;canvas.height=img.naturalHeight;
+      const ctx=canvas.getContext('2d',{willReadFrequently:true});
+      ctx.drawImage(img,0,0);
+      const pixels=ctx.getImageData(0,0,canvas.width,canvas.height).data;
+      const scanEnd=Math.floor(canvas.height*.96);
+      let bottom=-1;
+      for(let y=0;y<scanEnd;y++){
+        let dark=0,offset=y*canvas.width*4;
+        for(let x=0;x<canvas.width;x++){
+          const p=offset+x*4;
+          if(pixels[p+3]>0&&pixels[p]<220&&pixels[p+1]<220&&pixels[p+2]<220)dark++;
+          if(dark>=8){bottom=y;break;}
+        }
+      }
+      const cropMm=bottom>0?((bottom+10)/canvas.width)*190:64;
+      box.style.height=Math.max(28,Math.min(230,cropMm))+'mm';
+    }catch(e){
+      // If canvas inspection is unavailable, use a conservative crop instead of printing a full blank page.
+      box.style.height='64mm';
+    }
+  }
+}
 function setPrintHtml(content,title){
   const root=document.getElementById('printRoot');
   root.innerHTML=content;
   const old=document.title;document.title=title||'Lucas AMC8';
-  setTimeout(()=>{window.print();document.title=old},80);
+  const imgs=[...root.querySelectorAll('.archive-question-crop img')];
+  const wait=imgs.map(img=>img.complete?Promise.resolve():new Promise(resolve=>{img.onload=resolve;img.onerror=resolve;}));
+  Promise.all(wait).then(()=>{
+    prepareArchiveQuestionCrops(root);
+    setTimeout(()=>{window.print();document.title=old},80);
+  });
 }
 function printDailyStudent(){
   const plan=dailyPlan();
@@ -819,7 +870,7 @@ function printMockStudent(){
   const qs=printableMock();if(qs.length!==25){alert('请先生成一套可打印模拟卷');return}
   const pid=ensurePaperId();
   const body=qs.map((q,i)=>`<div class=print-q>
-    <div><b>${i+1}.</b> ${questionSourceBadge(q)}</div><div class=en>${questionPromptHtml(q)}</div>
+    <div><b>${i+1}.</b> ${questionSourceBadge(q)}</div><div class=en>${q?.archive_image?`<div class=archive-question-crop>${questionPromptHtml(q)}</div>`:questionPromptHtml(q)}</div>
     ${figureHtml(q)}<div class=print-choices>${printChoices(q)}</div>
   </div>`).join('');
   setPrintHtml(`<div class=print-title>Lucas AMC8 周末全套模拟卷</div>
