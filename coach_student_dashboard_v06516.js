@@ -39,7 +39,10 @@ function buildDashboardModel(state={},today,options={}){
   const latestPaperId=String(latest&&(latest.paper_id||latest.mock_key)||'');
   const paperDate=dateKey(state.printable_mock_date||'');
   const latestDate=dateKey(latest&&latest.date||'');
-  const paperPending=hasPaper&&(!latest||(paperId?(!latestPaperId||paperId!==latestPaperId):(paperDate&&(!latestDate||paperDate>latestDate))));
+  const latestQuestionIds=latest?(Array.isArray(latest.question_ids)?latest.question_ids:(latest.per_question||[]).map(x=>x&&x.qid).filter(Boolean)):[];
+  const samePaperById=!!(paperId&&latestPaperId&&paperId===latestPaperId);
+  const samePaperByQuestions=latestQuestionIds.length===25&&paperIds.every((id,i)=>id===latestQuestionIds[i]);
+  const paperPending=hasPaper&&!latest?true:hasPaper&&!(samePaperById||samePaperByQuestions);
   const pendingTasks=((state.v065_review_cycle&&state.v065_review_cycle.tasks)||[]).filter(t=>t&&t.status==='pending');
   const completedTasks=((state.v065_review_cycle&&state.v065_review_cycle.tasks)||[]).filter(t=>t&&t.status==='completed');
   const weakFocus=Array.isArray(options.weakFocus)?options.weakFocus:[];
