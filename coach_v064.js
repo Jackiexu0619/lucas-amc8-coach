@@ -1,4 +1,4 @@
-/* Lucas AMC8 Coach v0.6.4: reliable dual-mode paper engine + reviewed skill evidence.
+/* Lucas AMC8 Coach v0.6.5.14: dual-mode paper engine + reviewed skill evidence.
    Does not create AI questions. No backend or authentication changes. */
 (function(){
 'use strict';
@@ -39,7 +39,8 @@ function candidateValue(q,position,used,recordsBySkill){
  const diversity=used.some(x=>tagFor(x)&&tagFor(x)===skill)?-1.2:0;
  return weakness*(position>=9?6:2)+diversity-same*.33-(practiced?50:0)-(weekSeen?150:0)+stableNoise('v064:'+q.id)*.2;
 }
-function pickPersonalized(){
+// Retired legacy picker retained for audit; production personalized papers use buildArchiveMockCore.
+function pickPersonalizedLegacy(){
  const allowed=pool().filter(q=>!RESERVED_YEARS.includes(q.year));
  const e=new Map(SKILLS.map(s=>[s,skillEvidence(s)]));
  const picked=[];
@@ -58,15 +59,24 @@ function pickDiagnostic(){
  if(!available.length)throw Error('预留的完整年份均已被接触或不完整，不能保证盲测；请审核预留年份，不能自动降级为旧题。');
  return available[0];
 }
-// Existing buildPrintableMock() owns paper_id allocation. Override only the selection stage.
+// Existing buildPrintableMock() owns paper_id allocation. Route personalized mode through the audited position-preserving selector.
 buildPrintableMockCore=function(){
- if(!capabilities()){alert('双语真题库未完整加载，不能生成新试卷。');return}
+ if(!capabilities()){alert('双语真题库未完整加载，不能生成新试卷。');return false}
+ if(getMode()==='personalized'){
+  const allowedArchive=pool().filter(q=>!RESERVED_YEARS.includes(q.year));
+  const built=buildArchiveMockCore({archive:allowedArchive,reservedYears:RESERVED_YEARS});
+  if(!built){alert('个性化真题组卷未成功，原有试卷与卷号保持不变。请检查题库、标签资料和组卷模块。');return false}
+  S.printable_mock_meta={...(S.printable_mock_meta||{}),paper_type:'personalized_practice',is_ai_generated:false,
+   note:'个性化真题训练卷（非AI原创），分数不用于真实AMC8成绩预测；预留年份不进入此模式。'};
+  saveStateLocal();
+  return true;
+ }
  let chosen;
- try{chosen=getMode()==='diagnostic'?pickDiagnostic():pickPersonalized()}catch(e){alert(e.message);return}
+ try{chosen=pickDiagnostic()}catch(e){alert(e.message);return false}
  S.printable_mock_ids=chosen.map(q=>q.id);S.printable_mock_date=today();
- S.printable_mock_meta={engine:'v064_skill_based_v1',paper_type:getMode()==='diagnostic'?'diagnostic':'personalized_practice',
+ S.printable_mock_meta={engine:'v064_skill_based_v1',engine_version:ENGINE_VERSION,paper_type:'diagnostic',
   is_ai_generated:false,source_years:[...new Set(chosen.map(q=>q.year))],
-  note:getMode()==='diagnostic'?'未见过的完整年份真题诊断卷':'个性化真题训练卷（非AI原创），分数不用于真实AMC8成绩预测'};
+  note:'未见过的完整年份真题诊断卷；只使用预留年份并保留完整原卷顺序。'};
  saveStateLocal();return chosen;
 };
 const priorDaily=eligibleDailyBank;
