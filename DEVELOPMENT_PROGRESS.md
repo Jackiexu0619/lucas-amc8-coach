@@ -13,12 +13,22 @@ Keep the learning loop simple and evidence-based:
 ## Current production baseline
 
 - Production branch: `main`
-- Production page version: `v0.6.5.14`
+- Production page version: `v0.6.5.14` (selector fix merged; Pages deployment pending verification)
 - Reference product: https://luminamath.top/student
 - Preserve the current locked/printed weekend paper and all existing learner/cloud records.
 - AI-created transfer questions remain separate from official AMC8 weekend mocks and official diagnostic scores.
 
-## This work branch: `fix/weekly-weakness-mainline-v06514`
+## Completed: v0.6.5.14 selector fix
+
+- Merged PR #3; the active production override now calls the reviewed weekly-weakness selector.
+- Mock assembly regression QA and learning-closure QA passed before merge.
+- Browser-level paper-lock check and isolated cloud round-trip remain unverified.
+
+## Current work branch: `feat/guided-student-dashboard-v06515-mainline`
+
+- Adds a read-only guided learning path to the existing home page.
+- Prioritizes an already locked but unsubmitted daily paper over generating a new task.
+- Dashboard model tests and learning-closure tests passed on the feature branch before reapplying it to the current mainline; revalidation is running.
 
 ### Confirmed defect
 
