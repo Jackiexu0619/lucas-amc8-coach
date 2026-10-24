@@ -1,0 +1,28 @@
+name: Daily cooldown regression QA
+
+on:
+  push:
+    paths:
+      - 'index.html'
+      - 'qa_daily_cooldown_v06516.cjs'
+      - '.github/workflows/daily-cooldown-qa.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  daily-cooldown:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Check cooldown rules
+        run: node qa_daily_cooldown_v06516.cjs
+      - name: Run existing learning closure QA
+        run: node --check coach_learning_closure_v06514.js && node qa_learning_closure_v06514.cjs
+      - name: Run existing dashboard QA
+        run: node --check coach_student_dashboard_v06515.js && node qa_student_dashboard_v06515.cjs
+      - name: Run existing mock assembly QA
+        run: node --check coach_mock_assembly_v06514.js && node qa_mock_assembly_v06514.cjs
