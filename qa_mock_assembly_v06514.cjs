@@ -97,7 +97,7 @@ assert.match(coach, /buildArchiveMockCore\(\{\s*archive:allowedArchive,reservedY
 assert.match(coach, /chosen=pickDiagnostic\(\)/, 'full-year diagnostic mode must remain independent');
 assert.match(coach, /paper_type:'personalized_practice'/, 'personalized mock type must be preserved for submission history');
 assert.match(coach, /paper_type:'diagnostic'/, 'diagnostic paper type must remain explicit');
-assert.match(html, /const ENGINE_VERSION='0\\.6\\.5\\.(14|15)'/, 'engine version must remain synchronized with the active page release');
+assert.match(html, /const ENGINE_VERSION='0\.6\.5\.(14|15)'/, 'engine version must remain synchronized with the active page release');
 assert.match(changelog, /v0\.6\.5\.14/, 'changelog must record this release');
 assert.doesNotMatch(html, /0\.6\.5\.13/, 'old version/cache keys should not remain in the active page');
 
