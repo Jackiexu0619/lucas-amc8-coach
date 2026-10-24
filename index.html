@@ -475,12 +475,14 @@ function weeklyWeakMatch(q){
   if(WEEKLY_WEAK_MATCH_CACHE.has(id))return WEEKLY_WEAK_MATCH_CACHE.get(id);
   const tags=learningTags(q);
   const matches=weeklyWeakRecords().filter(r=>
-    (tags.skill&&r.tags.skill&&tags.skill===r.tags.skill)||
-    (tags.method&&r.tags.method&&tags.method===r.tags.method)
+    (tags.method&&r.tags.method&&tags.method===r.tags.method)||
+    (tags.group&&r.tags.group&&tags.group===r.tags.group)||
+    (tags.skill&&r.tags.skill&&tags.skill===r.tags.skill)
   );
   WEEKLY_WEAK_MATCH_CACHE.set(id,matches);
   return matches;
 }
+
 function weeklyWeakAffinity(q){
   const id=q?.id||'__none__';
   if(WEEKLY_WEAK_AFFINITY_CACHE.has(id))return WEEKLY_WEAK_AFFINITY_CACHE.get(id);
@@ -1827,43 +1829,134 @@ function refreshArchiveDaily(){
  saveStateLocal();renderAll();
  alert('已生成新的3题卷。旧题不会混入新卷；请重新打印并核对卷号。');
 }
-function archivePaperPicker(){
- // Mix official questions across years while preserving the original AMC8 question-number difficulty curve.
- // Prefer questions never attempted before; only reuse older questions when a position has no unseen candidate.
- const recent=new Set([
-   ...(S.printable_mock_ids||[]),
-   ...recentWeekendQuestionIds(4),
-   ...recentWeekdayQuestionIds(7)
- ]);
- const attempted=new Set((S.attempts||[]).map(a=>a.question_id).filter(Boolean));
- const chosen=[],usedIds=new Set(),yearUse={};
- for(let pos=1;pos<=25;pos++){
-   const eligible=ARCHIVE_BANK.filter(q=>q.problem_number===pos&&!usedIds.has(q.id));
-   let pool=eligible.filter(q=>!attempted.has(q.id)&&!recent.has(q.id));
-   // If no never-attempted candidate remains at this position, reuse an older non-recent question first.
-   if(!pool.length)pool=eligible.filter(q=>!recent.has(q.id));
-   // Last resort: allow a recent question only when all alternatives at this position are exhausted.
-   if(!pool.length)pool=eligible;
-   if(!pool.length)return null;
-   // Balance source years across the paper without forcing a single year or repeating a question.
-   const minUse=Math.min(...pool.map(q=>yearUse[q.year]||0));
-   const balanced=pool.filter(q=>(yearUse[q.year]||0)===minUse);
-   const q=balanced[Math.floor(Math.random()*balanced.length)];
-   chosen.push(q);usedIds.add(q.id);yearUse[q.year]=(yearUse[q.year]||0)+1;
- }
- return chosen.length===25?chosen:null;
+function archiveWeaknessScore(q){
+  const tags=learningTags(q),matches=weeklyWeakMatch(q);
+  let score=0;
+  for(const r of matches){
+    const age=Math.max(0,Number(r.age)||0),weight=(Number(r.severity)||1)/(1+age/4);
+    const skillMatch=!!(tags.skill&&r.tags.skill&&tags.skill===r.tags.skill);
+    const methodMatch=!!(tags.method&&r.tags.method&&tags.method===r.tags.method);
+    const groupMatch=!!(tags.group&&r.tags.group&&tags.group===r.tags.group);
+    score+=weight*((methodMatch?5.5:0)+(groupMatch?4.5:0)+(skillMatch?2.5:0));
+  }
+  return Math.min(18,score);
 }
-function buildArchiveMockCore(){
- if(!ARCHIVE_BANK.length)return false;
- const chosen=archivePaperPicker();
- if(!chosen){alert('真题混编失败：当前题库无法为25个原始题号位置各选出一道不重复的题');return true}
- S.printable_mock_ids=chosen.map(q=>q.id); S.printable_mock_date=today();
- const sourceYears=[...new Set(chosen.map(q=>q.year))].sort((a,b)=>a-b);
- S.printable_mock_meta={engine:'official_mixed_position_v1',engine_version:ENGINE_VERSION,
-  source_years:sourceYears,source_mix:chosen.map(q=>({id:q.id,year:q.year,original_position:q.problem_number})),
-  difficulty_by_position:[...EXAM_DIFFICULTY_BY_POSITION],
-  constraints:{mixed_years:true,original_position_preserved:true,unique_questions:true,answer_key_linked:true}};
- saveStateLocal(); renderAll();return true;
+function archivePaperPicker(options={}){
+  resetWeeklyWeaknessCache();
+  const archive=Array.isArray(options.archive)?options.archive:ARCHIVE_BANK;
+  const recent=new Set([
+    ...(S.printable_mock_ids||[]),
+    ...recentWeekendQuestionIds(4),
+    ...recentWeekdayQuestionIds(7)
+  ]);
+  const attempted=new Set((S.attempts||[]).map(a=>a.question_id).filter(Boolean));
+  const personalizedPositions=[...MOCK_PERSONALIZED_POSITIONS].map(x=>x+1);
+  const personalizedSet=new Set(personalizedPositions);
+  const weaknessScoreById={};
+
+  // Only the seven declared personalized positions can receive weakness weights.
+  if(weeklyWeakRecords().length){
+    for(const q of archive){
+      if(!personalizedSet.has(Number(q.problem_number)))continue;
+      const score=archiveWeaknessScore(q);
+      if(score>0)weaknessScoreById[q.id]=score;
+    }
+  }
+
+  const engine=window.LucasAMC8MockAssemblyV06514;
+  if(!engine||typeof engine.selectArchiveMock!=='function'){
+    return {ok:false,reason:'selector-module-missing',chosen:[],selection:[]};
+  }
+  return engine.selectArchiveMock({
+    archive:archive,
+    attemptedIds:Array.from(attempted),
+    recentIds:Array.from(recent),
+    personalizedPositions:personalizedPositions,
+    weaknessScoreById:weaknessScoreById
+  });
+}
+
+function buildArchiveMockCore(options={}){
+  const archive=Array.isArray(options.archive)?options.archive:ARCHIVE_BANK;
+  if(!archive.length)return false;
+  const result=archivePaperPicker({archive:archive});
+  if(!result||!result.ok){
+    console.error('周末模拟组卷失败',result?.reason||'unknown');
+    return false;
+  }
+  const chosen=result.chosen;
+  if(chosen.length!==25||new Set(chosen.map(q=>q.id)).size!==25)return false;
+
+  const sourceYears=[...new Set(chosen.map(q=>q.year))].sort((a,b)=>a-b);
+  const personalizedPositions=[...MOCK_PERSONALIZED_POSITIONS].map(x=>x+1);
+  const personalizedSet=new Set(personalizedPositions);
+  const weaknessCoverage=chosen.map((q,i)=>{
+    const position=i+1;
+    if(!personalizedSet.has(position))return null;
+    const matches=weeklyWeakMatch(q);
+    if(!matches.length)return null;
+    const selection=result.selection[i]||{};
+    return {
+      position:position,
+      question_id:q.id,
+      year:q.year,
+      original_position:q.problem_number,
+      weakness_score:Number(selection.weakness_score||0),
+      matches:matches.map(r=>({
+        question_id:r.question_id,
+        skill:r.tags.skill,
+        method:r.tags.method,
+        group:r.tags.group,
+        reason:r.reason
+      }))
+    };
+  }).filter(Boolean);
+  const fallbackPositions=(result.selection||[]).filter(x=>x.fallback!=='fresh').map(x=>({
+    position:x.position,
+    question_id:x.question_id,
+    fallback:x.fallback,
+    candidate_count:x.candidate_count
+  }));
+
+  S.printable_mock_ids=chosen.map(q=>q.id);
+  S.printable_mock_date=today();
+  S.printable_mock_meta={
+    engine:'official_mixed_position_weakness_v2',
+    engine_version:ENGINE_VERSION,
+    source_years:sourceYears,
+    source_mix:chosen.map((q,i)=>({
+      id:q.id,
+      year:q.year,
+      original_position:q.problem_number,
+      personalized:personalizedSet.has(i+1),
+      weakness_score:Number(result.selection[i]?.weakness_score||0)
+    })),
+    difficulty_by_position:[...EXAM_DIFFICULTY_BY_POSITION],
+    personalized_positions:personalizedPositions,
+    weekly_weakness_focus:weeklyWeaknessSummary(),
+    weekly_weakness_attempt_count:weeklyWeakRecords().length,
+    weekly_weakness_personalized_positions_with_match:weaknessCoverage.length,
+    weekly_weakness_matched_positions:weaknessCoverage.map(x=>x.position),
+    weekly_weakness_coverage:weaknessCoverage,
+    selection_fallback_positions:fallbackPositions,
+    constraints:{
+      mixed_years:true,
+      original_position_preserved:true,
+      unique_questions:true,
+      answer_key_linked:true,
+      prefers_unattempted:true,
+      avoids_recent_4_weekend_mocks_when_alternatives_exist:true,
+      avoids_recent_7_weekday_questions_when_alternatives_exist:true,
+      reserved_years_excluded:Array.isArray(options.reservedYears)?[...options.reservedYears]:[],
+      personalized_positions:personalizedPositions,
+      weekly_weakness_selector_enabled:true,
+      weekly_weakness_weighted:weaknessCoverage.length>0,
+      weekly_weakness_slots:personalizedPositions.length
+    }
+  };
+  saveStateLocal();
+  renderAll();
+  return true;
 }
 
 async function loadAuthenticBank(){
@@ -2221,7 +2314,8 @@ function renderAll(){renderHome();renderPractice();renderMock();renderReport();r
 async function initV063(){await loadAuthenticBank();try{await loadArchiveBank()}catch(e){console.error('双语真题库载入失败',e)}S=migrateState(S);saveStateLocal(false);renderAll();if(cloudConfigured()&&getSyncCode())cloudSyncAuto().catch(e=>console.warn(e));}
 initV063();
 </script>
-<script src="coach_v064.js"></script>
+<script src="coach_mock_assembly_v06514.js?v=0.6.5.14"></script>
+<script src="coach_v064.js?v=0.6.5.14"></script>
 <script src="coach_v0641.js"></script>
 
 <!-- AMC8 v0.6.4.2 SAFE SKILL MODULE: BEGIN -->
