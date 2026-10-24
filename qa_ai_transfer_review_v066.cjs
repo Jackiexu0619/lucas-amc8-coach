@@ -60,4 +60,4 @@ task=ctx.amcAiTransferV066.queue().tasks.find(t=>t.origin_question_id===original
 assert.equal(task.status,'completed','four independent passes complete the review loop');
 assert.equal(task.due,null,'completed task has no due date');
 assert.equal(ctx.qById('ai_transfer_rework_20261024_026').official,false,'AI question is not marked official');
-console.log('PASS 16 assertions: gated pilot count, diagnostic isolation, daily-slot integration, locked-paper persistence, source mapping, 7/14/30 spacing, completion, and AI/official separation.');
+console.log('PASS 18 assertions: gated pilot count, diagnostic isolation, daily-slot integration, locked-paper persistence, source mapping, 7/14/30 spacing, completion, and AI/official separation.');
