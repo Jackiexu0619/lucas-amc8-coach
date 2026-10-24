@@ -38,10 +38,11 @@ The adaptive learning-closure module already existed, but the later-loaded coach
 
 ## Status
 
-- Implementation branch: fix/amc8-production-selector-v06515
-- Code and QA changes are committed to the branch.
-- CI and live browser/cloud acceptance are pending.
-- Do not merge the earlier PR that contains a second competing selector implementation; this focused branch reuses the existing main-branch learning-closure module.
+- Production selector wiring: `fix/amc8-production-selector-v06515`; focused selector CI passed after correcting the test to match the actual function-assignment form.
+- Integrated review branch: `feat/guided-student-dashboard-v06516`; learning-closure and dashboard regression workflows passed.
+- Draft PR: https://github.com/Jackiexu0619/lucas-amc8-coach/pull/2
+- Fresh-browser and Supabase round-trip acceptance remain pending; do not deploy until these are checked.
+- PR #1 contains a competing selector implementation and is superseded. Do not merge PR #1; review the integrated PR #2 instead.
 
 
 ## Follow-on phase: v0.6.5.16 guided student dashboard
