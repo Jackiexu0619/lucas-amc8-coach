@@ -347,30 +347,6 @@ function questionCooldownRemaining(q){
 function questionEligibleForDaily(q){
   return questionCooldownRemaining(q)<=0;
 }
-function eligibleDailyBank(){
-  // Weekday training should avoid exact questions attempted in the last 30 days whenever possible.
-  // If the unused pool is too small to build a 3-question session, relax gradually: 14 days, then 7 days,
-  // then the existing result-aware cooldown. This keeps the daily session usable without routine repeats.
-  const attempts=S.attempts||[];
-  const usedWithin=(days)=>{
-    const ids=new Set();
-    for(const a of attempts){
-      const d=dd(a.date,today());
-      if(a.question_id&&d>=0&&d<days)ids.add(a.question_id);
-    }
-    return ids;
-  };
-  const tiers=[30,14,7];
-  for(const days of tiers){
-    const used=usedWithin(days);
-    const pool=BANK.filter(q=>!used.has(q.id));
-    if(pool.length>=3)return pool;
-  }
-  const cooldown=BANK.filter(questionEligibleForDaily);
-  if(cooldown.length>=3)return cooldown;
-  // Last-resort fallback only when the available bank cannot fill three questions otherwise.
-  return BANK;
-}
 function recentWeekendQuestionIds(mockCount=4){
   const ids=new Set();
   const arr=(S.mock_detail_history||[]).slice(-mockCount);
@@ -1739,9 +1715,25 @@ async function loadAuthenticBank(){
 }
 
 function eligibleDailyBank(){
-  // v0.6.3 日常训练不再从旧300道简单生成题出题。
-  // Lucas 当前专项基线：默认只用真实 AMC8 Q13–Q25。Q1–12 留给周末完整模拟或人工指定，避免日常专项过易。
-  return ARCHIVE_BANK.filter(q=>q.problem_number>=13&&questionEligibleForDaily(q));
+  // Weekday training uses authentic AMC8 Q13–Q25 and avoids exact questions attempted in the last 30 days.
+  // Only if fewer than three candidates remain do we relax the window to 14 days, then 7 days.
+  const base=ARCHIVE_BANK.filter(q=>q.problem_number>=13&&q.problem_number<=25);
+  const attempts=S.attempts||[];
+  const usedWithin=days=>{
+    const ids=new Set();
+    for(const a of attempts){
+      const age=dd(a.date,today());
+      if(a.question_id&&age>=0&&age<days)ids.add(a.question_id);
+    }
+    return ids;
+  };
+  for(const days of [30,14,7]){
+    const blocked=usedWithin(days);
+    const pool=base.filter(q=>!blocked.has(q.id));
+    if(pool.length>=3)return pool;
+  }
+  const cooldown=base.filter(questionEligibleForDaily);
+  return cooldown.length>=3?cooldown:base;
 }
 function targetDifficulty(q){
   const hist=skillAttempts(q);
