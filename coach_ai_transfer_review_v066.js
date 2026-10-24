@@ -78,6 +78,24 @@ function pickDue(){
 }
 const originalQById=qById;
 qById=function(id){return originalQById(id)||byId.get(id)||null};
+const originalDailyPlan=dailyPlan;
+dailyPlan=function(){
+ const plan=originalDailyPlan();
+ const p=S.daily_plan;
+ const q=Array.isArray(plan)?plan.find(x=>byId.has(x.id)):null;
+ if(q&&p){
+  const origin=q.review_origin_question_id||p.ai_transfer_context?.origin_question_id||window.__amcAiTransferSelected?.review_origin_question_id||null;
+  if(origin){
+   q.review_origin_question_id=origin;
+   const ctx=p.ai_transfer_context||{};
+   if(ctx.question_id!==q.id||ctx.origin_question_id!==origin){
+    p.ai_transfer_context={question_id:q.id,origin_question_id:origin,method_group:q.method_group||q.review_method_group||byId.get(q.id).method_group};
+    saveStateLocal();
+   }
+  }
+ }
+ return plan;
+};
 const originalPrompt=questionPromptHtml;
 questionPromptHtml=function(q){if(q?.source==='ai_generated_review')return '<div class="notice"><b>AI同方法迁移复测 · 不计入正式真题诊断</b></div><div class="qbox">'+esc(q.question)+'</div>';return originalPrompt(q)};
 const originalBadge=questionSourceBadge;
