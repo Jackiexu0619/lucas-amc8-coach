@@ -1,0 +1,57 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Lucas AMC8 AI复测闭环·隔离试运行</title><style>body{max-width:860px;margin:auto;padding:22px;font-family:system-ui,"Microsoft YaHei",sans-serif;background:#f4f7fb;color:#19334c}section{background:white;border-radius:12px;padding:18px;margin:16px 0}h1{font-size:26px}.hint{border-left:4px solid #c68b15;background:#fff1cb;padding:12px}button,select{padding:9px;border:1px solid #b8c4d3;border-radius:7px;background:white;margin:4px}button{cursor:pointer}.options label{display:block;padding:7px}small{color:#596d82}.card{border:1px solid #d7e0ea;padding:12px;border-radius:8px;margin:12px 0}</style></head><body>
+<h1>AI同方法复测 · 隔离试运行</h1><p class="hint"><b>这是独立测试闭环，不是正式每日三题。</b>只读取本浏览器的历史真题记录来识别可试验的方法；新作答保存在独立的本机试验记录中，<b>不计入 Lucas 成绩、周末模拟、四周诊断或云同步</b>。测试不会修改原始答题状态。</p>
+<section><h2>识别到的待复测方法</h2><div id="status">正在加载试验题库……</div><div id="targets"></div></section>
+<section><h2>当前试验题</h2><div id="paper"></div></section>
+<section><h2>试验复测记录</h2><div id="history"></div><button id="clear">清空独立试验记录</button></section>
+<script>
+(()=>{'use strict';
+const KEY='lucas_amc8_ai_transfer_pilot_v1',MAIN='lucas_amc8_coach_v05';
+const allowed=new Set(['prime_factor_divisors','arithmetic_sequence_sum']);
+const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let bank=[],active=null,selectedSource=null;
+const today=()=>{const d=new Date();return [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-')};
+const add=(d,n)=>{const x=new Date(d+'T12:00:00');x.setDate(x.getDate()+n);return [x.getFullYear(),String(x.getMonth()+1).padStart(2,'0'),String(x.getDate()).padStart(2,'0')].join('-')};
+const trainDate=(d,increment)=>{let x=add(d,increment);for(let i=0;i<7;i++){const k=new Date(x+'T12:00:00').getDay();if([2,3,4,5].includes(k))return x;x=add(x,1)}return x};
+const get=()=>{try{return JSON.parse(localStorage.getItem(KEY)||'{"tasks":{},"history":[]}')}catch(e){return {tasks:{},history:[]}}};
+const put=x=>localStorage.setItem(KEY,JSON.stringify(x));
+function sources(){
+ let root;try{root=JSON.parse(localStorage.getItem(MAIN)||'{}')}catch(e){root={}}
+ const out=[];let skipped=0;
+ for(const a of root.attempts||[]){
+  if(!['paper_daily','weekend_mock'].includes(a?.source)||!a.question_id||!a.date)continue;
+  if(a.correct&&!a.guessed&&a.result_status!=='unable'&&a.result_status!=='skipped')continue;
+  const fine=root.v064_specific_skills?.[a.question_id];
+  if(!fine||fine.status!=='pdf_explanation_reviewed'||!fine.group_key||!allowed.has(fine.group_key)){skipped++;continue}
+  out.push({qid:a.question_id,date:a.date,group:fine.group_key,skill:fine.skill});
+ }
+ const latest=new Map();for(const x of out)if(!latest.has(x.group)||latest.get(x.group).date<x.date)latest.set(x.group,x);
+ return {items:[...latest.values()],skipped};
+}
+function render(){
+ const orig=sources(),state=get();
+ let items=orig.items;
+ // Demo seeds only an isolated virtual task; it never writes to actual attempts.
+ document.querySelector('#targets').innerHTML=items.map(t=>'<div class="card"><b>'+esc(t.skill)+'</b> · 原错题 '+esc(t.qid)+' · '+esc(t.date)+' <button data-start="'+esc(t.group)+'">选择该方法</button></div>').join('')+
+ '<p><small>仅识别有PDF方法分组的历史错误。未能匹配的历史记录：'+orig.skipped+'条（未强行猜测）。</small></p>'+
+ '<button id="demo">用虚拟错题测试完整闭环（不影响成绩）</button>';
+ document.querySelectorAll('[data-start]').forEach(b=>b.onclick=()=>{const t=items.find(x=>x.group===b.dataset.start);start(t.group,t.qid)});
+ document.querySelector('#demo').onclick=()=>start('prime_factor_divisors','DEMO_ONLY');
+ document.querySelector('#history').innerHTML=state.history.length?state.history.slice(-15).reverse().map(h=>'<p><small>'+esc(h.date)+' '+esc(h.group)+' '+esc(h.qid)+' '+(h.pass?'独立正确':'未通过')+'；阶段 '+h.stage+'</small></p>').join(''):'<small>尚无试验记录</small>';
+ showPaper();
+}
+function start(group,origin){if(!allowed.has(group))return;selectedSource={group,origin};const state=get(),key=group+':'+origin;if(!state.tasks[key]){state.tasks[key]={group,origin,stage:0,due:trainDate(today(),1),seen:[],status:'pending'};put(state)}active=key;showPaper()}
+function showPaper(){
+ const node=document.querySelector('#paper');
+ if(!active){node.innerHTML='<p>请先从上方选择真实错题方法，或启动明确标注的虚拟演示。</p>';return}
+ const state=get(),task=state.tasks[active];if(!task){active=null;showPaper();return}
+ const pool=bank.filter(q=>q.method_group===task.group&&!task.seen.includes(q.id));
+ if(task.status==='completed'){node.innerHTML='<p>本试验方法已经完成4个阶段。原成绩未受影响。</p>';return}
+ if(task.due>today()){node.innerHTML='<p>下一次复测日期：<b>'+esc(task.due)+'</b>；到期前不提前计作通过。</p>';return}
+ const q=pool[0];if(!q){node.innerHTML='<p class="hint">当前没有未做过的同方法新题。任务继续保留，不能用不同方法冒充完成。</p>';return}
+ node.innerHTML='<div class="card"><small>阶段 '+(task.stage+1)+'/4 · '+esc(task.group)+' · '+esc(q.id)+'</small><h3>'+esc(q.question)+'</h3><div class="options">'+q.options.map((o,i)=>'<label><input type="radio" name="choice" value="'+'ABCDE'[i]+'"> '+ 'ABCDE'[i]+'. '+esc(o)+'</label>').join('')+'</div><label><input type="checkbox" id="guessed"> 这道题是猜的</label><br><button id="submit">提交本次试验复测</button></div>';
+ document.querySelector('#submit').onclick=()=>{const choice=document.querySelector('input[name="choice"]:checked')?.value;if(!choice){alert('请先选择答案');return}const guessed=document.querySelector('#guessed').checked,pass=choice===q.answer&&!guessed;const x=get(),t=x.tasks[active];if(t.seen.includes(q.id))return;t.seen.push(q.id);t.stage=pass?t.stage+1:0;t.status=t.stage>=4?'completed':'pending';t.due=t.status==='completed'?null:trainDate(today(),pass?[0,7,14,30][t.stage]:1);x.history.push({date:today(),group:t.group,origin:t.origin,qid:q.id,choice,guessed,pass,stage:t.stage});put(x);alert('正确答案：'+q.answer+'。'+q.solution+'\n'+(pass?'已进入下一阶段复测。':'未通过，下一个训练日继续同方法新题。'));render()};
+}
+document.querySelector('#clear').onclick=()=>{if(confirm('只清空AI独立试验记录？不会删除Lucas正式成绩。')){localStorage.removeItem(KEY);active=null;render()}};
+fetch('ai_transfer_rework_batch2_20261024.json',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error(r.status);return r.json()}).then(d=>{bank=(d.questions||[]).filter(q=>allowed.has(q.method_group)&&q.quality_status==='candidate_pending_independent_editorial_review');document.querySelector('#status').textContent='试验题库 '+bank.length+'题（数学复核通过，教学审核仍有限制）';render()}).catch(e=>document.querySelector('#status').textContent='加载失败 '+e.message);
+})();
+</script></body></html>
