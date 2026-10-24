@@ -47,14 +47,14 @@
     "known_rotation_item_004_review": "Earlier mismatch flag was a checker false positive: operation order was applied incorrectly in the checker; reflect y-axis first then rotate counterclockwise 90 degrees yields x=-2, matching option D."
   },
   "test_result": {
-    "automated_ci": "PASS — AI transfer review QA run #10 (commit 282b808f5b136423ea6b70f9b81ef3f262e1fae8)",
-    "expected_assertions": 21,
+    "automated_ci": "PASS — AI transfer review QA run #11 (commit eaf27c04e06ec96ed9a0813f5e0613defd6045d5)",
+    "expected_assertions": 24,
     "browser_end_to_end": "NOT_YET_RUN — current browser tab was loaded before the latest deployment; a fresh reload and real UI interaction remain necessary.",
     "supabase_cloud_roundtrip": "NOT_YET_RUN",
     "failures_observed": [
       "Earlier QA workflow failures were caused by missing browser-function stubs and incorrect test references in qa_ai_transfer_review_v066.cjs; fixed in commit 282b808f5b136423ea6b70f9b81ef3f262e1fae8. The QA workflow now passes."
     ],
-    "note": "AI review automated QA and GitHub Pages deployment pass. Selector regressions pass in an in-session runtime harness. Do not claim final release acceptance until a fresh browser end-to-end check and Supabase cloud roundtrip are completed.",
+    "note": "AI review QA run #11 passes (24 assertions); GitHub Pages deployment of the latest application code passed on commit e5bcdcd3d7dd92fd96c4d7446328c9fb4ca4aed2. The 30-day selector and weekend unseen-question priority pass in runtime regression simulations. Do not claim final release acceptance until a fresh browser end-to-end check and Supabase cloud roundtrip are completed.",
     "model_level_runtime_harness": {
       "status": "PASS",
       "assertions": 65,
@@ -70,15 +70,16 @@
     },
     "static_integration_checks": {
       "status": "PASS",
-      "passed": 6,
-      "total": 6,
+      "passed": 9,
+      "total": 9,
       "checks": [
         "version aligned to v0.6.5.11",
         "AI script loaded after legacy review queue",
         "AI candidates not inserted into official archive",
         "undo removes AI review attempts",
         "QA harness included",
-        "report refreshes after AI submission"
+        "report refreshes after AI submission",
+        "Only one eligibleDailyBank selector definition remains; CI asserts 30/14/7-day windows and Q13–Q25 restriction."
       ]
     },
     "weekday_selector_regression": {
