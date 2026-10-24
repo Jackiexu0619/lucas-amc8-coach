@@ -13,10 +13,17 @@ function weekdayOf(date){
   const value=new Date(d+'T12:00:00Z').getUTCDay();
   return Number.isFinite(value)?value:null;
 }
+function mondayOfWeek(date){
+  const d=dateKey(date),weekday=weekdayOf(d);
+  if(weekday===null)return '';
+  const value=new Date(d+'T12:00:00Z');
+  value.setUTCDate(value.getUTCDate()-((weekday+6)%7));
+  return value.toISOString().slice(0,10);
+}
 function latestFullMock(state){
   const rows=Array.isArray(state.mock_detail_history)?state.mock_detail_history:[];
   for(let i=rows.length-1;i>=0;i--){
-    if(rows[i]&&Array.isArray(rows[i].per_question)&&rows[i].per_question.length)return rows[i];
+    if(rows[i]&&Array.isArray(rows[i].per_question)&&rows[i].per_question.length===25)return rows[i];
   }
   return null;
 }
@@ -37,7 +44,24 @@ function buildDashboardModel(state={},today,options={}){
   const latestPaperId=String(latest&&(latest.paper_id||latest.mock_key)||'');
   const paperDate=dateKey(state.printable_mock_date||'');
   const latestDate=dateKey(latest&&latest.date||'');
-  const paperPending=hasPaper&&(!latest||(paperId?(!latestPaperId||paperId!==latestPaperId):(paperDate&&(!latestDate||paperDate>latestDate))));
+  const latestIds=latest&&Array.isArray(latest.question_ids)?latest.question_ids:
+    latest&&Array.isArray(latest.per_question)?latest.per_question.map(x=>x&&(x.qid||x.question_id)).filter(Boolean):[];
+  const hasQuestionSignature=paperIds.length===25&&latestIds.length===25;
+  const sameQuestionSignature=hasQuestionSignature&&paperIds.every((id,i)=>String(id)===String(latestIds[i]));
+  const idMatch=Boolean(paperId&&latestPaperId&&paperId===latestPaperId);
+  const samePaper=Boolean(latest&&(
+    (idMatch&&(!hasQuestionSignature||sameQuestionSignature))||
+    ((!paperId||!latestPaperId)&&hasQuestionSignature&&sameQuestionSignature&&(!paperDate||!latestDate||paperDate===latestDate))
+  ));
+  const paperSubmitted=hasPaper&&samePaper;
+  const paperPending=hasPaper&&!paperSubmitted;
+  const weekStart=mondayOfWeek(today);
+  const paperWeekDate=paperDate||latestDate;
+  const paperInCurrentWeek=Boolean(paperWeekDate&&weekStart&&paperWeekDate>=weekStart&&paperWeekDate<=dateKey(today));
+  const currentPaperComplete=paperSubmitted&&paperInCurrentWeek;
+  const currentWeekPaper=paperPending||currentPaperComplete;
+  const planDate=dateKey(plan.date||'');
+  const oldDailyPlanPending=hasDailyPlan&&!dailyDone&&!!planDate&&planDate!==dateKey(today);
   const pendingTasks=((state.v065_review_cycle&&state.v065_review_cycle.tasks)||[]).filter(t=>t&&t.status==='pending');
   const completedTasks=((state.v065_review_cycle&&state.v065_review_cycle.tasks)||[]).filter(t=>t&&t.status==='completed');
   const weakFocus=Array.isArray(options.weakFocus)?options.weakFocus:[];
@@ -47,37 +71,42 @@ function buildDashboardModel(state={},today,options={}){
   const weekend=weekday===0||weekday===6;
 
   const steps=[
-    {key:'mock',number:1,title:'周末25题模拟',description:latest?'最近已提交 '+(latest.date||'一套模拟'):(paperPending?'纸质卷已锁定，等待完成':'用完整真题建立阶段基线'),
-      status:paperPending?'active':latest?'done':hasPaper?'active':'pending'},
-    {key:'diagnosis',number:2,title:'薄弱点归因',description:latest?'根据逐题结果分析错题、猜题和未做题':(weakAttemptCount?'正在积累可用的薄弱项证据':'提交结果后再归因，不提前猜测'),
-      status:paperPending?'pending':latest?'done':weakAttemptCount?'active':'pending'},
-    {key:'daily',number:3,title:'周中每日3题',description:dailyDone?'今日训练已提交':(hasDailyPlan?'今日纸上训练已锁定':(dailyQuestionCount?'已安排训练题':'提交模拟后自动安排')),
+    {key:'mock',number:1,title:'周末25题模拟',
+      description:paperPending?'当前纸质卷已锁定，等待完成与提交':currentPaperComplete?'本周已提交 '+(latest.date||'完整模拟'):(latest?'上次模拟已留档；本周新卷尚未完成':'用完整真题建立阶段基线'),
+      status:paperPending?'active':currentPaperComplete?'done':'pending'},
+    {key:'diagnosis',number:2,title:'薄弱点归因',
+      description:paperPending?'当前试卷提交后再更新诊断':currentPaperComplete?'已根据本周逐题结果生成诊断':(latest?'上次诊断已留档；本周新卷提交后更新':weakAttemptCount?'正在积累可用的薄弱项证据':'提交结果后再归因，不提前猜测'),
+      status:paperPending?'pending':currentPaperComplete?'done':weakAttemptCount?'active':'pending'},
+    {key:'daily',number:3,title:'周中每日3题',
+      description:dailyDone?'今日训练已提交':oldDailyPlanPending?'尚有 '+planDate+' 的锁定训练卷待完成':(hasDailyPlan?'今日纸上训练已锁定':(dailyQuestionCount?'已安排训练题':'提交模拟后自动安排')),
       status:dailyDone?'done':hasDailyPlan?'active':'pending'},
     {key:'transfer',number:4,title:'同方法迁移复测',description:pendingTasks.length?pendingTasks.length+'项待复测':(completedTasks.length?'已有迁移复测记录':'发现可靠弱项后再安排，不拿异类题凑数'),
       status:pendingTasks.length?'active':completedTasks.length?'done':latest?'waiting':'pending'}
   ];
 
-  let next={title:'继续今日训练',detail:'按当前锁定的3题完成纸上训练；每天保持轻量，不额外堆题。',target:'practice',button:'进入每日训练'};
+  let next={title:'继续当前专项训练',detail:'按当前锁定的3题完成纸上训练；每天保持轻量，不额外堆题。',target:'practice'};
   if(paperPending){
-    next={title:'本周模拟卷已锁定，先完成这张纸质卷',detail:'按已打印的25题完成测试，再录入逐题结果。系统不会自动替换这张卷，也不需要重新打印。',target:'mock',button:'进入周末模拟录入'};
-  }else if(weekend&&latest&&(!paperId||latestPaperId===paperId)){
-    next={title:'本周模拟已提交，查看学习报告',detail:'先核对本次错题、猜对题和用时，再让下周训练沿着真实薄弱点推进。',target:'report',button:'查看学习报告'};
-  }else if(weekend&&!hasPaper){
-    next={title:'准备本周周末模拟',detail:'生成后先核对卷号并打印；纸质卷锁定后，录入前不会自动换题。',target:'mock',button:'进入周末模拟'};
+    next={title:'本周模拟卷已锁定，先完成这张纸质卷',detail:'按已打印的25题完成测试，再录入逐题结果。系统不会自动替换这张卷，也不需要重新打印。',target:'mock'};
+  }else if(weekend&&currentPaperComplete){
+    next={title:'本周模拟已提交，查看学习报告',detail:'先核对本次错题、猜对题和用时，再让下周训练沿着真实薄弱点推进。',target:'report'};
+  }else if(weekend&&!currentWeekPaper){
+    next={title:'本周模拟尚未完成',detail:'上一套模拟记录会保留；请在现有周末模拟页核对本周试卷状态，再按需准备新卷。',target:'mock'};
+  }else if(oldDailyPlanPending){
+    next={title:'先完成之前锁定的3题专项',detail:'日期为 '+planDate+' 的纸质训练卷尚未提交。先完成并录入这张原卷；系统会保留原题，不自动换卷。',target:'practice'};
   }else if(!dailyDone){
-    next={title:'先完成今天的3题专项',detail:'今日安排围绕近期弱项、到期复测和广度覆盖；总量仍控制在3题。',target:'practice',button:'进入今日训练'};
+    next={title:'先完成当前锁定的3题专项',detail:'按已锁定的题目完成纸上训练，并记录答案、用时和是否猜题；每天总量仍控制在3题。',target:'practice'};
   }else if(pendingTasks.length){
-    next={title:'查看待复测任务',detail:'今天的3题已经提交。下一步查看 '+pendingTasks.length+' 项待复测任务，按计划验证迁移，不重复刷原题。',target:'report',button:'查看复测与报告'};
+    next={title:'查看待复测任务',detail:'今天的3题已经提交。下一步查看 '+pendingTasks.length+' 项待复测任务，按计划验证迁移，不重复刷原题。',target:'report'};
   }else if(latest){
-    next={title:'复盘最近一套模拟卷',detail:'用逐题记录确认错因；猜对也先列为待确认掌握，再用新题检验。',target:'report',button:'查看学习报告'};
+    next={title:'复盘最近一套模拟卷',detail:'用逐题记录确认错因；猜对也先列为待确认掌握，再用新题检验。',target:'report'};
   }else{
-    next={title:'先完成一套周末真题模拟',detail:'完整模拟能建立基线，之后系统才能更可靠地安排周中专项。',target:'mock',button:'查看周末模拟'};
+    next={title:'先完成一套周末真题模拟',detail:'完整模拟能建立基线，之后系统才能更可靠地安排周中专项。',target:'mock'};
   }
 
   return {
-    version:VERSION,today:dateKey(today),weekend,dailyDone,hasDailyPlan,hasPaper,paperPending,
+    version:VERSION,today:dateKey(today),weekend,dailyDone,hasDailyPlan,hasPaper,paperPending,paperSubmitted,currentPaperComplete,currentWeekPaper,
     paperId,paperDate,latestMockDate:latestDate,latestMockScore:latest?Number(latest.score):null,
-    dailyQuestionCount,weakAttemptCount,weakFocus:weakFocus.slice(0,4),
+    dailyPlanDate:planDate,oldDailyPlanPending,dailyQuestionCount,weakAttemptCount,weakFocus:weakFocus.slice(0,4),
     pendingReviewCount:pendingTasks.length,completedReviewCount:completedTasks.length,
     steps,next,progress:steps.filter(x=>x.status==='done').length
   };
@@ -136,15 +165,16 @@ function renderGuidedPanel(){
     '<div class="student-step-head"><span class="student-step-number">'+step.number+'</span><span class="student-step-status">'+statusLabel(step.status)+'</span></div>'+
     '<h4>'+esc(step.title)+'</h4><p>'+esc(step.description)+'</p></div>').join('');
   const focusHtml=model.weakFocus.length
-    ?'<ul class="student-focus-list">'+model.weakFocus.map(x=>'<li><b>'+esc(x.method||x.group_key||x.skill||'待核对方法')+'</b> <span class="small">×'+Number(x.count||0)+'</span></li>').join('')+'</ul>'
+    ?'<ul class="student-focus-list">'+model.weakFocus.map(x=>'<li><b>'+esc(x.skill||x.method||x.group_key||'待核对方法')+'</b> <span class="small">×'+Number(x.count||0)+'</span></li>').join('')+'</ul>'
     :'<p class="small">'+(model.weakAttemptCount?'已有薄弱记录，但目前缺少可靠的方法标签；系统不会编造考点。':'提交训练结果后，系统会根据错题、猜对、未做和明确偏慢记录更新重点。')+'</p>';
   const paperLine=model.paperPending
     ?'<p class="student-home-note">当前卷号：<b>'+esc(model.paperId||'已锁定真题卷')+'</b> · 已锁定，保留现有纸质卷。</p>'
     :(model.latestMockDate?'<p class="student-home-note">最近一次完整模拟：'+esc(model.latestMockDate)+(Number.isFinite(model.latestMockScore)?' · '+model.latestMockScore+'/25':'')+'</p>':'<p class="student-home-note">尚无完整模拟成绩；暂不估计能力分数。</p>');
   const panel=root.document.createElement('section');panel.id='guidedStudentDashboard';panel.className='card';
+  const targetLabels={practice:'每日训练',mock:'周末模拟',report:'学习报告'};
   panel.innerHTML='<div class="row" style="align-items:flex-start;justify-content:space-between"><div><div class="muted">YOUR AMC8 LEARNING PATH</div><h2 style="margin:4px 0 6px;font-size:21px">让每次练习都有下一步</h2><p class="small" style="margin:0">周末用完整真题看水平，周中每天最多3题，错题再用新题验证。</p></div><span class="tag">'+model.progress+'/4步已完成</span></div>'+
     '<div class="student-path-grid">'+steps+'</div>'+
-    '<div class="student-home-grid"><div class="card student-next-card"><div class="student-next-label">自动学习建议 · 下一步</div><h3 style="margin:7px 0">'+esc(model.next.title)+'</h3><p style="line-height:1.6">'+esc(model.next.detail)+'</p><div class="row" style="margin-top:12px"><button class="primary" onclick="show(\''+model.next.target+'\')">'+esc(model.next.button)+'</button><button onclick="show(\'report\')">查看学习报告</button></div>'+paperLine+'</div>'+
+    '<div class="student-home-grid"><div class="card student-next-card"><div class="student-next-label">自动学习建议 · 下一步</div><h3 style="margin:7px 0">'+esc(model.next.title)+'</h3><p style="line-height:1.6">'+esc(model.next.detail)+'</p><div class="row" style="margin-top:12px"><span class="tag">建议查看：'+esc(targetLabels[model.next.target]||'学习主页')+'</span><span class="small">使用顶部已有导航即可。</span></div>'+paperLine+'</div>'+
     '<div class="card"><div class="row"><h3 style="margin:0">近7天薄弱项</h3><span class="tag">'+model.weakAttemptCount+'条记录</span></div>'+focusHtml+
     '<hr><div class="row"><span class="small">待复测</span><b>'+model.pendingReviewCount+'项</b><span class="small">已完成迁移复测</span><b>'+model.completedReviewCount+'项</b></div>'+
     '<p class="student-home-note">薄弱项依据已记录的训练结果与可用标签生成；资料不足时会明确提示，不把猜对当成稳定掌握。</p></div></div>';
