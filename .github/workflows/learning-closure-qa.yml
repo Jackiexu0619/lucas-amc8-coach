@@ -29,5 +29,22 @@ jobs:
         run: node --check coach_learning_closure_v06514.js
       - name: Syntax check review queue
         run: node --check coach_review_cycle_v065.js
+      - name: Inline script syntax check
+        run: |
+          node - <<'NODE'
+          const fs = require('node:fs');
+          const vm = require('node:vm');
+          const html = fs.readFileSync('index.html', 'utf8');
+          const pattern = /<script\b(?![^>]*\bsrc\s*=)[^>]*>([\s\S]*?)<\/script>/gi;
+          let match, count = 0;
+          while ((match = pattern.exec(html)) !== null) {
+            const source = match[1].trim();
+            if (!source) continue;
+            count++;
+            new vm.Script(source, { filename: 'index.html:inline-' + count });
+          }
+          if (count < 1) throw new Error('No inline scripts found');
+          process.stdout.write('PASS: syntax checked ' + count + ' inline script blocks\n');
+          NODE
       - name: Learning closure integration QA
         run: node qa_learning_closure_v06514.cjs
