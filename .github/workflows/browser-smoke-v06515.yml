@@ -1,0 +1,29 @@
+name: Deployed browser smoke QA
+
+on:
+  push:
+    paths:
+      - 'browser_smoke_v06515.cjs'
+      - '.github/workflows/browser-smoke-v06515.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  deployed-browser-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install Playwright
+        run: |
+          npm init -y
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Exercise deployed site in isolated browser storage
+        env:
+          AMC8_URL: https://jackiexu0619.github.io/lucas-amc8-coach/
+        run: node browser_smoke_v06515.cjs
