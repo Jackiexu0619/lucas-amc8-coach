@@ -35,6 +35,12 @@ const submitted=buildDashboardModel(submittedState,'2026-10-25',{dailyQuestionCo
 assert.equal(submitted.paperPending,false,'a matching submitted paper is complete');
 assert.equal(submitted.next.target,'report','weekend completion should lead to the learning report');
 
+const legacySubmitted=buildDashboardModel({
+  printable_mock_ids:paperIds,
+  mock_detail_history:[{date:'2026-10-25',score:19,question_ids:paperIds,per_question:Array(25).fill({})}]
+},'2026-10-25',{dailyQuestionCount:3});
+assert.equal(legacySubmitted.paperPending,false,'legacy records can confirm completion by exact question IDs even without paper IDs');
+
 const weekdayState={daily_plan:{date:'2026-10-26',question_ids:['a','b','c'],submitted:false},v065_review_cycle:{tasks:[]}};
 const weekday=buildDashboardModel(weekdayState,'2026-10-26',{dailyQuestionCount:3});
 assert.equal(weekday.next.target,'practice','weekday priority is the light daily practice');
