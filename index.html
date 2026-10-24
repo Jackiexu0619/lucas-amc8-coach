@@ -421,6 +421,10 @@ function targetDifficulty(q){
   return streak>=2?Math.min(4,Math.max(2,d+1)):Math.max(2,d);
 }
 function difficultyFitScore(q){return 4-Math.abs((q.difficulty||2)-targetDifficulty(q))*2.2}
+let WEEKLY_WEAK_CACHE=null,WEEKLY_WEAK_AFFINITY_CACHE=new Map(),WEEKLY_WEAK_MATCH_CACHE=new Map();
+function resetWeeklyWeaknessCache(){
+  WEEKLY_WEAK_CACHE=null;WEEKLY_WEAK_AFFINITY_CACHE=new Map();WEEKLY_WEAK_MATCH_CACHE=new Map();
+}
 function learningTags(q){
   if(!q)return {skill:'',method:'',domain:''};
   const reviewed=(S.v064_specific_skills||{})[q.id]||{};
@@ -442,6 +446,7 @@ function isWeakLearningAttempt(a){
     speed.includes('偏慢')||speed.includes('需复盘');
 }
 function weeklyWeakRecords(){
+  if(WEEKLY_WEAK_CACHE)return WEEKLY_WEAK_CACHE;
   const rows=[];
   for(const a of (S.attempts||[])){
     const age=dd(a.date,today());
@@ -451,7 +456,8 @@ function weeklyWeakRecords(){
     const severity=(!a.correct||a.result_status==='unable'||a.result_status==='skipped')?1:(a.guessed ? 0.8 : 0.6);
     rows.push({question_id:a.question_id,date:a.date,source:a.source||'weekday_training',age,tags,severity,reason:!a.correct?(a.result_status==='unable'?'不会做':'答错'):a.guessed?'猜对/不确定':'正确但偏慢'});
   }
-  return rows;
+  WEEKLY_WEAK_CACHE=rows;
+  return WEEKLY_WEAK_CACHE;
 }
 function weeklyWeaknessSummary(){
   const records=weeklyWeakRecords(),groups=new Map();
@@ -465,13 +471,19 @@ function weeklyWeaknessSummary(){
   return [...groups.values()].sort((a,b)=>b.weight-a.weight).slice(0,8);
 }
 function weeklyWeakMatch(q){
+  const id=q?.id||'__none__';
+  if(WEEKLY_WEAK_MATCH_CACHE.has(id))return WEEKLY_WEAK_MATCH_CACHE.get(id);
   const tags=learningTags(q);
-  return weeklyWeakRecords().filter(r=>
+  const matches=weeklyWeakRecords().filter(r=>
     (tags.skill&&r.tags.skill&&tags.skill===r.tags.skill)||
     (tags.method&&r.tags.method&&tags.method===r.tags.method)
   );
+  WEEKLY_WEAK_MATCH_CACHE.set(id,matches);
+  return matches;
 }
 function weeklyWeakAffinity(q){
+  const id=q?.id||'__none__';
+  if(WEEKLY_WEAK_AFFINITY_CACHE.has(id))return WEEKLY_WEAK_AFFINITY_CACHE.get(id);
   const tags=learningTags(q);let score=0;
   for(const r of weeklyWeakRecords()){
     const w=r.severity/(1+r.age/4);
@@ -481,7 +493,9 @@ function weeklyWeakAffinity(q){
     const trapsA=new Set((qById(r.question_id)?.trap_tags)||[]);
     if((q.trap_tags||[]).some(t=>trapsA.has(t)))score+=.5*w;
   }
-  return Math.min(12,score);
+  const value=Math.min(12,score);
+  WEEKLY_WEAK_AFFINITY_CACHE.set(id,value);
+  return value;
 }
 function recentWeakAffinity(q){
   let s=0;
@@ -850,6 +864,7 @@ function findMockTopicPlan(profile,blocked){
   return solve(0,{...profile})?.plan||null;
 }
 function buildPrintableMockCore(){
+  resetWeeklyWeaknessCache();
   const recentMocks=recentWeekendQuestionIds(4),recentWeekdays=recentWeekdayQuestionIds(7);
   const blocked=new Set([...recentMocks,...recentWeekdays]);
   let bestFailure='';
