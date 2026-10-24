@@ -1,10 +1,10 @@
 <!doctype html>
-<!-- BUILD: Lucas AMC8 Coach v0.6.5.15 / archive_official_v1 -->
+<!-- BUILD: Lucas AMC8 Coach v0.6.5.16 / archive_official_v1 -->
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Lucas AMC8 Coach v0.6.5.15</title>
+<title>Lucas AMC8 Coach v0.6.5.16</title>
 <style>
 :root{--bg:#f4f7fb;--card:#fff;--text:#162235;--muted:#657287;--accent:#2d67d9;--line:#dbe3ef;--good:#137a4e;--warn:#a86400;--bad:#b42318}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
@@ -191,7 +191,7 @@ hr{border:0;border-top:1px solid var(--line);margin:15px 0}.two{display:grid;gri
 </head>
 <body>
 <header>
-<div><h1>Lucas AMC8 Coach <span style="font-size:12px;font-weight:400">v0.6.5.15</span></h1><div class=sub>真实AMC8题库核心 · Daily Adaptive Engine · Authentic Exam Assembly · 每日锁卷 · 免注册云同步</div></div>
+<div><h1>Lucas AMC8 Coach <span style="font-size:12px;font-weight:400">v0.6.5.16</span></h1><div class=sub>真实AMC8题库核心 · Daily Adaptive Engine · Authentic Exam Assembly · 每日锁卷 · 免注册云同步</div></div>
 <nav aria-label="主导航">
 <button onclick="show('home')">主页</button>
 <button onclick="show('practice')">每日训练</button>
@@ -221,7 +221,7 @@ const SEED={"version":"0.6.3","profile":{"name":"Lucas","goal":"2027-01 AMC 8","
 const ZH_DOMAIN={"arithmetic":"基础运算","ratio":"比例","rate":"速度与行程","algebra":"代数/应用","number_theory":"数论","coordinate":"坐标与变换","data":"数据与统计","patterns":"数列与规律","combinatorics":"组合/概率","geometry":"几何","probability":"概率","spatial":"立体与空间","logic":"逻辑与逆推","misc":"综合","meta":"综合习惯"};
 const ZH_SKILL={"percent_two_step":"连续百分比","ratio_change":"比例变化","average_speed":"平均速度","divisible_but_not":"整除但不整除","composite_divisibility":"复合整除","transformations":"坐标变换","median_change":"中位数变化","arithmetic_series":"等差求和","round_robin":"两两配对计数","area_ratio":"面积比","exactly_two_colors":"恰好两种颜色","distribution":"分配与角色","painted_cuboid":"涂色长方体","machine_reverse":"机器逆推","execution_complete":"做题完整性","rectangle_cutout":"割补与周长","right_triangle_altitude":"直角三角形高","trapezoid_area":"梯形面积","rectangle_midpoint":"长方形与中点","square_point_area":"正方形面积关系","sector_area":"扇形面积","parallelogram_area":"平行四边形面积","triangle_angle_ratio":"三角形角度比","fraction_remainder":"分数连续变化","reverse_percent":"反求原价","percent_change_chain":"连续百分比变化","unit_price":"单价与包装","map_scale":"地图比例尺","proportional_sharing":"按比分配","mixture_ratio":"混合比例","ratio_transfer":"转移后的比例","fraction_ratio":"分数化比例","distance_speed_time":"路程速度时间","catch_up":"追及问题","meeting":"相遇问题","work_rate":"工程问题","upstream_downstream":"流水行船","average_speed_equal_distance":"等路程平均速度","average_speed_equal_time":"等时间平均速度","rectangle_perimeter":"长方形周长","triangle_area":"三角形面积","pythagorean":"勾股关系","similar_triangles":"相似三角形","triangle_angle_sum":"三角形内角和","coordinate_distance":"坐标距离","coordinate_midpoint":"坐标中点","reflection_translation":"对称与平移","painted_cuboid_one_face":"恰一面涂色","prism_volume":"长方体体积","prism_surface_area":"长方体表面积","handshakes":"握手计数","permutations":"全排列","adjacent_arrangements":"相邻排列","identical_distribution":"相同物分配","lattice_paths":"格点路径","single_draw_probability":"单次抽取概率","at_least_one":"至少一个","two_dice_sum":"两骰点数和","exact_heads":"恰好若干正面","inclusion_exclusion":"容斥计数","divisor_count":"因数个数","gcd":"最大公因数","lcm":"最小公倍数","modular_remainder":"幂的余数","digit_divisibility":"数字整除","last_digit":"个位循环","square_divisors":"平方因数","multiples_union":"倍数并集","remainder_count":"余数类计数","palindrome_divisibility":"回文与整除","arithmetic_sequence":"等差数列第n项","recurrence":"递推数列","repeating_cycle":"循环规律","growing_blocks":"增长图案","machine_reverse_even":"奇偶机器逆推","relative_order":"相对次序","pigeonhole":"抽屉原理","mean_change":"平均数变化","weighted_average":"加权平均","range_change":"极差变化","mode_change":"众数变化","frequency_mean":"频数平均数","frequency_median":"频数中位数","frequency_percent":"频数百分比"};
 
-const ENGINE_VERSION='0.6.5.15';
+const ENGINE_VERSION='0.6.5.16';
 const MOCK_TOPIC_MAP={
   arithmetic:'application',ratio:'application',rate:'application',algebra:'application',misc:'patterns_logic',
   geometry:'geometry',coordinate:'geometry',spatial:'geometry',
@@ -1990,25 +1990,58 @@ async function loadAuthenticBank(){
 }
 
 function eligibleDailyBank(){
-  // Weekday training uses authentic AMC8 Q13–Q25 and avoids exact questions attempted in the last 30 days.
-  // Only if fewer than three candidates remain do we relax the window to 14 days, then 7 days.
+  // Weekday training avoids exact questions used in daily attempts or weekend mock papers over the last 30 days.
+  // If fewer than three candidates remain, relax historical cooldown to 14 days, then 7 days.
+  // An unsubmitted locked weekend paper is always excluded until it is submitted or deliberately replaced.
   const base=ARCHIVE_BANK.filter(q=>q.problem_number>=13&&q.problem_number<=25);
   const attempts=S.attempts||[];
-  const usedWithin=days=>{
+  const mockHistory=Array.isArray(S.mock_detail_history)?S.mock_detail_history:[];
+  const printableIds=Array.isArray(S.printable_mock_ids)?S.printable_mock_ids.map(String):[];
+  const printablePaperId=String(S.printable_mock_id||'');
+  const currentIds=printableIds.length===25?printableIds:[];
+  const idsFromMock=m=>{
+    const direct=Array.isArray(m?.question_ids)?m.question_ids.filter(Boolean).map(String):[];
+    if(direct.length)return direct;
+    return Array.isArray(m?.per_question)
+      ?m.per_question.map(x=>x&&(x.qid||x.question_id)).filter(Boolean).map(String)
+      :[];
+  };
+  const currentPaperSubmitted=currentIds.length===25&&mockHistory.some(m=>{
+    if(!Array.isArray(m?.per_question)||m.per_question.length!==25)return false;
+    const historyPaperId=String(m.paper_id||m.mock_key||'');
+    if(printablePaperId&&historyPaperId)return printablePaperId===historyPaperId;
+    const ids=idsFromMock(m);
+    return ids.length===25&&currentIds.every((id,i)=>id===ids[i]);
+  });
+  const lockedCurrentIds=new Set(currentIds.length===25&&!currentPaperSubmitted?currentIds:[]);
+  const mockIdsWithin=days=>{
     const ids=new Set();
+    for(const m of mockHistory){
+      const date=String(m?.date||m?.created_at||'').slice(0,10);
+      const age=dd(date,today());
+      if(age>=0&&age<days)for(const id of idsFromMock(m))ids.add(id);
+    }
+    return ids;
+  };
+  const usedWithin=days=>{
+    const ids=new Set(lockedCurrentIds);
     for(const a of attempts){
       const age=dd(a.date,today());
-      if(a.question_id&&age>=0&&age<days)ids.add(a.question_id);
+      if(a.question_id&&age>=0&&age<days)ids.add(String(a.question_id));
     }
+    for(const id of mockIdsWithin(days))ids.add(id);
     return ids;
   };
   for(const days of [30,14,7]){
     const blocked=usedWithin(days);
-    const pool=base.filter(q=>!blocked.has(q.id));
+    const pool=base.filter(q=>!blocked.has(String(q.id)));
     if(pool.length>=3)return pool;
   }
-  const cooldown=base.filter(questionEligibleForDaily);
-  return cooldown.length>=3?cooldown:base;
+  // Last-resort fallback may relax historical reuse, but must never pull a question
+  // from a currently locked, unsubmitted weekend paper into weekday practice.
+  const fallback=base.filter(q=>!lockedCurrentIds.has(String(q.id))&&questionEligibleForDaily(q));
+  if(fallback.length>=3)return fallback;
+  return base.filter(q=>!lockedCurrentIds.has(String(q.id)));
 }
 function targetDifficulty(q){
   const hist=skillAttempts(q);
