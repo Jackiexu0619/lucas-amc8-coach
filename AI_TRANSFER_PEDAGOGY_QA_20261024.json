@@ -1,0 +1,383 @@
+{
+  "schema": "lucas-amc8-ai-transfer-qa-v1",
+  "date": "2026-10-24",
+  "source_file": "ai_transfer_bank_staging_v1.json",
+  "total": 60,
+  "math_validation": "60/60 independent numeric checks from first-pass QA",
+  "pedagogical_acceptance": {
+    "auto_review_approved": 0,
+    "retain_for_review": 18,
+    "rework": 24,
+    "reject": 18
+  },
+  "findings": [
+    "10 method groups but 60 distinct strings are largely parameter variants; distinct prompts do not guarantee transfer diversity.",
+    "rotation coordinate absolute sum invariant makes intended method unnecessary.",
+    "probability group asks counts rather than probability.",
+    "several areas/medians are below targeted Q13-Q25 difficulty.",
+    "No human-reviewed AMC8 difficulty calibration has been established."
+  ],
+  "release_gate": "BLOCKED_NO_AUTO_REVIEW",
+  "records": [
+    {
+      "id": "ai_transfer_20261024_001",
+      "method_group": "prime_factor_divisors",
+      "qa_verdict": "REWORK",
+      "reason": "直接给出质因数分解，未检验从原始整数分解的能力；仅换指数"
+    },
+    {
+      "id": "ai_transfer_20261024_002",
+      "method_group": "prime_factor_divisors",
+      "qa_verdict": "REWORK",
+      "reason": "直接给出质因数分解，未检验从原始整数分解的能力；仅换指数"
+    },
+    {
+      "id": "ai_transfer_20261024_003",
+      "method_group": "prime_factor_divisors",
+      "qa_verdict": "REWORK",
+      "reason": "直接给出质因数分解，未检验从原始整数分解的能力；仅换指数"
+    },
+    {
+      "id": "ai_transfer_20261024_004",
+      "method_group": "prime_factor_divisors",
+      "qa_verdict": "REWORK",
+      "reason": "直接给出质因数分解，未检验从原始整数分解的能力；仅换指数"
+    },
+    {
+      "id": "ai_transfer_20261024_005",
+      "method_group": "prime_factor_divisors",
+      "qa_verdict": "REWORK",
+      "reason": "直接给出质因数分解，未检验从原始整数分解的能力；仅换指数"
+    },
+    {
+      "id": "ai_transfer_20261024_006",
+      "method_group": "prime_factor_divisors",
+      "qa_verdict": "REWORK",
+      "reason": "直接给出质因数分解，未检验从原始整数分解的能力；仅换指数"
+    },
+    {
+      "id": "ai_transfer_20261024_007",
+      "method_group": "prime_factor_divisors",
+      "qa_verdict": "REWORK",
+      "reason": "直接给出质因数分解，未检验从原始整数分解的能力；仅换指数"
+    },
+    {
+      "id": "ai_transfer_20261024_008",
+      "method_group": "prime_factor_divisors",
+      "qa_verdict": "REWORK",
+      "reason": "直接给出质因数分解，未检验从原始整数分解的能力；仅换指数"
+    },
+    {
+      "id": "ai_transfer_20261024_009",
+      "method_group": "nonadjacent_distinct",
+      "qa_verdict": "REWORK",
+      "reason": "4道仅改变人数，容易机械套相邻补集公式"
+    },
+    {
+      "id": "ai_transfer_20261024_010",
+      "method_group": "nonadjacent_distinct",
+      "qa_verdict": "REWORK",
+      "reason": "4道仅改变人数，容易机械套相邻补集公式"
+    },
+    {
+      "id": "ai_transfer_20261024_011",
+      "method_group": "nonadjacent_distinct",
+      "qa_verdict": "REWORK",
+      "reason": "4道仅改变人数，容易机械套相邻补集公式"
+    },
+    {
+      "id": "ai_transfer_20261024_012",
+      "method_group": "nonadjacent_distinct",
+      "qa_verdict": "REWORK",
+      "reason": "4道仅改变人数，容易机械套相邻补集公式"
+    },
+    {
+      "id": "ai_transfer_20261024_013",
+      "method_group": "two_people_one_between",
+      "qa_verdict": "REVIEW_ONLY",
+      "reason": "间隔计数方向合理，但4道题仅换人数"
+    },
+    {
+      "id": "ai_transfer_20261024_014",
+      "method_group": "two_people_one_between",
+      "qa_verdict": "REVIEW_ONLY",
+      "reason": "间隔计数方向合理，但4道题仅换人数"
+    },
+    {
+      "id": "ai_transfer_20261024_015",
+      "method_group": "two_people_one_between",
+      "qa_verdict": "REVIEW_ONLY",
+      "reason": "间隔计数方向合理，但4道题仅换人数"
+    },
+    {
+      "id": "ai_transfer_20261024_016",
+      "method_group": "two_people_one_between",
+      "qa_verdict": "REVIEW_ONLY",
+      "reason": "间隔计数方向合理，但4道题仅换人数"
+    },
+    {
+      "id": "ai_transfer_20261024_017",
+      "method_group": "stair_no_consecutive_two",
+      "qa_verdict": "REVIEW_ONLY",
+      "reason": "递推正确，但8道仅改变级数，缺少情境和约束变化"
+    },
+    {
+      "id": "ai_transfer_20261024_018",
+      "method_group": "stair_no_consecutive_two",
+      "qa_verdict": "REVIEW_ONLY",
+      "reason": "递推正确，但8道仅改变级数，缺少情境和约束变化"
+    },
+    {
+      "id": "ai_transfer_20261024_019",
+      "method_group": "stair_no_consecutive_two",
+      "qa_verdict": "REVIEW_ONLY",
+      "reason": "递推正确，但8道仅改变级数，缺少情境和约束变化"
+    },
+    {
+      "id": "ai_transfer_20261024_020",
+      "method_group": "stair_no_consecutive_two",
+      "qa_verdict": "REVIEW_ONLY",
+      "reason": "递推正确，但8道仅改变级数，缺少情境和约束变化"
+    },
+    {
+      "id": "ai_transfer_20261024_021",
+      "method_group": "stair_no_consecutive_two",
+      "qa_verdict": "REVIEW_ONLY",
+      "reason": "递推正确，但8道仅改变级数，缺少情境和约束变化"
+    },
+    {
+      "id": "ai_transfer_20261024_022",
+      "method_group": "stair_no_consecutive_two",
+      "qa_verdict": "REVIEW_ONLY",
+      "reason": "递推正确，但8道仅改变级数，缺少情境和约束变化"
+    },
+    {
+      "id": "ai_transfer_20261024_023",
+      "method_group": "stair_no_consecutive_two",
+      "qa_verdict": "REVIEW_ONLY",
+      "reason": "递推正确，但8道仅改变级数，缺少情境和约束变化"
+    },
+    {
+      "id": "ai_transfer_20261024_024",
+      "method_group": "stair_no_consecutive_two",
+      "qa_verdict": "REVIEW_ONLY",
+      "reason": "递推正确，但8道仅改变级数，缺少情境和约束变化"
+    },
+    {
+      "id": "ai_transfer_20261024_025",
+      "method_group": "probability_complement",
+      "qa_verdict": "REWORK",
+      "reason": "标题是概率，题目却只问组合数；缺少概率计算与概率情境"
+    },
+    {
+      "id": "ai_transfer_20261024_026",
+      "method_group": "probability_complement",
+      "qa_verdict": "REWORK",
+      "reason": "标题是概率，题目却只问组合数；缺少概率计算与概率情境"
+    },
+    {
+      "id": "ai_transfer_20261024_027",
+      "method_group": "probability_complement",
+      "qa_verdict": "REWORK",
+      "reason": "标题是概率，题目却只问组合数；缺少概率计算与概率情境"
+    },
+    {
+      "id": "ai_transfer_20261024_028",
+      "method_group": "probability_complement",
+      "qa_verdict": "REWORK",
+      "reason": "标题是概率，题目却只问组合数；缺少概率计算与概率情境"
+    },
+    {
+      "id": "ai_transfer_20261024_029",
+      "method_group": "probability_complement",
+      "qa_verdict": "REWORK",
+      "reason": "标题是概率，题目却只问组合数；缺少概率计算与概率情境"
+    },
+    {
+      "id": "ai_transfer_20261024_030",
+      "method_group": "probability_complement",
+      "qa_verdict": "REWORK",
+      "reason": "标题是概率，题目却只问组合数；缺少概率计算与概率情境"
+    },
+    {
+      "id": "ai_transfer_20261024_031",
+      "method_group": "probability_complement",
+      "qa_verdict": "REWORK",
+      "reason": "标题是概率，题目却只问组合数；缺少概率计算与概率情境"
+    },
+    {
+      "id": "ai_transfer_20261024_032",
+      "method_group": "probability_complement",
+      "qa_verdict": "REWORK",
+      "reason": "标题是概率，题目却只问组合数；缺少概率计算与概率情境"
+    },
+    {
+      "id": "ai_transfer_20261024_033",
+      "method_group": "rotation_90_coordinates",
+      "qa_verdict": "REJECT",
+      "reason": "旋转前后|x|+|y|恒定，不旋转也可正确作答，无法检测旋转方法"
+    },
+    {
+      "id": "ai_transfer_20261024_034",
+      "method_group": "rotation_90_coordinates",
+      "qa_verdict": "REJECT",
+      "reason": "旋转前后|x|+|y|恒定，不旋转也可正确作答，无法检测旋转方法"
+    },
+    {
+      "id": "ai_transfer_20261024_035",
+      "method_group": "rotation_90_coordinates",
+      "qa_verdict": "REJECT",
+      "reason": "旋转前后|x|+|y|恒定，不旋转也可正确作答，无法检测旋转方法"
+    },
+    {
+      "id": "ai_transfer_20261024_036",
+      "method_group": "rotation_90_coordinates",
+      "qa_verdict": "REJECT",
+      "reason": "旋转前后|x|+|y|恒定，不旋转也可正确作答，无法检测旋转方法"
+    },
+    {
+      "id": "ai_transfer_20261024_037",
+      "method_group": "rotation_90_coordinates",
+      "qa_verdict": "REJECT",
+      "reason": "旋转前后|x|+|y|恒定，不旋转也可正确作答，无法检测旋转方法"
+    },
+    {
+      "id": "ai_transfer_20261024_038",
+      "method_group": "rotation_90_coordinates",
+      "qa_verdict": "REJECT",
+      "reason": "旋转前后|x|+|y|恒定，不旋转也可正确作答，无法检测旋转方法"
+    },
+    {
+      "id": "ai_transfer_20261024_039",
+      "method_group": "union_multiples",
+      "qa_verdict": "REVIEW_ONLY",
+      "reason": "基础容斥有效，但6道均为1~N中二条件整除，目标难度偏低"
+    },
+    {
+      "id": "ai_transfer_20261024_040",
+      "method_group": "union_multiples",
+      "qa_verdict": "REVIEW_ONLY",
+      "reason": "基础容斥有效，但6道均为1~N中二条件整除，目标难度偏低"
+    },
+    {
+      "id": "ai_transfer_20261024_041",
+      "method_group": "union_multiples",
+      "qa_verdict": "REVIEW_ONLY",
+      "reason": "基础容斥有效，但6道均为1~N中二条件整除，目标难度偏低"
+    },
+    {
+      "id": "ai_transfer_20261024_042",
+      "method_group": "union_multiples",
+      "qa_verdict": "REVIEW_ONLY",
+      "reason": "基础容斥有效，但6道均为1~N中二条件整除，目标难度偏低"
+    },
+    {
+      "id": "ai_transfer_20261024_043",
+      "method_group": "union_multiples",
+      "qa_verdict": "REVIEW_ONLY",
+      "reason": "基础容斥有效，但6道均为1~N中二条件整除，目标难度偏低"
+    },
+    {
+      "id": "ai_transfer_20261024_044",
+      "method_group": "union_multiples",
+      "qa_verdict": "REVIEW_ONLY",
+      "reason": "基础容斥有效，但6道均为1~N中二条件整除，目标难度偏低"
+    },
+    {
+      "id": "ai_transfer_20261024_045",
+      "method_group": "rectangle_area_subtraction",
+      "qa_verdict": "REJECT",
+      "reason": "仅长方形面积一次减法，不涉及复杂拆分或面积比"
+    },
+    {
+      "id": "ai_transfer_20261024_046",
+      "method_group": "rectangle_area_subtraction",
+      "qa_verdict": "REJECT",
+      "reason": "仅长方形面积一次减法，不涉及复杂拆分或面积比"
+    },
+    {
+      "id": "ai_transfer_20261024_047",
+      "method_group": "rectangle_area_subtraction",
+      "qa_verdict": "REJECT",
+      "reason": "仅长方形面积一次减法，不涉及复杂拆分或面积比"
+    },
+    {
+      "id": "ai_transfer_20261024_048",
+      "method_group": "rectangle_area_subtraction",
+      "qa_verdict": "REJECT",
+      "reason": "仅长方形面积一次减法，不涉及复杂拆分或面积比"
+    },
+    {
+      "id": "ai_transfer_20261024_049",
+      "method_group": "rectangle_area_subtraction",
+      "qa_verdict": "REJECT",
+      "reason": "仅长方形面积一次减法，不涉及复杂拆分或面积比"
+    },
+    {
+      "id": "ai_transfer_20261024_050",
+      "method_group": "rectangle_area_subtraction",
+      "qa_verdict": "REJECT",
+      "reason": "仅长方形面积一次减法，不涉及复杂拆分或面积比"
+    },
+    {
+      "id": "ai_transfer_20261024_051",
+      "method_group": "rectangle_area_subtraction",
+      "qa_verdict": "REJECT",
+      "reason": "仅长方形面积一次减法，不涉及复杂拆分或面积比"
+    },
+    {
+      "id": "ai_transfer_20261024_052",
+      "method_group": "rectangle_area_subtraction",
+      "qa_verdict": "REJECT",
+      "reason": "仅长方形面积一次减法，不涉及复杂拆分或面积比"
+    },
+    {
+      "id": "ai_transfer_20261024_053",
+      "method_group": "arithmetic_sequence_sum",
+      "qa_verdict": "REWORK",
+      "reason": "给出首项公差项数直接代公式，无推断/倒推或周期迁移"
+    },
+    {
+      "id": "ai_transfer_20261024_054",
+      "method_group": "arithmetic_sequence_sum",
+      "qa_verdict": "REWORK",
+      "reason": "给出首项公差项数直接代公式，无推断/倒推或周期迁移"
+    },
+    {
+      "id": "ai_transfer_20261024_055",
+      "method_group": "arithmetic_sequence_sum",
+      "qa_verdict": "REWORK",
+      "reason": "给出首项公差项数直接代公式，无推断/倒推或周期迁移"
+    },
+    {
+      "id": "ai_transfer_20261024_056",
+      "method_group": "arithmetic_sequence_sum",
+      "qa_verdict": "REWORK",
+      "reason": "给出首项公差项数直接代公式，无推断/倒推或周期迁移"
+    },
+    {
+      "id": "ai_transfer_20261024_057",
+      "method_group": "median_sorted_odd",
+      "qa_verdict": "REJECT",
+      "reason": "7个数据已排序，直接取第4个即可，不能检测中位数处理能力"
+    },
+    {
+      "id": "ai_transfer_20261024_058",
+      "method_group": "median_sorted_odd",
+      "qa_verdict": "REJECT",
+      "reason": "7个数据已排序，直接取第4个即可，不能检测中位数处理能力"
+    },
+    {
+      "id": "ai_transfer_20261024_059",
+      "method_group": "median_sorted_odd",
+      "qa_verdict": "REJECT",
+      "reason": "7个数据已排序，直接取第4个即可，不能检测中位数处理能力"
+    },
+    {
+      "id": "ai_transfer_20261024_060",
+      "method_group": "median_sorted_odd",
+      "qa_verdict": "REJECT",
+      "reason": "7个数据已排序，直接取第4个即可，不能检测中位数处理能力"
+    }
+  ]
+}
