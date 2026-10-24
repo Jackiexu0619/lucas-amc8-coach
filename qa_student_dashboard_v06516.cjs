@@ -40,6 +40,12 @@ const weekday=buildDashboardModel(weekdayState,'2026-10-26',{dailyQuestionCount:
 assert.equal(weekday.next.target,'practice','weekday priority is the light daily practice');
 assert.equal(weekday.steps[2].status,'active');
 
+const oldDailyState={daily_plan:{date:'2026-10-24',question_ids:['a','b','c'],submitted:false}};
+const oldDaily=buildDashboardModel(oldDailyState,'2026-10-25',{dailyQuestionCount:3});
+assert.equal(oldDaily.dailyPlanIsOld,true,'an unsubmitted plan from yesterday remains locked');
+assert.equal(oldDaily.next.target,'practice','old locked daily paper should be completed before starting another');
+assert.match(oldDaily.next.title,/旧的每日3题卷尚未提交/);
+
 const followupState={
   daily_plan:{date:'2026-10-27',question_ids:['a','b','c'],submitted:true},
   daily_sessions:[],
