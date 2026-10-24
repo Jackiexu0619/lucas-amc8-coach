@@ -1,0 +1,33 @@
+name: Guided student dashboard QA
+
+on:
+  push:
+    paths:
+      - 'coach_student_dashboard_v06515.js'
+      - 'qa_student_dashboard_v06515.cjs'
+      - 'coach_learning_closure_v06514.js'
+      - 'qa_learning_closure_v06514.cjs'
+      - '.github/workflows/student-dashboard-qa.yml'
+  pull_request:
+    paths:
+      - 'coach_student_dashboard_v06515.js'
+      - 'qa_student_dashboard_v06515.cjs'
+      - 'coach_learning_closure_v06514.js'
+      - 'qa_learning_closure_v06514.cjs'
+      - '.github/workflows/student-dashboard-qa.yml'
+  workflow_dispatch:
+
+jobs:
+  student-dashboard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Syntax check dashboard
+        run: node --check coach_student_dashboard_v06515.js
+      - name: Dashboard regression QA
+        run: node qa_student_dashboard_v06515.cjs
+      - name: Learning closure regression QA
+        run: node --check coach_learning_closure_v06514.js && node qa_learning_closure_v06514.cjs
