@@ -79,7 +79,7 @@ function buildDashboardModel(state={},today,options={}){
   }
 
   return {
-    version:VERSION,today:dateKey(today),weekend,dailyDone,hasDailyPlan,hasPaper,paperPending,
+    version:VERSION,today:dateKey(today),weekend,dailyDone,hasDailyPlan,dailyPlanIsOld,hasPaper,paperPending,
     paperId,paperDate,latestMockDate:latestDate,latestMockScore:latest?Number(latest.score):null,
     dailyQuestionCount,weakAttemptCount,weakFocus:weakFocus.slice(0,4),
     pendingReviewCount:pendingTasks.length,completedReviewCount:completedTasks.length,
