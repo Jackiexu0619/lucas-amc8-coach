@@ -83,3 +83,10 @@ Finish browser-level integration review, then open/review the release PR. Do not
 - No real learner state was used or changed.
 - GitHub Pages deployment for v0.6.5.15: PASS — https://github.com/Jackiexu0619/lucas-amc8-coach/actions/runs/40110075753
 - Remaining acceptance item: visual/interactive browser check of the deployed home page and locked-paper flow. Static regression tests pass; this is not yet claimed as completed end-to-end browser testing.
+
+
+## Browser acceptance and cooldown-scope audit — 2026-10-25
+
+- Read-only inspection of the deployed v0.6.5.15 page confirms the guided dashboard renders, shows the currently locked weekend paper (`2026-W43-01`), and preserves the unsubmitted daily paper dated `2026-10-24`; no paper was regenerated and no learner data was changed.
+- Interactive browser navigation smoke test is still unverified. The first CI attempt failed because Playwright 1.55 does not support the `ubuntu-latest` runner image; a retry on `ubuntu-24.04` with current Playwright has not yet returned a final status. Do not mark full browser acceptance PASS until the final result is available.
+- Next logic-audit item: `eligibleDailyBank()` enforces a 30-day cooldown using `S.attempts`, but does not visibly include `mock_detail_history` or the currently locked `printable_mock_ids`. Verify against the requirement that weekday training avoid recently used questions; if confirmed, add regression coverage and extend the cooldown without altering the current locked paper.
