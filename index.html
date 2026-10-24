@@ -1649,21 +1649,24 @@ function refreshArchiveDaily(){
  alert('已生成新的3题卷。旧题不会混入新卷；请重新打印并核对卷号。');
 }
 function archivePaperPicker(){
- // Mix official questions across years while preserving each question's original AMC8 position.
- // Position 1 uses an original Q1, position 2 uses an original Q2, ... position 25 uses an original Q25.
- // This keeps the authentic difficulty curve better than randomly shuffling 25 questions.
+ // Mix official questions across years while preserving the original AMC8 question-number difficulty curve.
+ // Prefer questions never attempted before; only reuse older questions when a position has no unseen candidate.
  const recent=new Set([
    ...(S.printable_mock_ids||[]),
    ...recentWeekendQuestionIds(4),
    ...recentWeekdayQuestionIds(7)
  ]);
+ const attempted=new Set((S.attempts||[]).map(a=>a.question_id).filter(Boolean));
  const chosen=[],usedIds=new Set(),yearUse={};
  for(let pos=1;pos<=25;pos++){
-   let pool=ARCHIVE_BANK.filter(q=>q.problem_number===pos&&!usedIds.has(q.id)&&!recent.has(q.id));
-   // If recent-use filtering exhausts this position, allow an older question, but never duplicate within this paper.
-   if(!pool.length)pool=ARCHIVE_BANK.filter(q=>q.problem_number===pos&&!usedIds.has(q.id));
+   const eligible=ARCHIVE_BANK.filter(q=>q.problem_number===pos&&!usedIds.has(q.id));
+   let pool=eligible.filter(q=>!attempted.has(q.id)&&!recent.has(q.id));
+   // If no never-attempted candidate remains at this position, reuse an older non-recent question first.
+   if(!pool.length)pool=eligible.filter(q=>!recent.has(q.id));
+   // Last resort: allow a recent question only when all alternatives at this position are exhausted.
+   if(!pool.length)pool=eligible;
    if(!pool.length)return null;
-   // Prefer years not yet used in this paper; when all available years are represented, balance repeats.
+   // Balance source years across the paper without forcing a single year or repeating a question.
    const minUse=Math.min(...pool.map(q=>yearUse[q.year]||0));
    const balanced=pool.filter(q=>(yearUse[q.year]||0)===minUse);
    const q=balanced[Math.floor(Math.random()*balanced.length)];
