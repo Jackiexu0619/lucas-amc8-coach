@@ -62,6 +62,8 @@ function buildDashboardModel(state={},today,options={}){
   let next={title:'继续今日训练',detail:'按当前锁定的3题完成纸上训练；每天保持轻量，不额外堆题。',target:'practice',button:'进入每日训练'};
   if(paperPending){
     next={title:'本周模拟卷已锁定，先完成这张纸质卷',detail:'按已打印的25题完成测试，再录入逐题结果。系统不会自动替换这张卷，也不需要重新打印。',target:'mock',button:'进入周末模拟录入'};
+  }else if(dailyPlanIsOld){
+    next={title:'有一张旧的每日3题卷尚未提交',detail:'先核对旧卷号并完成原卷录入。系统会继续保留这3道题，不自动换题，也不会丢弃纸上作答。',target:'practice',button:'继续录入原卷'};
   }else if(weekend&&latest&&(!paperId||latestPaperId===paperId)){
     next={title:'本周模拟已提交，查看学习报告',detail:'先核对本次错题、猜对题和用时，再让下周训练沿着真实薄弱点推进。',target:'report',button:'查看学习报告'};
   }else if(weekend&&!hasPaper){
