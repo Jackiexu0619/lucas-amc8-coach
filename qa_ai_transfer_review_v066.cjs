@@ -3,6 +3,10 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const vm=require('node:vm');
 const source=fs.readFileSync(require('node:path').join(__dirname,'coach_ai_transfer_review_v066.js'),'utf8');
+const appSource=fs.readFileSync(require('node:path').join(__dirname,'index.html'),'utf8');
+assert.equal((appSource.match(/function eligibleDailyBank\(\)/g)||[]).length,1,'weekday selector must have one effective definition');
+assert.match(appSource,/for\s*\(const days of \[30,14,7\]\)/,'weekday selector must try 30, 14, then 7 days');
+assert.match(appSource,/ARCHIVE_BANK\.filter\(q=>q\.problem_number>=13&&q\.problem_number<=25\)/,'weekday training must remain in official AMC8 Q13-Q25');
 const original={id:'archive_2018_18',year:2018,problem_number:18,domain:'number_theory',skill:'质因数分解与因数个数',core_method:'质因数指数加一乘积求约数数目',answer:'C',choices:['A','B','C','D','E'],official:true};
 const other={id:'archive_2007_13',year:2007,problem_number:13,domain:'counting_probability',skill:'容斥',core_method:'两集合并集与交集公式',answer:'A',choices:['A','B','C','D','E'],official:true};
 const prob={id:'archive_2015_07',year:2015,problem_number:7,domain:'counting_probability',skill:'概率',core_method:'计算全奇数概率的补集',answer:'B',choices:['A','B','C','D','E'],official:true};
@@ -74,4 +78,4 @@ task=window.amcAiTransferV066.queue().tasks.find(t=>t.origin_question_id===origi
 assert.equal(task.status,'completed','four independent passes complete the review loop');
 assert.equal(task.due,null,'completed task has no due date');
 assert.equal(ctx.qById('ai_transfer_rework_20261024_026').official,false,'AI question is not marked official');
-console.log('PASS 21 assertions: gated pilot count, diagnostic isolation, daily-slot integration, locked-paper persistence, source mapping, 7/14/30 spacing, completion, and AI/official separation.');
+console.log('PASS 24 assertions: gated pilot count, diagnostic isolation, daily-slot integration, locked-paper persistence, source mapping, 7/14/30 spacing, completion, and AI/official separation.');
