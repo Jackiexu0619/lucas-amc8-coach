@@ -36,7 +36,9 @@
     "Origin question and method group are persisted in the locked daily paper so refresh/reopen does not lose the review linkage.",
     "Independent correct results advance through 7/14/30-day spacing and complete after four independent transfer passes; guessed/hinted/wrong attempts do not advance.",
     "Parent answer printout includes the AI explanation.",
-    "Node integration QA and GitHub Actions syntax/regression workflow added."
+    "Node integration QA and GitHub Actions syntax/regression workflow added.",
+    "Undoing a daily submission removes its AI review attempt too, preventing a phantom pass or completed queue task.",
+    "The report refreshes after AI result classification so the displayed stage/date is not stale."
   ],
   "content_gate": {
     "total_reworked_candidates_available": 46,
@@ -45,7 +47,7 @@
     "known_rotation_item_004_review": "Earlier mismatch flag was a checker false positive: operation order was applied incorrectly in the checker; reflect y-axis first then rotate counterclockwise 90 degrees yields x=-2, matching option D."
   },
   "test_result": {
-    "automated_ci": "PENDING",
+    "automated_ci": "PENDING_STATUS_UNAVAILABLE",
     "expected_assertions": 21,
     "browser_end_to_end": "NOT_YET_RUN",
     "supabase_cloud_roundtrip": "NOT_YET_RUN",
