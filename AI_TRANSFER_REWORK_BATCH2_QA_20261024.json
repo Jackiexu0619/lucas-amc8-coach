@@ -1,0 +1,122 @@
+{
+  "date": "2026-10-24",
+  "source_file": "ai_transfer_rework_batch2_20261024.json",
+  "count": 24,
+  "independent_validation": {
+    "status": "PASS",
+    "questions_passed": 24,
+    "questions_failed": 0,
+    "checks": [
+      "numeric answer independently recomputed from question text",
+      "five unique answer choices",
+      "answer letter points to numeric answer",
+      "question and explanation fields present"
+    ]
+  },
+  "pedagogical_review": {
+    "approved_for_automatic_review": 0,
+    "staging_only": 24,
+    "reason": "Numeric correctness passed, but level, distractor quality, and exact same-method mapping to original AMC8 questions still require editorial review."
+  },
+  "method_mapping_candidates": {
+    "prime_factor_divisors": {
+      "candidate_source_groups": [
+        "prime_factor_divisors",
+        "质因数分解与因数个数"
+      ],
+      "candidate_source_ids": [
+        "archive_2010_14",
+        "archive_2015_22",
+        "archive_2009_17"
+      ],
+      "note": "需区分“直接求因数个数”与原真题中的指数约束/不同质因数之和，不能全部视为等价方法"
+    },
+    "nonadjacent_distinct": {
+      "candidate_source_groups": [
+        "排列与空位法"
+      ],
+      "candidate_source_ids": [
+        "archive_2001_14",
+        "archive_2003_16"
+      ],
+      "note": "这些真题方法相邻但并非全部是不相邻计数；需人工确认"
+    },
+    "two_people_one_between": {
+      "candidate_source_groups": [
+        "排列与空位法"
+      ],
+      "candidate_source_ids": [
+        "archive_2001_14",
+        "archive_2003_16"
+      ],
+      "note": "仅是技能邻近候选，未确认精确同方法"
+    },
+    "circular_adjacent": {
+      "candidate_source_groups": [
+        "排列与空位法"
+      ],
+      "candidate_source_ids": [
+        "archive_2003_16"
+      ],
+      "note": "圆排列与直线排列不同，必须独立分组，当前没有精确映射"
+    },
+    "stair_blocked_step": {
+      "candidate_source_groups": [
+        "recurrence",
+        "递推与路径"
+      ],
+      "candidate_source_ids": [
+        "archive_2010_25",
+        "archive_2013_21",
+        "archive_2020_21"
+      ],
+      "note": "有禁用台阶且禁止连续两次2级，与经典1/2/3级递推不完全相同，不能直接绑定"
+    },
+    "stair_exact_twos": {
+      "candidate_source_groups": [
+        "recurrence",
+        "递推与路径"
+      ],
+      "candidate_source_ids": [
+        "archive_2010_25"
+      ],
+      "note": "额外记录2级步数状态，需人工确认为新方法组"
+    },
+    "union_multiples_range": {
+      "candidate_source_groups": [
+        "二集合容斥",
+        "容斥"
+      ],
+      "candidate_source_ids": [
+        "archive_2007_13",
+        "archive_2008_11"
+      ],
+      "note": "方法匹配较强，但新题只作范围整除计数，仍需对标难度"
+    },
+    "arithmetic_sequence_sum": {
+      "candidate_source_groups": [
+        "arithmetic_sequence_sum",
+        "等差数列求和"
+      ],
+      "candidate_source_ids": [
+        "archive_2016_19",
+        "archive_2005_12",
+        "archive_2000_08"
+      ],
+      "note": "等差求和方法相近，需确认是否真正同方法而非只同知识点"
+    },
+    "median_unsorted_or_change": {
+      "candidate_source_groups": [
+        "数据分析：中位数、众数和平均数",
+        "奇数个数中位数与平均数"
+      ],
+      "candidate_source_ids": [
+        "archive_2011_04",
+        "archive_2004_11",
+        "archive_2012_22"
+      ],
+      "note": "排序后求中位数是基础技能，需和涉及平均数/极值的复合方法区分"
+    }
+  },
+  "release_gate": "STAGED_NOT_LIVE"
+}
