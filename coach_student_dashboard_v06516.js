@@ -53,7 +53,7 @@ function buildDashboardModel(state={},today,options={}){
       status:paperPending?'active':latest?'done':hasPaper?'active':'pending'},
     {key:'diagnosis',number:2,title:'薄弱点归因',description:latest?'根据逐题结果分析错题、猜题和未做题':(weakAttemptCount?'正在积累可用的薄弱项证据':'提交结果后再归因，不提前猜测'),
       status:paperPending?'pending':latest?'done':weakAttemptCount?'active':'pending'},
-    {key:'daily',number:3,title:'周中每日3题',description:dailyDone?'今日训练已提交':(hasDailyPlan?'今日纸上训练已锁定':(dailyQuestionCount?'已安排训练题':'提交模拟后自动安排')),
+    {key:'daily',number:3,title:'周中每日3题',description:dailyDone?'今日训练已提交':(hasDailyPlan?(dailyPlanIsOld?'旧卷尚未提交，继续原卷':'今日纸上训练已锁定'):(dailyQuestionCount?'已安排训练题':'提交模拟后自动安排')),
       status:dailyDone?'done':hasDailyPlan?'active':'pending'},
     {key:'transfer',number:4,title:'同方法迁移复测',description:pendingTasks.length?pendingTasks.length+'项待复测':(completedTasks.length?'已有迁移复测记录':'发现可靠弱项后再安排，不拿异类题凑数'),
       status:pendingTasks.length?'active':completedTasks.length?'done':latest?'waiting':'pending'}
