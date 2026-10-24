@@ -24,6 +24,7 @@ const ctx={
   return plan;
  },
  renderReport:()=>{},
+ renderAll:()=>{},
  printDailyAnswer:()=>{},
  submitDailyPaperResults:function(){
   const plan=ctx.dailyPlan();
