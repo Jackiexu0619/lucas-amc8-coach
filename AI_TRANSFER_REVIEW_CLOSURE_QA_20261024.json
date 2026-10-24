@@ -46,7 +46,7 @@
   },
   "test_result": {
     "automated_ci": "PENDING",
-    "expected_assertions": 16,
+    "expected_assertions": 18,
     "browser_end_to_end": "NOT_YET_RUN",
     "supabase_cloud_roundtrip": "NOT_YET_RUN",
     "failures_observed": [],
