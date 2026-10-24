@@ -1,6 +1,6 @@
 # Lucas AMC8 Coach — Development Progress
 
-Last updated: 2026-10-24
+Last updated: 2026-10-25
 
 ## Production baseline
 
@@ -42,3 +42,13 @@ The adaptive learning-closure module already existed, but the later-loaded coach
 - Code and QA changes are committed to the branch.
 - CI and live browser/cloud acceptance are pending.
 - Do not merge the earlier PR that contains a second competing selector implementation; this focused branch reuses the existing main-branch learning-closure module.
+
+
+## Follow-on phase: v0.6.5.16 guided student dashboard
+
+- Add a four-step student journey: weekend full mock → weakness diagnosis → weekday three-question practice → same-method transfer review.
+- The next-action card respects a locked paper first, then the weekday three-question routine, then the pending review/report queue.
+- The home panel is presentation-only: it reads existing state and does not alter attempts, mastery, mock IDs, Supabase rows, or printed questions.
+- Keep the reference product's guided flow without faking a live LLM chat. A true free-form coach requires a separately configured and secured model backend.
+- Added `qa_student_dashboard_v06516.cjs` for weekend/weekday priority, current-paper protection, and no-state-mutation checks.
+- Combined implementation branch: `feat/guided-student-dashboard-v06516`; CI and live-browser verification remain acceptance gates.
