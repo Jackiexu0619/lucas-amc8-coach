@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - 'index.html'
+      - 'coach_v064.js'
       - 'CHANGELOG.md'
       - 'README.md'
       - 'coach_mock_assembly_v06514.js'
@@ -12,6 +13,7 @@ on:
   pull_request:
     paths:
       - 'index.html'
+      - 'coach_v064.js'
       - 'CHANGELOG.md'
       - 'README.md'
       - 'coach_mock_assembly_v06514.js'
