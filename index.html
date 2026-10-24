@@ -1847,8 +1847,9 @@ function archiveWeaknessScore(q){
   }
   return Math.min(18,score);
 }
-function archivePaperPicker(){
+function archivePaperPicker(options={}){
   resetWeeklyWeaknessCache();
+  const archive=Array.isArray(options.archive)?options.archive:ARCHIVE_BANK;
   const recent=new Set([
     ...(S.printable_mock_ids||[]),
     ...recentWeekendQuestionIds(4),
@@ -1861,7 +1862,7 @@ function archivePaperPicker(){
 
   // Only the seven declared personalized positions can receive weakness weights.
   if(weeklyWeakRecords().length){
-    for(const q of ARCHIVE_BANK){
+    for(const q of archive){
       if(!personalizedSet.has(Number(q.problem_number)))continue;
       const score=archiveWeaknessScore(q);
       if(score>0)weaknessScoreById[q.id]=score;
@@ -1873,7 +1874,7 @@ function archivePaperPicker(){
     return {ok:false,reason:'selector-module-missing',chosen:[],selection:[]};
   }
   return engine.selectArchiveMock({
-    archive:ARCHIVE_BANK,
+    archive:archive,
     attemptedIds:Array.from(attempted),
     recentIds:Array.from(recent),
     personalizedPositions:personalizedPositions,
@@ -1881,9 +1882,10 @@ function archivePaperPicker(){
   });
 }
 
-function buildArchiveMockCore(){
-  if(!ARCHIVE_BANK.length)return false;
-  const result=archivePaperPicker();
+function buildArchiveMockCore(options={}){
+  const archive=Array.isArray(options.archive)?options.archive:ARCHIVE_BANK;
+  if(!archive.length)return false;
+  const result=archivePaperPicker({archive:archive});
   if(!result||!result.ok){
     console.error('周末模拟组卷失败',result?.reason||'unknown');
     return false;
@@ -1951,6 +1953,7 @@ function buildArchiveMockCore(){
       prefers_unattempted:true,
       avoids_recent_4_weekend_mocks_when_alternatives_exist:true,
       avoids_recent_7_weekday_questions_when_alternatives_exist:true,
+      reserved_years_excluded:Array.isArray(options.reservedYears)?[...options.reservedYears]:[],
       personalized_positions:personalizedPositions,
       weekly_weakness_selector_enabled:true,
       weekly_weakness_weighted:weaknessCoverage.length>0,
@@ -2289,7 +2292,7 @@ async function initV063(){await loadAuthenticBank();try{await loadArchiveBank()}
 initV063();
 </script>
 <script src="coach_mock_assembly_v06514.js?v=0.6.5.14"></script>
-<script src="coach_v064.js"></script>
+<script src="coach_v064.js?v=0.6.5.14"></script>
 <script src="coach_v0641.js"></script>
 
 <!-- AMC8 v0.6.4.2 SAFE SKILL MODULE: BEGIN -->
