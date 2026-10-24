@@ -149,7 +149,7 @@ submitDailyPaperResults=function(){
   }
   // The legacy queue is rebuilt after the source tag correction so AI attempts do not pollute it.
   if(window.amc8V065Queue)window.amc8V065Queue();
-  queue();saveStateLocal();window.__amcAiTransferSelected=null;
+  queue();saveStateLocal();window.__amcAiTransferSelected=null;renderAll();
  }
  return result;
 };
