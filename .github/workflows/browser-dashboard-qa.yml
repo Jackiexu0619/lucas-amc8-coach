@@ -1,0 +1,55 @@
+name: Fresh browser dashboard QA
+
+on:
+  push:
+    paths:
+      - 'index.html'
+      - 'official_bank.js'
+      - 'official_bank.json'
+      - 'cloud_config.js'
+      - 'coach_v064.js'
+      - 'coach_skill_bank.json'
+      - 'coach_review_cycle_v065.js'
+      - 'coach_ai_transfer_review_v066.js'
+      - 'coach_learning_closure_v06514.js'
+      - 'coach_student_dashboard_v06516.js'
+      - 'qa_browser_student_dashboard_v06516.cjs'
+      - '.github/workflows/browser-dashboard-qa.yml'
+  pull_request:
+    paths:
+      - 'index.html'
+      - 'official_bank.js'
+      - 'official_bank.json'
+      - 'cloud_config.js'
+      - 'coach_v064.js'
+      - 'coach_skill_bank.json'
+      - 'coach_review_cycle_v065.js'
+      - 'coach_ai_transfer_review_v066.js'
+      - 'coach_learning_closure_v06514.js'
+      - 'coach_student_dashboard_v06516.js'
+      - 'qa_browser_student_dashboard_v06516.cjs'
+      - '.github/workflows/browser-dashboard-qa.yml'
+  workflow_dispatch:
+
+jobs:
+  fresh-browser:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install Playwright
+        run: npm install --no-save --package-lock=false playwright@1.55.0
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Test fresh desktop and mobile browser
+        run: node qa_browser_student_dashboard_v06516.cjs
+      - name: Upload browser screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: amc8-dashboard-browser-screenshots
+          path: artifacts/student-dashboard-*.png
+          if-no-files-found: ignore
+          retention-days: 7

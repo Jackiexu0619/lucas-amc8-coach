@@ -1,4 +1,4 @@
-/* Lucas AMC8 Coach v0.6.4: reliable dual-mode paper engine + reviewed skill evidence.
+/* Lucas AMC8 Coach v0.6.5.15: dual-mode paper engine + reviewed skill evidence.
    Does not create AI questions. No backend or authentication changes. */
 (function(){
 'use strict';
@@ -39,7 +39,8 @@ function candidateValue(q,position,used,recordsBySkill){
  const diversity=used.some(x=>tagFor(x)&&tagFor(x)===skill)?-1.2:0;
  return weakness*(position>=9?6:2)+diversity-same*.33-(practiced?50:0)-(weekSeen?150:0)+stableNoise('v064:'+q.id)*.2;
 }
-function pickPersonalized(){
+// Retired legacy picker retained for audit; production personalized papers use the reviewed adaptive selector.
+function pickPersonalizedLegacy(){
  const allowed=pool().filter(q=>!RESERVED_YEARS.includes(q.year));
  const e=new Map(SKILLS.map(s=>[s,skillEvidence(s)]));
  const picked=[];
@@ -58,15 +59,24 @@ function pickDiagnostic(){
  if(!available.length)throw Error('预留的完整年份均已被接触或不完整，不能保证盲测；请审核预留年份，不能自动降级为旧题。');
  return available[0];
 }
-// Existing buildPrintableMock() owns paper_id allocation. Override only the selection stage.
+// Existing buildPrintableMock() owns paper_id allocation. Personalized mode must use the reviewed adaptive selector.
 buildPrintableMockCore=function(){
- if(!capabilities()){alert('双语真题库未完整加载，不能生成新试卷。');return}
+ if(!capabilities()){alert('双语真题库未完整加载，不能生成新试卷。');return false}
+ if(getMode()==='personalized'){
+  const allowedArchive=pool().filter(q=>!RESERVED_YEARS.includes(q.year));
+  const built=buildArchiveMockCore({archive:allowedArchive,reservedYears:RESERVED_YEARS});
+  if(!built)return false;
+  S.printable_mock_meta={...(S.printable_mock_meta||{}),paper_type:'personalized_practice',is_ai_generated:false,
+   note:'个性化真题训练卷（非AI原创），分数不用于真实AMC8成绩预测；完整年份诊断预留年份不进入此模式。'};
+  saveStateLocal();
+  return true;
+ }
  let chosen;
- try{chosen=getMode()==='diagnostic'?pickDiagnostic():pickPersonalized()}catch(e){alert(e.message);return}
+ try{chosen=pickDiagnostic()}catch(e){alert(e.message);return false}
  S.printable_mock_ids=chosen.map(q=>q.id);S.printable_mock_date=today();
- S.printable_mock_meta={engine:'v064_skill_based_v1',paper_type:getMode()==='diagnostic'?'diagnostic':'personalized_practice',
+ S.printable_mock_meta={engine:'v064_skill_based_v1',engine_version:'0.6.5.15',paper_type:'diagnostic',
   is_ai_generated:false,source_years:[...new Set(chosen.map(q=>q.year))],
-  note:getMode()==='diagnostic'?'未见过的完整年份真题诊断卷':'个性化真题训练卷（非AI原创），分数不用于真实AMC8成绩预测'};
+  note:'未见过的完整年份真题诊断卷；只使用预留年份并保留完整原卷顺序。'};
  saveStateLocal();return chosen;
 };
 const priorDaily=eligibleDailyBank;
@@ -103,7 +113,7 @@ renderMock=function(){
  const locked=(S.printable_mock_ids||[]).length===25;
  const mode=getMode(),counts=window.amc8V064Ability();
  const bar=document.createElement('div');bar.className='card';bar.style.marginBottom='12px';
- bar.innerHTML='<h3>v0.6.4 · 周末训练模式</h3><p class="small">当前使用历年真题，尚非 AI 原创。个性化训练卷不计入真实模拟成绩预测；诊断卷严格保留完整未见过的年份。</p>'+
+ bar.innerHTML='<h3>v0.6.5.15 · 周末训练模式</h3><p class="small">当前使用历年真题，尚非 AI 原创。个性化训练卷不计入真实模拟成绩预测；诊断卷严格保留完整未见过的年份。</p>'+
  '<div class="row"><button id="v064-p">个性化真题卷 '+(mode==='personalized'?'✓':'')+'</button><button id="v064-d">完整年份诊断卷 '+(mode==='diagnostic'?'✓':'')+'</button></div>'+
  '<p class="small">已确认技能标签：'+Object.keys(S.v064_question_tags||{}).filter(k=>S.v064_question_tags[k].status==='reviewed').length+' 题；有练习证据的技能：'+counts.length+' 类。缺少标签时按真实题号难度与历史避重复规则保守出卷。</p>'+
  '<details><summary>家长核对知识点标签（需先看题和解析）</summary><div class="row" style="margin-top:8px"><input id="v064-tag-qid" placeholder="archive_2015_17" style="max-width:190px"><select id="v064-tag-skill">'+SKILLS.map(s=>'<option>'+s+'</option>').join('')+'</select><button id="v064-tag-add">保存已审核标签</button></div><p class="small">未人工确认的标签不进入技能评分；标签随原本的训练状态云同步。</p></details>';

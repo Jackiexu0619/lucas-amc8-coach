@@ -51,4 +51,38 @@ assert.equal(none.meta.weekly_weakness_mapped_count,0);
 assert.equal(none.meta.weekly_weakness_unmapped_count,1);
 assert.ok(none.meta.weekly_weakness_coverage.every(x=>x.matches.length===0));
 assert.equal(classifyMatch({method:'方法甲',groupKey:'a'},{method:'方法甲',groupKey:'b'}).type,'同解法描述');
-console.log('PASS: 575 tags, 25-position curve, uniqueness, recent-question avoidance, weak-point matching, and unmapped-record safeguards.');
+
+const reservedYears = [2017, 2018];
+const personalizedBank = bank.filter(q => !reservedYears.includes(q.year));
+const reservedState = { printable_mock_ids: [], attempts: [], mock_detail_history: [], v064_question_tags: {}, v064_specific_skills: {} };
+const reservedResult = selectArchivePaper({
+  bank: personalizedBank, state: reservedState, tagMap, weakRecords,
+  today: '2026-10-24', tagBankStatus: 'ready', reservedYears, randomFn: () => 0.5
+});
+assert.ok(reservedResult && reservedResult.questions.length === 25);
+assert.equal(reservedResult.questions.some(q => reservedYears.includes(q.year)), false, 'personalized selection must not consume reserved full-year diagnostic papers');
+assert.deepEqual(reservedResult.meta.reserved_years_excluded, reservedYears);
+
+const q1Ids = bank.filter(q => q.problem_number === 1).map(q => q.id);
+const fallbackResult = selectArchivePaper({
+  bank, state: { printable_mock_ids: q1Ids, attempts: [], mock_detail_history: [] },
+  tagMap, weakRecords: [], today: '2026-10-24', tagBankStatus: 'ready', randomFn: () => 0.5
+});
+assert.ok(fallbackResult);
+assert.ok(fallbackResult.meta.recent_exclusion_fallback_positions.includes(1), 'recent exclusion relaxation must be recorded when every Q1 candidate is recent');
+
+const index = fs.readFileSync('index.html', 'utf8');
+const coach = fs.readFileSync('coach_v064.js', 'utf8');
+const closure = fs.readFileSync('coach_learning_closure_v06514.js', 'utf8');
+assert.match(coach, /buildArchiveMockCore\(\{\s*archive:allowedArchive,reservedYears:RESERVED_YEARS\}\)/, 'the real personalized-mode override must call the adaptive selector');
+assert.match(coach, /chosen=pickDiagnostic\(\)/, 'full-year diagnostic mode must remain independent');
+assert.match(index, /const built=buildPrintableMockCore\(\);\s*if\(!built\)return;/, 'a failed build must not allocate a new paper ID over the existing paper');
+assert.match(index, /coach_v064\.js\?v=0\.6\.5\.15/, 'production override must be cache-busted');
+assert.match(index, /coach_learning_closure_v06514\.js\?v=0\.6\.5\.15/, 'adaptive selector must be cache-busted');
+assert.match(closure, /buildArchiveMockCore=function\(options=\{\}\)/, 'adaptive selector must accept the filtered personalized bank');
+assert.match(closure, /if\(tagBankStatus==='loading'\)[\s\S]*?return false/, 'loading tag metadata must fail safely without allocating a paper ID');
+assert.match(closure, /recent_exclusion_fallback_positions:fallbackPositions/, 'fallback decisions must be recorded');
+assert.match(closure, /const VERSION='0\.6\.5\.15'/, 'adaptive metadata must report the current release');
+assert.doesNotMatch(index, /0\.6\.5\.14/, 'the active page should not retain stale release/cache versions');
+
+console.log('PASS: learning closure QA — 575 tags, production wiring, reserved diagnostics, 25 positions, weakness matching, fallback and failure safety.');
