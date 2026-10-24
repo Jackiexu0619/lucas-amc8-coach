@@ -30,6 +30,8 @@ function buildDashboardModel(state={},today,options={}){
   const plan=state.daily_plan||{};
   const planIds=Array.isArray(plan.question_ids)?plan.question_ids:[];
   const hasDailyPlan=planIds.length===3&&!plan.submitted;
+  const dailyPlanDate=dateKey(plan.date);
+  const dailyPlanIsOld=hasDailyPlan&&dailyPlanDate!==dateKey(today);
   const dailyDone=dailySubmitted(state,today);
   const paperIds=Array.isArray(state.printable_mock_ids)?state.printable_mock_ids:[];
   const hasPaper=paperIds.length===25;
