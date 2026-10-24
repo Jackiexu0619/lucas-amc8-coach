@@ -79,7 +79,8 @@ assert.match(coach, /chosen=pickDiagnostic\(\)/, 'full-year diagnostic mode must
 assert.match(index, /const built=buildPrintableMockCore\(\);\s*if\(!built\)return;/, 'a failed build must not allocate a new paper ID over the existing paper');
 assert.match(index, /coach_v064\.js\?v=0\.6\.5\.15/, 'production override must be cache-busted');
 assert.match(index, /coach_learning_closure_v06514\.js\?v=0\.6\.5\.15/, 'adaptive selector must be cache-busted');
-assert.match(closure, /function buildArchiveMockCore\(options=\{\}\)/, 'adaptive selector must accept the filtered personalized bank');
+assert.match(closure, /buildArchiveMockCore=function\(options=\{\}\)/, 'adaptive selector must accept the filtered personalized bank');
+assert.match(closure, /if\(tagBankStatus==='loading'\)[\s\S]*?return false/, 'loading tag metadata must fail safely without allocating a paper ID');
 assert.match(closure, /recent_exclusion_fallback_positions:fallbackPositions/, 'fallback decisions must be recorded');
 assert.match(closure, /const VERSION='0\.6\.5\.15'/, 'adaptive metadata must report the current release');
 assert.doesNotMatch(index, /0\.6\.5\.14/, 'the active page should not retain stale release/cache versions');
