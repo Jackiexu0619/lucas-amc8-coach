@@ -1,0 +1,35 @@
+name: AMC8 mock assembly QA
+
+on:
+  push:
+    paths:
+      - 'index.html'
+      - 'coach_v064.js'
+      - 'CHANGELOG.md'
+      - 'README.md'
+      - 'coach_mock_assembly_v06514.js'
+      - 'qa_mock_assembly_v06514.cjs'
+      - '.github/workflows/mock-assembly-qa.yml'
+  pull_request:
+    paths:
+      - 'index.html'
+      - 'coach_v064.js'
+      - 'CHANGELOG.md'
+      - 'README.md'
+      - 'coach_mock_assembly_v06514.js'
+      - 'qa_mock_assembly_v06514.cjs'
+      - '.github/workflows/mock-assembly-qa.yml'
+  workflow_dispatch:
+
+jobs:
+  mock-assembly:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Syntax check
+        run: node --check coach_mock_assembly_v06514.js
+      - name: Selector and integration QA
+        run: node qa_mock_assembly_v06514.cjs
