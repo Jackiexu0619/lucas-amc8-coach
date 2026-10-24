@@ -89,10 +89,10 @@ function buildDashboardModel(state={},today,options={}){
     next={title:'本周模拟卷已锁定，先完成这张纸质卷',detail:'按已打印的25题完成测试，再录入逐题结果。系统不会自动替换这张卷，也不需要重新打印。',target:'mock'};
   }else if(weekend&&currentPaperComplete){
     next={title:'本周模拟已提交，查看学习报告',detail:'先核对本次错题、猜对题和用时，再让下周训练沿着真实薄弱点推进。',target:'report'};
-  }else if(weekend&&!currentWeekPaper){
-    next={title:'本周模拟尚未完成',detail:'上一套模拟记录会保留；请在现有周末模拟页核对本周试卷状态，再按需准备新卷。',target:'mock'};
   }else if(oldDailyPlanPending){
     next={title:'先完成之前锁定的3题专项',detail:'日期为 '+planDate+' 的纸质训练卷尚未提交。先完成并录入这张原卷；系统会保留原题，不自动换卷。',target:'practice'};
+  }else if(weekend&&!currentWeekPaper){
+    next={title:'本周模拟尚未完成',detail:'上一套模拟记录会保留；请在现有周末模拟页核对本周试卷状态，再按需准备新卷。',target:'mock'};
   }else if(!dailyDone){
     next={title:'先完成当前锁定的3题专项',detail:'按已锁定的题目完成纸上训练，并记录答案、用时和是否猜题；每天总量仍控制在3题。',target:'practice'};
   }else if(pendingTasks.length){
