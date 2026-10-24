@@ -1,0 +1,27 @@
+name: Weekend adaptive selector QA
+
+on:
+  push:
+    paths:
+      - 'coach_weekend_adaptive_v06514.js'
+      - 'qa_weekend_adaptive_v06514.cjs'
+      - '.github/workflows/weekend-adaptive-qa.yml'
+  pull_request:
+    paths:
+      - 'coach_weekend_adaptive_v06514.js'
+      - 'qa_weekend_adaptive_v06514.cjs'
+      - '.github/workflows/weekend-adaptive-qa.yml'
+  workflow_dispatch:
+
+jobs:
+  weekend-selector:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Syntax check
+        run: node --check coach_weekend_adaptive_v06514.js
+      - name: Selector regression QA
+        run: node qa_weekend_adaptive_v06514.cjs
