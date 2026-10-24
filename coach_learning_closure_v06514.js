@@ -1,9 +1,10 @@
-/* Lucas AMC8 Coach v0.6.5.14 — active archive selection and learning closure. */
+/* Lucas AMC8 Coach v0.6.5.15 — active archive selection and learning closure. */
 (function(root) {
 'use strict';
-if (root.__amcLearningClosureV06514) return;
-root.__amcLearningClosureV06514 = true;
+if (root.__amcLearningClosureV06515) return;
+root.__amcLearningClosureV06515 = true;
 
+const VERSION='0.6.5.15';
 const POSITIONS = [4,8,11,14,17,20,23];
 const norm = v => String(v ?? '').normalize('NFKC').toLowerCase().replace(/\s+/g,' ').trim();
 const placeholder = v => !v || /^archive_(unclassified|method)_/i.test(String(v)) || /^official_.+_band\d+$/i.test(String(v));
@@ -79,7 +80,7 @@ function summarizeWeakness(records) {
   return [...groups.values()].sort((a,b)=>b.weight-a.weight).slice(0,8);
 }
 function selectArchivePaper(options={}) {
-  const bank=Array.isArray(options.bank)?options.bank:[],state=options.state||{},tagMap=tagMapOf(options.tagMap);
+  const bank=Array.isArray(options.bank)?options.bank:[],state=options.state||{},tagMap=tagMapOf(options.tagMap),reservedYears=Array.isArray(options.reservedYears)?options.reservedYears.map(Number):[];
   const today=options.today||new Date().toISOString().slice(0,10),random=typeof options.randomFn==='function'?options.randomFn:Math.random;
   const allWeak=(options.weakRecords||[]).map(r=>({...r,tags:cleanTag(r.tags||{})}));
   const mappedWeak=allWeak.filter(r=>mapped(r.tags)),unmappedCount=allWeak.length-mappedWeak.length;
@@ -92,12 +93,12 @@ function selectArchivePaper(options={}) {
   for(const a of attempts){const age=ageDays(a.date,today);if(a.question_id&&a.source!=='weekend_mock'&&age>=0&&age<=7)recentWeekdays.add(a.question_id);}
   const recent=new Set([...(state.printable_mock_ids||[]),...recentMocks,...recentWeekdays]);
   const attempted=new Set(attempts.map(a=>a&&a.question_id).filter(Boolean));
-  const chosen=[],used=new Set(),yearUse={},groupUse={},coverage=[];
+  const chosen=[],used=new Set(),yearUse={},groupUse={},coverage=[],fallbackPositions=[];
   for(let pos=1;pos<=25;pos++){
     const eligible=bank.filter(q=>Number(q.problem_number??q.number)===pos&&!used.has(q.id));
     let pool=eligible.filter(q=>!attempted.has(q.id)&&!recent.has(q.id)),reuse='unseen_nonrecent';
     if(!pool.length){pool=eligible.filter(q=>!recent.has(q.id));reuse='reuse_nonrecent';}
-    if(!pool.length){pool=eligible;reuse='recent_fallback_only_no_alternative';}
+    if(!pool.length&&eligible.length){pool=eligible;reuse='recent_fallback_only_no_alternative';fallbackPositions.push(pos);}
     if(!pool.length)return null;
     const personalized=POSITIONS.includes(pos-1);
     const ranked=pool.map(q=>{
@@ -122,7 +123,8 @@ function selectArchivePaper(options={}) {
   return {questions:chosen,meta:{
     tag_bank_status:options.tagBankStatus||'unknown',tag_bank_count:tagMap.size,
     weekly_weakness_attempt_count:allWeak.length,weekly_weakness_mapped_count:mappedWeak.length,weekly_weakness_unmapped_count:unmappedCount,
-    weekly_weakness_focus:summarizeWeakness(mappedWeak),personalized_positions:POSITIONS.map(p=>p+1),weekly_weakness_coverage:coverage
+    weekly_weakness_focus:summarizeWeakness(mappedWeak),personalized_positions:POSITIONS.map(p=>p+1),weekly_weakness_coverage:coverage,
+    reserved_years_excluded:reservedYears,recent_exclusion_fallback_positions:fallbackPositions,source_year_counts:yearUse
   }};
 }
 if(typeof module!=='undefined'&&module.exports){
@@ -150,7 +152,7 @@ if(typeof resetWeeklyWeaknessCache==='function')resetWeeklyWeaknessCache();
 
 async function loadTagBank(){
   try{
-    const res=await fetch('coach_skill_bank.json?v=0.6.5.14',{cache:'no-store'});
+    const res=await fetch('coach_skill_bank.json?v=0.6.5.15',{cache:'no-store'});
     if(!res.ok)throw new Error('HTTP '+res.status);
     const data=await res.json(),rows=data&&data.questions;
     if(!Array.isArray(rows)||rows.length!==575)throw new Error('标签记录数量不是575');
@@ -168,28 +170,61 @@ async function loadTagBank(){
   try{if(typeof renderReport==='function')renderReport();}catch(e){console.warn('AMC learning closure refresh failed',e);}
 }
 const ready=loadTagBank();
-root.amcLearningClosureV06514={getTag,ready,status:()=>({status:tagBankStatus,count:tagMap.size,error:tagBankError,math_independently_verified:false}),selectArchivePaper};
+root.amcLearningClosureV06515={getTag,ready,status:()=>({status:tagBankStatus,count:tagMap.size,error:tagBankError,math_independently_verified:false}),selectArchivePaper};
 
-if(typeof archivePaperPicker==='function')archivePaperPicker=function(){
-  const state=getState(),bank=typeof ARCHIVE_BANK!=='undefined'&&Array.isArray(ARCHIVE_BANK)?ARCHIVE_BANK:[];
+if(typeof archivePaperPicker==='function')archivePaperPicker=function(options={}){
+  const state=getState();
+  const bank=Array.isArray(options.archive)?options.archive:(typeof ARCHIVE_BANK!=='undefined'&&Array.isArray(ARCHIVE_BANK)?ARCHIVE_BANK:[]);
+  if(!bank.length){root.__amcWeaknessPickMeta=null;return null;}
   const records=typeof weeklyWeakRecords==='function'?weeklyWeakRecords():[];
-  const result=selectArchivePaper({bank,state,tagMap,weakRecords:records,today:typeof today==='function'?today():new Date().toISOString().slice(0,10),randomFn:Math.random,tagBankStatus});
-  root.__amcWeaknessPickMeta=result?result.meta:null;return result?result.questions:null;
+  const result=selectArchivePaper({
+    bank,state,tagMap,weakRecords:records,
+    today:typeof today==='function'?today():new Date().toISOString().slice(0,10),
+    randomFn:Math.random,tagBankStatus,
+    reservedYears:Array.isArray(options.reservedYears)?options.reservedYears:[]
+  });
+  root.__amcWeaknessPickMeta=result?result.meta:null;
+  return result?result.questions:null;
 };
-if(typeof buildArchiveMockCore==='function')buildArchiveMockCore=function(){
-  const bank=typeof ARCHIVE_BANK!=='undefined'&&Array.isArray(ARCHIVE_BANK)?ARCHIVE_BANK:[];
+if(typeof buildArchiveMockCore==='function')buildArchiveMockCore=function(options={}){
+  const bank=Array.isArray(options.archive)?options.archive:(typeof ARCHIVE_BANK!=='undefined'&&Array.isArray(ARCHIVE_BANK)?ARCHIVE_BANK:[]);
   if(!bank.length)return false;
-  if(tagBankStatus==='loading'){alert('正在读取真题知识点资料，请稍候几秒再生成周末模拟卷。');return true;}
-  const chosen=typeof archivePaperPicker==='function'?archivePaperPicker():null;
-  if(!chosen||chosen.length!==25){alert('真题混编失败：当前题库无法为25个原始题号位置各选出一道不重复的题');return true;}
+  if(tagBankStatus==='loading'){
+    alert('正在读取真题知识点资料，请稍候几秒再生成周末模拟卷。');
+    return false;
+  }
+  const chosen=typeof archivePaperPicker==='function'?archivePaperPicker({
+    archive:bank,reservedYears:Array.isArray(options.reservedYears)?options.reservedYears:[]
+  }):null;
+  if(!chosen||chosen.length!==25||new Set(chosen.map(q=>q.id)).size!==25||
+     chosen.some((q,i)=>Number(q.problem_number)!==i+1)){
+    alert('真题混编失败：当前题库无法为25个原始题号位置各选出一道不重复的题；原有试卷与卷号保持不变。');
+    return false;
+  }
   const state=getState(),years=[...new Set(chosen.map(q=>q.year))].sort((a,b)=>a-b);
-  state.printable_mock_ids=chosen.map(q=>q.id);state.printable_mock_date=typeof today==='function'?today():new Date().toISOString().slice(0,10);
+  const selectionMeta=root.__amcWeaknessPickMeta||{};
+  const coverage=Array.isArray(selectionMeta.weekly_weakness_coverage)?selectionMeta.weekly_weakness_coverage:[];
+  const reservedYears=Array.isArray(options.reservedYears)?options.reservedYears.map(Number):[];
+  state.printable_mock_ids=chosen.map(q=>q.id);
+  state.printable_mock_date=typeof today==='function'?today():new Date().toISOString().slice(0,10);
   state.printable_mock_meta={
-    engine:'official_mixed_position_v1',engine_version:typeof ENGINE_VERSION==='string'?ENGINE_VERSION:'0.6.5.14',
-    source_years:years,source_mix:chosen.map(q=>({id:q.id,year:q.year,original_position:q.problem_number})),
+    engine:'official_mixed_position_weekly_weakness_v1',
+    engine_version:VERSION,
+    source_years:years,
+    source_mix:chosen.map(q=>({id:q.id,year:q.year,original_position:q.problem_number})),
     difficulty_by_position:typeof EXAM_DIFFICULTY_BY_POSITION!=='undefined'?[...EXAM_DIFFICULTY_BY_POSITION]:Array.from({length:25},(_,i)=>i+1<=8?1:i+1<=16?2:i+1<=21?3:4),
-    constraints:{mixed_years:true,original_position_preserved:true,unique_questions:true,answer_key_linked:true},
-    ...(root.__amcWeaknessPickMeta||{})
+    constraints:{
+      mixed_years:true,
+      original_position_preserved:true,
+      unique_questions:true,
+      answer_key_linked:true,
+      last_4_mocks_excluded:true,
+      last_7_weekdays_excluded:true,
+      reserved_years_excluded:reservedYears,
+      weekly_weakness_weighted:coverage.some(x=>x&&x.matched),
+      weekly_weakness_slots:POSITIONS.length
+    },
+    ...selectionMeta
   };
   if(typeof saveStateLocal==='function')saveStateLocal();
   if(typeof renderAll==='function')renderAll();
