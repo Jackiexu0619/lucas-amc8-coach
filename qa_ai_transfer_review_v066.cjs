@@ -30,7 +30,7 @@ const ctx={
 };
 vm.createContext(ctx);
 vm.runInContext(source,ctx,{filename:'coach_ai_transfer_review_v066.js'});
-assert.equal(ctx.amcAiTransferV066.approvedCount,12,'only the curated pilot items are approved');
+assert.equal(window.amcAiTransferV066.approvedCount,12,'only the curated pilot items are approved');
 assert.equal(ctx.qById('ai_transfer_rework_20261024_023').counts_for_exam_diagnostic,false,'AI question excluded from diagnostics');
 assert.equal(ctx.qById('ai_transfer_rework_20261024_023').answer,'C','factor-count answer key is stable');
 const plan=ctx.dailyPlan();
@@ -44,7 +44,7 @@ assert.equal(restored[0].review_origin_question_id,original.id,'origin survives 
 assert.equal(restored.filter(q=>q.source==='ai_generated_review').length,1,'at most one AI transfer item per daily paper');
 assert.equal(restored.filter(q=>q.official).length,2,'two slots remain authentic AMC8 items');
 S.attempts.push({question_id:restored[0].id,date:'2026-10-27',correct:true,guessed:false,hint_level:0,source:'ai_transfer_review',method_group:'prime_factor_divisors',review_origin_question_id:original.id});
-let q=ctx.amcAiTransferV066.queue();
+let q=window.amcAiTransferV066.queue();
 let task=q.tasks.find(t=>t.origin_question_id===original.id);
 assert.equal(task.stage,1,'independent correct transfer advances stage');
 assert.equal(task.due,'2026-11-03','first independent pass schedules seven-day review');
