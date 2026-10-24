@@ -14,7 +14,7 @@ const addDay=(d,n)=>{const a=dateStr(d);if(!a)return d;a.setDate(a.getDate()+n);
 const isTrainDay=d=>{const dt=dateStr(d);return dt&&[2,3,4,5].includes(dt.getDay())};
 const nextTrainDay=d=>{let n=addDay(d,1),i=0;while(!isTrainDay(n)&&i++<8)n=addDay(n,1);return n};
 const latestScheduled=d=>{let t=d,i=0;while(!isTrainDay(t)&&i++<8)t=addDay(t,1);return t};
-function fine(q){let f=S.v064_specific_skills?.[q?.id];return f?.status==='pdf_explanation_reviewed'&&f.skill?f:null}
+function fine(q){let f=S.v064_specific_skills?.[q?.id];if(f?.status==='pdf_explanation_reviewed'&&f.skill)return f;const external=window.amcLearningClosureV06514?.getTag?.(q?.id);return external?.status==='pdf_explanation_reviewed'&&external.skill?external:null}
 function parent(q){const t=S.v064_question_tags?.[q?.id];return t?.status==='reviewed'&&t.skill?t:null}
 function descriptor(q){const p=parent(q);if(p)return {key:'parent-skill:'+p.skill,skill:p.skill,source:'家长确认·同技能迁移'};const f=fine(q);return f?{key:'pdf-method:'+(f.group_key||f.skill),skill:f.skill,method:f.method||'',source:'PDF方法分组·待核对'}:null}
 function recordKey(a,i){return [a.paper_id||'',a.question_id||'',a.date||'',a.source||'',a.paper_question_index||'',i].join('|')}

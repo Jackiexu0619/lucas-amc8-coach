@@ -1,0 +1,33 @@
+name: Learning closure QA
+
+on:
+  push:
+    paths:
+      - 'coach_learning_closure_v06514.js'
+      - 'qa_learning_closure_v06514.cjs'
+      - 'coach_review_cycle_v065.js'
+      - 'index.html'
+      - '.github/workflows/learning-closure-qa.yml'
+  pull_request:
+    paths:
+      - 'coach_learning_closure_v06514.js'
+      - 'qa_learning_closure_v06514.cjs'
+      - 'coach_review_cycle_v065.js'
+      - 'index.html'
+      - '.github/workflows/learning-closure-qa.yml'
+  workflow_dispatch:
+
+jobs:
+  learning-closure:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Syntax check learning closure
+        run: node --check coach_learning_closure_v06514.js
+      - name: Syntax check review queue
+        run: node --check coach_review_cycle_v065.js
+      - name: Learning closure integration QA
+        run: node qa_learning_closure_v06514.cjs
