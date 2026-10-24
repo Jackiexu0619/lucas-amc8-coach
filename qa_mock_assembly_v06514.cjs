@@ -1,0 +1,91 @@
+'use strict';
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const { selectArchiveMock, DEFAULT_PERSONALIZED_POSITIONS } = require('./coach_mock_assembly_v06514.js');
+
+function makeArchive(years) {
+  return years.flatMap(function(year) {
+    return Array.from({ length: 25 }, function(_, i) {
+      const n = i + 1;
+      return {
+        id: 'archive_' + year + '_' + String(n).padStart(2, '0'),
+        year: year,
+        problem_number: n
+      };
+    });
+  });
+}
+
+const years = Array.from({ length: 27 }, function(_, i) { return 2000 + i; }).filter(function(y) { return y !== 2021; });
+const archive = makeArchive(years);
+const baseline = selectArchiveMock({ archive: archive, random: function() { return 0.5; } });
+
+assert.equal(baseline.ok, true, 'baseline paper should build');
+assert.equal(baseline.chosen.length, 25, 'paper must contain 25 questions');
+assert.equal(new Set(baseline.chosen.map(function(q) { return q.id; })).size, 25, 'questions must be unique');
+baseline.chosen.forEach(function(q, i) {
+  assert.equal(q.problem_number, i + 1, 'paper position must preserve original AMC8 question number');
+});
+assert.deepEqual(baseline.summary.personalized_positions, DEFAULT_PERSONALIZED_POSITIONS, 'seven configured personalized positions should remain stable');
+
+const attemptedAndRecent = selectArchiveMock({
+  archive: archive,
+  attemptedIds: ['archive_2000_01', 'archive_2002_01'],
+  recentIds: ['archive_2001_01'],
+  random: function() { return 0.5; }
+});
+assert.equal(attemptedAndRecent.ok, true);
+assert.notEqual(attemptedAndRecent.chosen[0].id, 'archive_2000_01', 'attempted question should be avoided when fresh candidates exist');
+assert.notEqual(attemptedAndRecent.chosen[0].id, 'archive_2001_01', 'recent question should be avoided when fresh candidates exist');
+assert.equal(attemptedAndRecent.selection[0].fallback, 'fresh');
+
+const weakId = 'archive_2000_05';
+const weaknessWeighted = selectArchiveMock({
+  archive: archive,
+  weaknessScoreById: { [weakId]: 100 },
+  random: function() { return 0.5; }
+});
+assert.equal(weaknessWeighted.chosen[4].id, weakId, 'a strong same-method candidate should win at a personalized position even when its source year was already used');
+assert.equal(weaknessWeighted.selection[4].personalized, true);
+assert.equal(weaknessWeighted.selection[4].matched_weekly_weakness, true);
+
+const nonPersonalized = selectArchiveMock({
+  archive: archive,
+  weaknessScoreById: { 'archive_2005_01': 100 },
+  random: function() { return 0.5; }
+});
+assert.equal(nonPersonalized.chosen[0].id, 'archive_2000_01', 'weakness weighting must not alter non-personalized positions');
+assert.equal(nonPersonalized.selection[0].personalized, false);
+assert.equal(nonPersonalized.selection[0].weakness_score, 0);
+
+const positionOne = archive.filter(function(q) { return q.problem_number === 1; }).map(function(q) { return q.id; });
+const fallback = selectArchiveMock({
+  archive: archive,
+  attemptedIds: positionOne,
+  recentIds: positionOne,
+  random: function() { return 0.5; }
+});
+assert.equal(fallback.ok, true, 'last-resort fallback should still produce a complete paper');
+assert.equal(fallback.selection[0].fallback, 'last_resort_recent', 'recent reuse should only occur after alternatives are exhausted');
+assert.equal(new Set(fallback.chosen.map(function(q) { return q.id; })).size, 25);
+
+const missingPosition = selectArchiveMock({
+  archive: archive.filter(function(q) { return q.problem_number !== 13; }),
+  random: function() { return 0.5; }
+});
+assert.equal(missingPosition.ok, false);
+assert.equal(missingPosition.reason, 'missing-position-13');
+
+const html = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf8');
+const changelog = fs.readFileSync(path.join(__dirname, 'CHANGELOG.md'), 'utf8');
+assert.equal((html.match(/function buildPrintableMockCore\s*\(/g) || []).length, 1, 'only one active buildPrintableMockCore definition may exist');
+assert.match(html, /coach_mock_assembly_v06514\.js\?v=0\.6\.5\.14/, 'new selector module must be cache-busted and loaded');
+assert.match(html, /function archiveWeaknessScore\s*\(/, 'application must calculate a same-method weakness score');
+assert.match(html, /selectArchiveMock\s*\(/, 'active archive selector must use the tested selector module');
+assert.match(html, /weekly_weakness_coverage/, 'mock metadata must retain traceable weakness coverage');
+assert.match(html, /const ENGINE_VERSION='0\.6\.5\.14'/, 'engine version must be bumped');
+assert.match(changelog, /v0\.6\.5\.14/, 'changelog must record this release');
+assert.doesNotMatch(html, /0\.6\.5\.13/, 'old version/cache keys should not remain in the active page');
+
+console.log('PASS: AMC8 weakness-aware weekend mock assembly QA (25 assertions)');
