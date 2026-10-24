@@ -13,7 +13,7 @@ Keep the learning loop simple and evidence-based:
 ## Current production baseline
 
 - Production branch: `main`
-- Production page version: `v0.6.5.14` (selector fix merged; Pages deployment pending verification)
+- Production page version: `v0.6.5.15` (dashboard merged; Pages deployment pending final status check)
 - Reference product: https://luminamath.top/student
 - Preserve the current locked/printed weekend paper and all existing learner/cloud records.
 - AI-created transfer questions remain separate from official AMC8 weekend mocks and official diagnostic scores.
@@ -24,7 +24,15 @@ Keep the learning loop simple and evidence-based:
 - Mock assembly regression QA and learning-closure QA passed before merge.
 - Browser-level paper-lock check and isolated cloud round-trip remain unverified.
 
-## Current work branch: `feat/guided-student-dashboard-v06515-mainline`
+## Completed: v0.6.5.15 guided dashboard
+
+- Merged PR #4; the home page now has a read-only guided learning path and next-step suggestion.
+- The dashboard detects the active locked 25-question paper by identity/signature and does not confuse an older paper with this week's test.
+- An unsubmitted older daily paper takes priority so the system does not silently replace a printed task.
+- Dashboard QA, learning-closure QA and mock-assembly QA all passed on the merged commit.
+- GitHub Pages deployment is running; online deployment still needs final confirmation.
+
+## Next acceptance work
 
 - Adds a read-only guided learning path to the existing home page.
 - Prioritizes an already locked but unsubmitted daily paper over generating a new task.
