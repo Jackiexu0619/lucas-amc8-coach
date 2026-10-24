@@ -348,7 +348,28 @@ function questionEligibleForDaily(q){
   return questionCooldownRemaining(q)<=0;
 }
 function eligibleDailyBank(){
-  return BANK.filter(questionEligibleForDaily);
+  // Weekday training should avoid exact questions attempted in the last 30 days whenever possible.
+  // If the unused pool is too small to build a 3-question session, relax gradually: 14 days, then 7 days,
+  // then the existing result-aware cooldown. This keeps the daily session usable without routine repeats.
+  const attempts=S.attempts||[];
+  const usedWithin=(days)=>{
+    const ids=new Set();
+    for(const a of attempts){
+      const d=dd(a.date,today());
+      if(a.question_id&&d>=0&&d<days)ids.add(a.question_id);
+    }
+    return ids;
+  };
+  const tiers=[30,14,7];
+  for(const days of tiers){
+    const used=usedWithin(days);
+    const pool=BANK.filter(q=>!used.has(q.id));
+    if(pool.length>=3)return pool;
+  }
+  const cooldown=BANK.filter(questionEligibleForDaily);
+  if(cooldown.length>=3)return cooldown;
+  // Last-resort fallback only when the available bank cannot fill three questions otherwise.
+  return BANK;
 }
 function recentWeekendQuestionIds(mockCount=4){
   const ids=new Set();
