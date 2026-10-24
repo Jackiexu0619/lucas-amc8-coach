@@ -1249,6 +1249,7 @@ function submitPrintableMockAnswers(){
   const qs=printableMock();if(qs.length!==25){alert('请先生成本周25题');return}
   // Validate the entire paper before writing any attempts or skill changes.
   const verifyDraft=currentDraft();
+  if(!Number.isFinite(+verifyDraft.total_minutes)||+verifyDraft.total_minutes<=0){alert('请填写这套25题的实际总用时（分钟）。目标为40分钟；如果超时，也请如实填写。');return;}
   for(let i=0;i<25;i++){
     if(!(verifyDraft.answers?.[String(i)]||'')){
       mockEntryIndex=i;renderMockQuestion();alert(`第${i+1}题还没有录入。`);return;
@@ -1273,7 +1274,7 @@ function submitPrintableMockAnswers(){
   }
   const detail={mock_key:ensurePaperId(),paper_id:ensurePaperId(),date:S.printable_mock_date||today(),paper_type:paperType,question_ids:qs.map(q=>q.id),per_question:per,wrong_questions:wrong,unable_questions:unable,skipped_questions:skipped,guessed_questions:guessedQs,score,independent_score:indep,attempted,total_minutes:d.total_minutes??null};
   S.mock_detail_history=S.mock_detail_history||[];S.mock_detail_history.push(detail);
-  S.mock_history=S.mock_history||[];S.mock_history.push({date:detail.date,name:`系统25题 ${ensurePaperId()}`,paper_id:ensurePaperId(),paper_type:paperType,score,independent_score:indep,attempted,minutes:d.total_minutes||40,kind:'训练模拟',count_in_estimate:true,note:`答错：${wrong.join(',')||'无'}；不会：${unable.join(',')||'无'}；未做：${skipped.join(',')||'无'}；猜：${guessedQs.join(',')||'无'}`});
+  S.mock_history=S.mock_history||[];S.mock_history.push({date:detail.date,name:`系统25题 ${ensurePaperId()}`,paper_id:ensurePaperId(),paper_type:paperType,score,independent_score:indep,attempted,minutes:d.total_minutes,kind:'训练模拟',count_in_estimate:true,note:`答错：${wrong.join(',')||'无'}；不会：${unable.join(',')||'无'}；未做：${skipped.join(',')||'无'}；猜：${guessedQs.join(',')||'无'}`});
   saveStateLocal();
   alert(`试卷 ${ensurePaperId()} 已录入。\n得分：${score}/25\n独立正确：${indep}\n答错：${wrong.join(',')||'无'}\n不会：${unable.join(',')||'无'}\n未做：${skipped.join(',')||'无'}`);
   renderAll();
@@ -1439,7 +1440,7 @@ function renderMock(){
   main+='</select><button class=primary onclick=openTruePaperForPrint()>打开/打印整套真题</button></div></div></div>';
 
   if(pm.length===25){
-    main+=`<div class=card style="margin-top:13px"><div class=row><h3 style="margin:0">逐题看题录答案</h3><span class="exam-id right">${ensurePaperId()}</span></div><p class=small>Lucas 仍然在纸上做。你可以坐在电脑旁，一题一题看同一份题目，把纸上的答案点进去；草稿自动保存。</p><div id=mockQuestionBox></div><div class=row style="margin-top:10px"><label>整卷总用时（分钟，可选）：<input type=number min=0 value="${currentDraft().total_minutes??''}" onchange="setDraftMinutes(this.value)" placeholder="40"></label><button class="primary right" onclick=submitPrintableMockAnswers()>提交整套记录</button></div></div>`;
+    main+=`<div class=card style="margin-top:13px"><div class=row><h3 style="margin:0">逐题看题录答案</h3><span class="exam-id right">${ensurePaperId()}</span></div><p class=small>Lucas 仍然在纸上做。你可以坐在电脑旁，一题一题看同一份题目，把纸上的答案点进去；草稿自动保存。</p><div id=mockQuestionBox></div><div class=row style="margin-top:10px"><label>整卷实际用时（分钟，必填；目标40分钟）：<input type=number min=0 value="${currentDraft().total_minutes??''}" onchange="setDraftMinutes(this.value)" placeholder="40"></label><button class="primary right" onclick=submitPrintableMockAnswers()>提交整套记录</button></div></div>`;
     main+='<div class=card style="margin-top:13px"><details><summary><b>展开整套25题预览 / 快速跳题</b></summary><div id=fullMockPreview style="margin-top:10px"></div></details></div>';
   }
 
