@@ -1,0 +1,1935 @@
+{
+  "schema": "lucas-amc8-ai-transfer-v1",
+  "generated_at": "2026-10-24",
+  "provenance": "AI-assisted parametric generation with independent enumeration or arithmetic checks",
+  "deployment_gate": "STAGED_NOT_LIVE",
+  "usage_policy": "Only method-transfer review after separate QA approval. Never use in weekend mocks, full-year diagnostics or score estimates.",
+  "count": 60,
+  "category_counts": {
+    "质因数分解与因数个数": 8,
+    "排列与空位法": 8,
+    "台阶递推与分类计数": 8,
+    "概率与补集": 8,
+    "坐标变换": 6,
+    "容斥原理": 6,
+    "面积拆分与面积比": 8,
+    "数列与周期": 4,
+    "中位数与数据分析": 4
+  },
+  "questions": [
+    {
+      "id": "ai_transfer_20261024_001",
+      "source": "ai_generated_review",
+      "language": "zh-CN",
+      "purpose": "same_method_transfer_only",
+      "skill": "质因数分解与因数个数",
+      "method_group": "prime_factor_divisors",
+      "question": "正整数 N=2^1×3^2。N 有多少个正因数？",
+      "options": [
+        "6",
+        "7",
+        "5",
+        "8",
+        "4"
+      ],
+      "answer": "A",
+      "numeric_answer": 6,
+      "solution": "质因数分解已经给出。因数可写为 2^x×3^y，指数分别有 2、3 种选择，乘法原理得到 6。",
+      "parameters": {
+        "p": 2,
+        "q": 3,
+        "a": 1,
+        "b": 2,
+        "n": 18
+      },
+      "validation": {
+        "formula_result": 6,
+        "independent_result": 6,
+        "unique_options": true,
+        "solver_checked": true
+      },
+      "status": "staged_not_live",
+      "counts_for_exam_diagnostic": false
+    },
+    {
+      "id": "ai_transfer_20261024_002",
+      "source": "ai_generated_review",
+      "language": "zh-CN",
+      "purpose": "same_method_transfer_only",
+      "skill": "质因数分解与因数个数",
+      "method_group": "prime_factor_divisors",
+      "question": "正整数 N=3^2×5^4。N 有多少个正因数？",
+      "options": [
+        "17",
+        "13",
+        "18",
+        "12",
+        "15"
+      ],
+      "answer": "E",
+      "numeric_answer": 15,
+      "solution": "质因数分解已经给出。因数可写为 3^x×5^y，指数分别有 3、5 种选择，乘法原理得到 15。",
+      "parameters": {
+        "p": 3,
+        "q": 5,
+        "a": 2,
+        "b": 4,
+        "n": 5625
+      },
+      "validation": {
+        "formula_result": 15,
+        "independent_result": 15,
+        "unique_options": true,
+        "solver_checked": true
+      },
+      "status": "staged_not_live",
+      "counts_for_exam_diagnostic": false
+    },
+    {
+      "id": "ai_transfer_20261024_003",
+      "source": "ai_generated_review",
+      "language": "zh-CN",
+      "purpose": "same_method_transfer_only",
+      "skill": "质因数分解与因数个数",
+      "method_group": "prime_factor_divisors",
+      "question": "正整数 N=5^3×7^3。N 有多少个正因数？",
+      "options": [
+        "13",
+        "20",
+        "12",
+        "16",
+        "19"
+      ],
+      "answer": "D",
+      "numeric_answer": 16,
+      "solution": "质因数分解已经给出。因数可写为 5^x×7^y，指数分别有 4、4 种选择，乘法原理得到 16。",
+      "parameters": {
+        "p": 5,
+        "q": 7,
+        "a": 3,
+        "b": 3,
+        "n": 42875
+      },
+      "validation": {
+        "formula_result": 16,
+        "independent_result": 16,
+        "unique_options": true,
+        "solver_checked": true
+      },
+      "status": "staged_not_live",
+      "counts_for_exam_diagnostic": false
+    },
+    {
+      "id": "ai_transfer_20261024_004",
+      "source": "ai_generated_review",
+      "language": "zh-CN",
+      "purpose": "same_method_transfer_only",
+      "skill": "质因数分解与因数个数",
+      "method_group": "prime_factor_divisors",
+      "question": "正整数 N=7^1×2^2。N 有多少个正因数？",
+      "options": [
+        "11",
+        "1",
+        "6",
+        "10",
+        "2"
+      ],
+      "answer": "C",
+      "numeric_answer": 6,
+      "solution": "质因数分解已经给出。因数可写为 7^x×2^y，指数分别有 2、3 种选择，乘法原理得到 6。",
+      "parameters": {
+        "p": 7,
+        "q": 2,
+        "a": 1,
+        "b": 2,
+        "n": 28
+      },
+      "validation": {
+        "formula_result": 6,
+        "independent_result": 6,
+        "unique_options": true,
+        "solver_checked": true
+      },
+      "status": "staged_not_live",
+      "counts_for_exam_diagnostic": false
+    },
+    {
+      "id": "ai_transfer_20261024_005",
+      "source": "ai_generated_review",
+      "language": "zh-CN",
+      "purpose": "same_method_transfer_only",
+      "skill": "质因数分解与因数个数",
+      "method_group": "prime_factor_divisors",
+      "question": "正整数 N=2^2×3^4。N 有多少个正因数？",
+      "options": [
+        "8",
+        "15",
+        "20",
+        "10",
+        "22"
+      ],
+      "answer": "B",
+      "numeric_answer": 15,
+      "solution": "质因数分解已经给出。因数可写为 2^x×3^y，指数分别有 3、5 种选择，乘法原理得到 15。",
+      "parameters": {
+        "p": 2,
+        "q": 3,
+        "a": 2,
+        "b": 4,
+        "n": 324
+      },
+      "validation": {
+        "formula_result": 15,
+        "independent_result": 15,
+        "unique_options": true,
+        "solver_checked": true
+      },
+      "status": "staged_not_live",
+      "counts_for_exam_diagnostic": false
+    },
+    {
+      "id": "ai_transfer_20261024_006",
+      "source": "ai_generated_review",
+      "language": "zh-CN",
+      "purpose": "same_method_transfer_only",
+      "skill": "质因数分解与因数个数",
+      "method_group": "prime_factor_divisors",
+      "question": "正整数 N=3^3×5^3。N 有多少个正因数？",
+      "options": [
+        "16",
+        "23",
+        "9",
+        "25",
+        "7"
+      ],
+      "answer": "A",
+      "numeric_answer": 16,
+      "solution": "质因数分解已经给出。因数可写为 3^x×5^y，指数分别有 4、4 种选择，乘法原理得到 16。",
+      "parameters": {
+        "p": 3,
+        "q": 5,
+        "a": 3,
+        "b": 3,
+        "n": 3375
+      },
+      "validation": {
+        "formula_result": 16,
+        "independent_result": 16,
+        "unique_options": true,
+        "solver_checked": true
+      },
+      "status": "staged_not_live",
+      "counts_for_exam_diagnostic": false
+    },
+    {
+      "id": "ai_transfer_20261024_007",
+      "source": "ai_generated_review",
+      "language": "zh-CN",
+      "purpose": "same_method_transfer_only",
+      "skill": "质因数分解与因数个数",
+      "method_group": "prime_factor_divisors",
+      "question": "正整数 N=5^1×7^2。N 有多少个正因数？",
+      "options": [
+        "15",
+        "16",
+        "18",
+        "21",
+        "6"
+      ],
+      "answer": "E",
+      "numeric_answer": 6,
+      "solution": "质因数分解已经给出。因数可写为 5^x×7^y，指数分别有 2、3 种选择，乘法原理得到 6。",
+      "parameters": {
+        "p": 5,
+        "q": 7,
+        "a": 1,
+        "b": 2,
+        "n": 245
+      },
+      "validation": {
+        "formula_result": 6,
+        "independent_result": 6,
+        "unique_options": true,
+        "solver_checked": true
+      },
+      "status": "staged_not_live",
+      "counts_for_exam_diagnostic": false
+    },
+    {
+      "id": "ai_transfer_20261024_008",
+      "source": "ai_generated_review",
+      "language": "zh-CN",
+      "purpose": "same_method_transfer_only",
+      "skill": "质因数分解与因数个数",
+      "method_group": "prime_factor_divisors",
+      "question": "正整数 N=7^2×2^4。N 有多少个正因数？",
+      "options": [
+        "5",
+        "27",
+        "3",
+        "15",
+        "25"
+      ],
+      "answer": "D",
+      "numeric_answer": 15,
+      "solution": "质因数分解已经给出。因数可写为 7^x×2^y，指数分别有 3、5 种选择，乘法原理得到 15。",
+      "parameters": {
+        "p": 7,
+        "q": 2,
+        "a": 2,
+        "b": 4,
+        "n": 784
+      },
+      "validation": {
+        "formula_result": 15,
+        "independent_result": 15,
+        "unique_options": true,
+        "solver_checked": true
+      },
+      "status": "staged_not_live",
+      "counts_for_exam_diagnostic": false
+    },
+    {
+      "id": "ai_transfer_20261024_009",
+      "source": "ai_generated_review",
+      "language": "zh-CN",
+      "purpose": "same_method_transfer_only",
+      "skill": "排列与空位法",
+      "method_group": "nonadjacent_distinct",
+      "question": "有 5 名不同的同学排成一排，其中甲、乙不能相邻。共有多少种不同排法？",
+      "options": [
+        "87",
+        "57",
+        "72",
+        "84",
+        "60"
+      ],
+      "answer": "C",
+      "numeric_answer": 72,
+      "solution": "先算所有排列 5!，再扣除把甲乙看成一块的 2×(5-1)! 种相邻排法，所以共有 72 种。",
+      "parameters": {
+        "n": 5
+      },
+      "validation": {
+        "formula_result": 72,
+        "independent_result": 72,
+        "unique_options": true,
+        "solver_checked": true
+      },
+      "status": "staged_not_live",
+      "counts_for_exam_diagnostic": false
+    },
+    {
+      "id": "ai_transfer_20261024_010",
+      "source": "ai_generated_review",
+      "language": "zh-CN",
+      "purpose": "same_method_transfer_only",
+      "skill": "排列与空位法",
+      "method_group": "nonadjacent_distinct",
+      "question": "有 6 名不同的同学排成一排，其中甲、乙不能相邻。共有多少种不同排法？",
+      "options": [
+        "462",
+        "480",
+        "495",
+        "465",
+        "498"
+      ],
+      "answer": "B",
+      "numeric_answer": 480,
+      "solution": "先算所有排列 6!，再扣除把甲乙看成一块的 2×(6-1)! 种相邻排法，所以共有 480 种。",
+      "parameters": {
+        "n": 6
+      },
+      "validation": {
+        "formula_result": 480,
+        "independent_result": 480,
+        "unique_options": true,
+        "solver_checked": true
+      },
+      "status": "staged_not_live",
+      "counts_for_exam_diagnostic": false
+    },
+    {
+      "id": "ai_transfer_20261024_011",
+      "source": "ai_generated_review",
+      "language": "zh-CN",
+      "purpose": "same_method_transfer_only",
+      "skill": "排列与空位法",
+      "method_group": "nonadjacent_distinct",
+      "question": "有 7 名不同的同学排成一排，其中甲、乙不能相邻。共有多少种不同排法？",
+      "options": [
+        "3600",
+        "3618",
+        "3582",
+        "3624",
+        "3576"
+      ],
+      "answer": "A",
+      "numeric_answer": 3600,
+      "solution": "先算所有排列 7!，再扣除把甲乙看成一块的 2×(7-1)! 种相邻排法，所以共有 3600 种。",
+      "parameters": {
+        "n": 7
+      },
+      "validation": {
+        "formula_result": 3600,
+        "independent_result": 3600,
+        "unique_options": true,
+        "solver_checked": true
+      },
+      "status": "staged_not_live",
+      "counts_for_exam_diagnostic": false
+    },
+    {
+      "id": "ai_transfer_20261024_012",
+      "source": "ai_generated_review",
+      "language": "zh-CN",
+      "purpose": "same_method_transfer_only",
+      "skill": "排列与空位法",
+      "method_group": "nonadjacent_distinct",
+      "question": "有 8 名不同的同学排成一排，其中甲、乙不能相邻。共有多少种不同排法？",
+      "options": [
+        "30264",
+        "30216",
+        "30270",
+        "30210",
+        "30240"
+      ],
+      "answer": "E",
+      "numeric_answer": 30240,
+      "solution": "先算所有排列 8!，再扣除把甲乙看成一块的 2×(8-1)! 种相邻排法，所以共有 30240 种。",
+      "parameters": {
+        "n": 8
+      },
+      "validation": {
+        "formula_result": 30240,
+        "independent_result": 30240,
+        "unique_options": true,
+        "solver_checked": true
+      },
+      "status": "staged_not_live",
+      "counts_for_exam_diagnostic": false
+    },
+    {
+      "id": "ai_transfer_20261024_013",
+      "source": "ai_generated_review",
+      "language": "zh-CN",
+      "purpose": "same_method_transfer_only",
+      "skill": "排列与空位法",
+      "method_group": "nonadjacent_distinct",
+      "question": "有 5 名不同的同学排成一排，其中甲、乙不能相邻。共有多少种不同排法？",
+      "options": [
+        "42",
+        "73",
+        "71",
+        "72",
+        "102"
+      ],
+      "answer": "D",
+      "numeric_answer": 72,
+      "solution": "先算所有排列 5!，再扣除把甲乙看成一块的 2×(5-1)! 种相邻排法，所以共有 72 种。",
+      "parameters": {
+        "n": 5
+      },
+      "validation": {
+        "formula_result": 72,
+        "independent_result": 72,
+        "unique_options": true,
+        "solver_checked": true
+      },
+      "status": "staged_not_live",
+      "counts_for_exam_diagnostic": false
+    },
+    {
+      "id": "ai_transfer_20261024_014",
+      "source": "ai_generated_review",
+      "language": "zh-CN",
+      "purpose": "same_method_transfer_only",
+      "skill": "排列与空位法",
+      "method_group": "nonadjacent_distinct",
+      "question": "有 6 名不同的同学排成一排，其中甲、乙不能相邻。共有多少种不同排法？",
+      "options": [
+        "482",
+        "478",
+        "480",
+        "481",
+        "479"
+      ],
+      "answer": "C",
+      "numeric_answer": 480,
+      "solution": "先算所有排列 6!，再扣除把甲乙看成一块的 2×(6-1)! 种相邻排法，所以共有 480 种。",
+      "parameters": {
+        "n": 6
+      },
+      "validation": {
+        "formula_result": 480,
+        "independent_result": 480,
+        "unique_options": true,
+        "solver_checked": true
+      },
+      "status": "staged_not_live",
+      "counts_for_exam_diagnostic": false
+    },
+    {
+      "id": "ai_transfer_20261024_015",
+      "source": "ai_generated_review",
+      "language": "zh-CN",
+      "purpose": "same_method_transfer_only",
+      "skill": "排列与空位法",
+      "method_group": "nonadjacent_distinct",
+      "question": "有 7 名不同的同学排成一排，其中甲、乙不能相邻。共有多少种不同排法？",
+      "options": [
+        "3597",
+        "3600",
+        "3602",
+        "3598",
+        "3603"
+      ],
+      "answer": "B",
+      "numeric_answer": 3600,
+      "solution": "先算所有排列 7!，再扣除把甲乙看成一块的 2×(7-1)! 种相邻排法，所以共有 3600 种。",
+      "parameters": {
+        "n": 7
+      },
+      "validation": {
+        "formula_result": 3600,
+        "independent_result": 3600,
+        "unique_options": true,
+        "solver_checked": true
+      },
+      "status": "staged_not_live",
+      "counts_for_exam_diagnostic": false
+    },
+    {
+      "id": "ai_transfer_20261024_016",
+      "source": "ai_generated_review",
+      "language": "zh-CN",
+      "purpose": "same_method_transfer_only",
+      "skill": "排列与空位法",
+      "method_group": "nonadjacent_distinct",
+      "question": "有 8 名不同的同学排成一排，其中甲、乙不能相邻。共有多少种不同排法？",
+      "options": [
+        "30240",
+        "30243",
+        "30237",
+        "30244",
+        "30236"
+      ],
+      "answer": "A",
+      "numeric_answer": 30240,
+      "solution": "先算所有排列 8!，再扣除把甲乙看成一块的 2×(8-1)! 种相邻排法，所以共有 30240 种。",
+      "parameters": {
+        "n": 8
+      },
+      "validation": {
+        "formula_result": 30240,
+        "independent_result": 30240,
+        "unique_options": true,
+        "solver_checked": true
+      },
+      "status": "staged_not_live",
+      "counts_for_exam_diagnostic": false
+    },
+    {
+      "id": "ai_transfer_20261024_017",
+      "source": "ai_generated_review",
+      "language": "zh-CN",
+      "purpose": "same_method_transfer_only",
+      "skill": "台阶递推与分类计数",
+      "method_group": "stair_no_consecutive_two",
+      "question": "上 6 级台阶，每次可以走1级或2级，但不能连续两次走2级。一共有多少种走法？",
+      "options": [
+        "13",
+        "5",
+        "14",
+        "4",
+        "9"
+      ],
+      "answer": "E",
+      "numeric_answer": 9,
+      "solution": "按最后一步分类：设 F(n,1) 为末步走1级、F(n,2) 为末步走2级。F(n,1)=F(n-1,1)+F(n-1,2)，F(n,2)=F(n-2,1)。由初值递推得 9 种。",
+      "parameters": {
+        "steps": 6
+      },
+      "validation": {
+        "formula_result": 9,
+        "independent_result": 9,
+        "unique_options": true,
+        "solver_checked": true
+      },
+      "status": "staged_not_live",
+      "counts_for_exam_diagnostic": false
+    },
+    {
+      "id": "ai_transfer_20261024_018",
+      "source": "ai_generated_review",
+      "language": "zh-CN",
+      "purpose": "same_method_transfer_only",
+      "skill": "台阶递推与分类计数",
+      "method_group": "stair_no_consecutive_two",
+      "question": "上 7 级台阶，每次可以走1级或2级，但不能连续两次走2级。一共有多少种走法？",
+      "options": [
+        "8",
+        "20",
+        "6",
+        "13",
+        "18"
+      ],
+      "answer": "D",
+      "numeric_answer": 13,
+      "solution": "按最后一步分类：设 F(n,1) 为末步走1级、F(n,2) 为末步走2级。F(n,1)=F(n-1,1)+F(n-1,2)，F(n,2)=F(n-2,1)。由初值递推得 13 种。",
+      "parameters": {
+        "steps": 7
+      },
+      "validation": {
+        "formula_result": 13,
+        "independent_result": 13,
+        "unique_options": true,
+        "solver_checked": true
+      },
+      "status": "staged_not_live",
+      "counts_for_exam_diagnostic": false
+    },
+    {
+      "id": "ai_transfer_20261024_019",
+      "source": "ai_generated_review",
+      "language": "zh-CN",
+      "purpose": "same_method_transfer_only",
+      "skill": "台阶递推与分类计数",
+      "method_group": "stair_no_consecutive_two",
+      "question": "上 8 级台阶，每次可以走1级或2级，但不能连续两次走2级。一共有多少种走法？",
+      "options": [
+        "28",
+        "10",
+        "19",
+        "26",
+        "12"
+      ],
+      "answer": "C",
+      "numeric_answer": 19,
+      "solution": "按最后一步分类：设 F(n,1) 为末步走1级、F(n,2) 为末步走2级。F(n,1)=F(n-1,1)+F(n-1,2)，F(n,2)=F(n-2,1)。由初值递推得 19 种。",
+      "parameters": {
+        "steps": 8
+      },
+      "validation": {
+        "formula_result": 19,
+        "independent_result": 19,
+        "unique_options": true,
+        "solver_checked": true
+      },
+      "status": "staged_not_live",
+      "counts_for_exam_diagnostic": false
+    },
+    {
+      "id": "ai_transfer_20261024_020",
+      "source": "ai_generated_review",
+      "language": "zh-CN",
+      "purpose": "same_method_transfer_only",
+      "skill": "台阶递推与分类计数",
+      "method_group": "stair_no_consecutive_two",
+      "question": "上 9 级台阶，每次可以走1级或2级，但不能连续两次走2级。一共有多少种走法？",
+      "options": [
+        "18",
+        "28",
+        "37",
+        "19",
+        "38"
+      ],
+      "answer": "B",
+      "numeric_answer": 28,
+      "solution": "按最后一步分类：设 F(n,1) 为末步走1级、F(n,2) 为末步走2级。F(n,1)=F(n-1,1)+F(n-1,2)，F(n,2)=F(n-2,1)。由初值递推得 28 种。",
+      "parameters": {
+        "steps": 9
+      },
+      "validation": {
+        "formula_result": 28,
+        "independent_result": 28,
+        "unique_options": true,
+        "solver_checked": true
+      },
+      "status": "staged_not_live",
+      "counts_for_exam_diagnostic": false
+    },
+    {
+      "id": "ai_transfer_20261024_021",
+      "source": "ai_generated_review",
+      "language": "zh-CN",
+      "purpose": "same_method_transfer_only",
+      "skill": "台阶递推与分类计数",
+      "method_group": "stair_no_consecutive_two",
+      "question": "上 10 级台阶，每次可以走1级或2级，但不能连续两次走2级。一共有多少种走法？",
+      "options": [
+        "41",
+        "51",
+        "31",
+        "53",
+        "29"
+      ],
+      "answer": "A",
+      "numeric_answer": 41,
+      "solution": "按最后一步分类：设 F(n,1) 为末步走1级、F(n,2) 为末步走2级。F(n,1)=F(n-1,1)+F(n-1,2)，F(n,2)=F(n-2,1)。由初值递推得 41 种。",
+      "parameters": {
+        "steps": 10
+      },
+      "validation": {
+        "formula_result": 41,
+        "independent_result": 41,
+        "unique_options": true,
+        "solver_checked": true
+      },
+      "status": "staged_not_live",
+      "counts_for_exam_diagnostic": false
+    },
+    {
+      "id": "ai_transfer_20261024_022",
+      "source": "ai_generated_review",
+      "language": "zh-CN",
+      "purpose": "same_method_transfer_only",
+      "skill": "台阶递推与分类计数",
+      "method_group": "stair_no_consecutive_two",
+      "question": "上 11 级台阶，每次可以走1级或2级，但不能连续两次走2级。一共有多少种走法？",
+      "options": [
+        "72",
+        "48",
+        "75",
+        "45",
+        "60"
+      ],
+      "answer": "E",
+      "numeric_answer": 60,
+      "solution": "按最后一步分类：设 F(n,1) 为末步走1级、F(n,2) 为末步走2级。F(n,1)=F(n-1,1)+F(n-1,2)，F(n,2)=F(n-2,1)。由初值递推得 60 种。",
+      "parameters": {
+        "steps": 11
+      },
+      "validation": {
+        "formula_result": 60,
+        "independent_result": 60,
+        "unique_options": true,
+        "solver_checked": true
+      },
+      "status": "staged_not_live",
+      "counts_for_exam_diagnostic": false
+    },
+    {
+      "id": "ai_transfer_20261024_023",
+      "source": "ai_generated_review",
+      "language": "zh-CN",
+      "purpose": "same_method_transfer_only",
+      "skill": "台阶递推与分类计数",
+      "method_group": "stair_no_consecutive_two",
+      "question": "上 12 级台阶，每次可以走1级或2级，但不能连续两次走2级。一共有多少种走法？",
+      "options": [
+        "73",
+        "106",
+        "70",
+        "88",
+        "103"
+      ],
+      "answer": "D",
+      "numeric_answer": 88,
+      "solution": "按最后一步分类：设 F(n,1) 为末步走1级、F(n,2) 为末步走2级。F(n,1)=F(n-1,1)+F(n-1,2)，F(n,2)=F(n-2,1)。由初值递推得 88 种。",
+      "parameters": {
+        "steps": 12
+      },
+      "validation": {
+        "formula_result": 88,
+        "independent_result": 88,
+        "unique_options": true,
+        "solver_checked": true
+      },
+      "status": "staged_not_live",
+      "counts_for_exam_diagnostic": false
+    },
+    {
+      "id": "ai_transfer_20261024_024",
+      "source": "ai_generated_review",
+      "language": "zh-CN",
+      "purpose": "same_method_transfer_only",
+      "skill": "台阶递推与分类计数",
+      "method_group": "stair_no_consecutive_two",
+      "question": "上 13 级台阶，每次可以走1级或2级，但不能连续两次走2级。一共有多少种走法？",
+      "options": [
+        "153",
+        "105",
+        "129",
+        "147",
+        "111"
+      ],
+      "answer": "C",
+      "numeric_answer": 129,
+      "solution": "按最后一步分类：设 F(n,1) 为末步走1级、F(n,2) 为末步走2级。F(n,1)=F(n-1,1)+F(n-1,2)，F(n,2)=F(n-2,1)。由初值递推得 129 种。",
+      "parameters": {
+        "steps": 13
+      },
+      "validation": {
+        "formula_result": 129,
+        "independent_result": 129,
+        "unique_options": true,
+        "solver_checked": true
+      },
+      "status": "staged_not_live",
+      "counts_for_exam_diagnostic": false
+    },
+    {
+      "id": "ai_transfer_20261024_025",
+      "source": "ai_generated_review",
+      "language": "zh-CN",
+      "purpose": "same_method_transfer_only",
+      "skill": "概率与补集",
+      "method_group": "probability_complement",
+      "question": "从编号1到6的6张不同卡片中，等可能地同时抽出3张。其中至少有一张是1号或2号卡片，符合要求的三张卡片组合有多少种？",
+      "options": [
+        "15",
+        "16",
+        "40",
+        "46",
+        "17"
+      ],
+      "answer": "B",
+      "numeric_answer": 16,
+      "solution": "补集计数：总组合数 C(6,3) 减去完全不选1、2号的 C(4,3)，得到 16 种；概率可再除以 C(6,3)。",
+      "parameters": {
+        "n": 6
+      },
+      "validation": {
+        "formula_result": 16,
+        "independent_result": 16,
+        "unique_options": true,
+        "solver_checked": true
+      },
+      "status": "staged_not_live",
+      "counts_for_exam_diagnostic": false
+    },
+    {
+      "id": "ai_transfer_20261024_026",
+      "source": "ai_generated_review",
+      "language": "zh-CN",
+      "purpose": "same_method_transfer_only",
+      "skill": "概率与补集",
+      "method_group": "probability_complement",
+      "question": "从编号1到7的7张不同卡片中，等可能地同时抽出3张。其中至少有一张是1号或2号卡片，符合要求的三张卡片组合有多少种？",
+      "options": [
+        "25",
+        "55",
+        "26",
+        "24",
+        "27"
+      ],
+      "answer": "A",
+      "numeric_answer": 25,
+      "solution": "补集计数：总组合数 C(7,3) 减去完全不选1、2号的 C(5,3)，得到 25 种；概率可再除以 C(7,3)。",
+      "parameters": {
+        "n": 7
+      },
+      "validation": {
+        "formula_result": 25,
+        "independent_result": 25,
+        "unique_options": true,
+        "solver_checked": true
+      },
+      "status": "staged_not_live",
+      "counts_for_exam_diagnostic": false
+    },
+    {
+      "id": "ai_transfer_20261024_027",
+      "source": "ai_generated_review",
+      "language": "zh-CN",
+      "purpose": "same_method_transfer_only",
+      "skill": "概率与补集",
+      "method_group": "probability_complement",
+      "question": "从编号1到8的8张不同卡片中，等可能地同时抽出3张。其中至少有一张是1号或2号卡片，符合要求的三张卡片组合有多少种？",
+      "options": [
+        "37",
+        "35",
+        "38",
+        "34",
+        "36"
+      ],
+      "answer": "E",
+      "numeric_answer": 36,
+      "solution": "补集计数：总组合数 C(8,3) 减去完全不选1、2号的 C(6,3)，得到 36 种；概率可再除以 C(8,3)。",
+      "parameters": {
+        "n": 8
+      },
+      "validation": {
+        "formula_result": 36,
+        "independent_result": 36,
+        "unique_options": true,
+        "solver_checked": true
+      },
+      "status": "staged_not_live",
+      "counts_for_exam_diagnostic": false
+    },
+    {
+      "id": "ai_transfer_20261024_028",
+      "source": "ai_generated_review",
+      "language": "zh-CN",
+      "purpose": "same_method_transfer_only",
+      "skill": "概率与补集",
+      "method_group": "probability_complement",
+      "question": "从编号1到9的9张不同卡片中，等可能地同时抽出3张。其中至少有一张是1号或2号卡片，符合要求的三张卡片组合有多少种？",
+      "options": [
+        "47",
+        "52",
+        "46",
+        "49",
+        "51"
+      ],
+      "answer": "D",
+      "numeric_answer": 49,
+      "solution": "补集计数：总组合数 C(9,3) 减去完全不选1、2号的 C(7,3)，得到 49 种；概率可再除以 C(9,3)。",
+      "parameters": {
+        "n": 9
+      },
+      "validation": {
+        "formula_result": 49,
+        "independent_result": 49,
+        "unique_options": true,
+        "solver_checked": true
+      },
+      "status": "staged_not_live",
+      "counts_for_exam_diagnostic": false
+    },
+    {
+      "id": "ai_transfer_20261024_029",
+      "source": "ai_generated_review",
+      "language": "zh-CN",
+      "purpose": "same_method_transfer_only",
+      "skill": "概率与补集",
+      "method_group": "probability_complement",
+      "question": "从编号1到10的10张不同卡片中，等可能地同时抽出3张。其中至少有一张是1号或2号卡片，符合要求的三张卡片组合有多少种？",
+      "options": [
+        "68",
+        "60",
+        "64",
+        "67",
+        "61"
+      ],
+      "answer": "C",
+      "numeric_answer": 64,
+      "solution": "补集计数：总组合数 C(10,3) 减去完全不选1、2号的 C(8,3)，得到 64 种；概率可再除以 C(10,3)。",
+      "parameters": {
+        "n": 10
+      },
+      "validation": {
+        "formula_result": 64,
+        "independent_result": 64,
+        "unique_options": true,
+        "solver_checked": true
+      },
+      "status": "staged_not_live",
+      "counts_for_exam_diagnostic": false
+    },
+    {
+      "id": "ai_transfer_20261024_030",
+      "source": "ai_generated_review",
+      "language": "zh-CN",
+      "purpose": "same_method_transfer_only",
+      "skill": "概率与补集",
+      "method_group": "probability_complement",
+      "question": "从编号1到11的11张不同卡片中，等可能地同时抽出3张。其中至少有一张是1号或2号卡片，符合要求的三张卡片组合有多少种？",
+      "options": [
+        "76",
+        "81",
+        "85",
+        "77",
+        "86"
+      ],
+      "answer": "B",
+      "numeric_answer": 81,
+      "solution": "补集计数：总组合数 C(11,3) 减去完全不选1、2号的 C(9,3)，得到 81 种；概率可再除以 C(11,3)。",
+      "parameters": {
+        "n": 11
+      },
+      "validation": {
+        "formula_result": 81,
+        "independent_result": 81,
+        "unique_options": true,
+        "solver_checked": true
+      },
+      "status": "staged_not_live",
+      "counts_for_exam_diagnostic": false
+    },
+    {
+      "id": "ai_transfer_20261024_031",
+      "source": "ai_generated_review",
+      "language": "zh-CN",
+      "purpose": "same_method_transfer_only",
+      "skill": "概率与补集",
+      "method_group": "probability_complement",
+      "question": "从编号1到12的12张不同卡片中，等可能地同时抽出3张。其中至少有一张是1号或2号卡片，符合要求的三张卡片组合有多少种？",
+      "options": [
+        "100",
+        "105",
+        "95",
+        "107",
+        "93"
+      ],
+      "answer": "A",
+      "numeric_answer": 100,
+      "solution": "补集计数：总组合数 C(12,3) 减去完全不选1、2号的 C(10,3)，得到 100 种；概率可再除以 C(12,3)。",
+      "parameters": {
+        "n": 12
+      },
+      "validation": {
+        "formula_result": 100,
+        "independent_result": 100,
+        "unique_options": true,
+        "solver_checked": true
+      },
+      "status": "staged_not_live",
+      "counts_for_exam_diagnostic": false
+    },
+    {
+      "id": "ai_transfer_20261024_032",
+      "source": "ai_generated_review",
+      "language": "zh-CN",
+      "purpose": "same_method_transfer_only",
+      "skill": "概率与补集",
+      "method_group": "probability_complement",
+      "question": "从编号1到13的13张不同卡片中，等可能地同时抽出3张。其中至少有一张是1号或2号卡片，符合要求的三张卡片组合有多少种？",
+      "options": [
+        "128",
+        "114",
+        "130",
+        "112",
+        "121"
+      ],
+      "answer": "E",
+      "numeric_answer": 121,
+      "solution": "补集计数：总组合数 C(13,3) 减去完全不选1、2号的 C(11,3)，得到 121 种；概率可再除以 C(13,3)。",
+      "parameters": {
+        "n": 13
+      },
+      "validation": {
+        "formula_result": 121,
+        "independent_result": 121,
+        "unique_options": true,
+        "solver_checked": true
+      },
+      "status": "staged_not_live",
+      "counts_for_exam_diagnostic": false
+    },
+    {
+      "id": "ai_transfer_20261024_033",
+      "source": "ai_generated_review",
+      "language": "zh-CN",
+      "purpose": "same_method_transfer_only",
+      "skill": "坐标变换",
+      "method_group": "rotation_90_coordinates",
+      "question": "点 P(2,4) 绕原点逆时针旋转90°得到 Q，Q 的横坐标绝对值与纵坐标绝对值之和是多少？",
+      "options": [
+        "16",
+        "18",
+        "21",
+        "6",
+        "15"
+      ],
+      "answer": "D",
+      "numeric_answer": 6,
+      "solution": "逆时针旋转90°的坐标公式：(x,y)→(-y,x)，故 Q=(-4,2)，两坐标绝对值之和为 6。",
+      "parameters": {
+        "x": 2,
+        "y": 4
+      },
+      "validation": {
+        "formula_result": 6,
+        "independent_result": 6,
+        "unique_options": true,
+        "solver_checked": true
+      },
+      "status": "staged_not_live",
+      "counts_for_exam_diagnostic": false
+    },
+    {
+      "id": "ai_transfer_20261024_034",
+      "source": "ai_generated_review",
+      "language": "zh-CN",
+      "purpose": "same_method_transfer_only",
+      "skill": "坐标变换",
+      "method_group": "rotation_90_coordinates",
+      "question": "点 P(3,5) 绕原点逆时针旋转90°得到 Q，Q 的横坐标绝对值与纵坐标绝对值之和是多少？",
+      "options": [
+        "23",
+        "26",
+        "8",
+        "18",
+        "20"
+      ],
+      "answer": "C",
+      "numeric_answer": 8,
+      "solution": "逆时针旋转90°的坐标公式：(x,y)→(-y,x)，故 Q=(-5,3)，两坐标绝对值之和为 8。",
+      "parameters": {
+        "x": 3,
+        "y": 5
+      },
+      "validation": {
+        "formula_result": 8,
+        "independent_result": 8,
+        "unique_options": true,
+        "solver_checked": true
+      },
+      "status": "staged_not_live",
+      "counts_for_exam_diagnostic": false
+    },
+    {
+      "id": "ai_transfer_20261024_035",
+      "source": "ai_generated_review",
+      "language": "zh-CN",
+      "purpose": "same_method_transfer_only",
+      "skill": "坐标变换",
+      "method_group": "rotation_90_coordinates",
+      "question": "点 P(4,6) 绕原点逆时针旋转90°得到 Q，Q 的横坐标绝对值与纵坐标绝对值之和是多少？",
+      "options": [
+        "34",
+        "10",
+        "22",
+        "25",
+        "28"
+      ],
+      "answer": "B",
+      "numeric_answer": 10,
+      "solution": "逆时针旋转90°的坐标公式：(x,y)→(-y,x)，故 Q=(-6,4)，两坐标绝对值之和为 10。",
+      "parameters": {
+        "x": 4,
+        "y": 6
+      },
+      "validation": {
+        "formula_result": 10,
+        "independent_result": 10,
+        "unique_options": true,
+        "solver_checked": true
+      },
+      "status": "staged_not_live",
+      "counts_for_exam_diagnostic": false
+    },
+    {
+      "id": "ai_transfer_20261024_036",
+      "source": "ai_generated_review",
+      "language": "zh-CN",
+      "purpose": "same_method_transfer_only",
+      "skill": "坐标变换",
+      "method_group": "rotation_90_coordinates",
+      "question": "点 P(5,7) 绕原点逆时针旋转90°得到 Q，Q 的横坐标绝对值与纵坐标绝对值之和是多少？",
+      "options": [
+        "12",
+        "27",
+        "30",
+        "36",
+        "42"
+      ],
+      "answer": "A",
+      "numeric_answer": 12,
+      "solution": "逆时针旋转90°的坐标公式：(x,y)→(-y,x)，故 Q=(-7,5)，两坐标绝对值之和为 12。",
+      "parameters": {
+        "x": 5,
+        "y": 7
+      },
+      "validation": {
+        "formula_result": 12,
+        "independent_result": 12,
+        "unique_options": true,
+        "solver_checked": true
+      },
+      "status": "staged_not_live",
+      "counts_for_exam_diagnostic": false
+    },
+    {
+      "id": "ai_transfer_20261024_037",
+      "source": "ai_generated_review",
+      "language": "zh-CN",
+      "purpose": "same_method_transfer_only",
+      "skill": "坐标变换",
+      "method_group": "rotation_90_coordinates",
+      "question": "点 P(6,8) 绕原点逆时针旋转90°得到 Q，Q 的横坐标绝对值与纵坐标绝对值之和是多少？",
+      "options": [
+        "32",
+        "38",
+        "44",
+        "15",
+        "14"
+      ],
+      "answer": "E",
+      "numeric_answer": 14,
+      "solution": "逆时针旋转90°的坐标公式：(x,y)→(-y,x)，故 Q=(-8,6)，两坐标绝对值之和为 14。",
+      "parameters": {
+        "x": 6,
+        "y": 8
+      },
+      "validation": {
+        "formula_result": 14,
+        "independent_result": 14,
+        "unique_options": true,
+        "solver_checked": true
+      },
+      "status": "staged_not_live",
+      "counts_for_exam_diagnostic": false
+    },
+    {
+      "id": "ai_transfer_20261024_038",
+      "source": "ai_generated_review",
+      "language": "zh-CN",
+      "purpose": "same_method_transfer_only",
+      "skill": "坐标变换",
+      "method_group": "rotation_90_coordinates",
+      "question": "点 P(7,9) 绕原点逆时针旋转90°得到 Q，Q 的横坐标绝对值与纵坐标绝对值之和是多少？",
+      "options": [
+        "46",
+        "17",
+        "15",
+        "16",
+        "40"
+      ],
+      "answer": "D",
+      "numeric_answer": 16,
+      "solution": "逆时针旋转90°的坐标公式：(x,y)→(-y,x)，故 Q=(-9,7)，两坐标绝对值之和为 16。",
+      "parameters": {
+        "x": 7,
+        "y": 9
+      },
+      "validation": {
+        "formula_result": 16,
+        "independent_result": 16,
+        "unique_options": true,
+        "solver_checked": true
+      },
+      "status": "staged_not_live",
+      "counts_for_exam_diagnostic": false
+    },
+    {
+      "id": "ai_transfer_20261024_039",
+      "source": "ai_generated_review",
+      "language": "zh-CN",
+      "purpose": "same_method_transfer_only",
+      "skill": "容斥原理",
+      "method_group": "union_multiples",
+      "question": "从1到48的整数中，能被2或3整除的数共有多少个？",
+      "options": [
+        "33",
+        "31",
+        "32",
+        "62",
+        "2"
+      ],
+      "answer": "C",
+      "numeric_answer": 32,
+      "solution": "容斥：能被2整除的有⌊48/2⌋个；能被3整除的有⌊48/3⌋个；重复部分是能被最小公倍数6整除的数。两者相加减交集得 32。",
+      "parameters": {
+        "n": 48,
+        "a": 2,
+        "b": 3
+      },
+      "validation": {
+        "formula_result": 32,
+        "independent_result": 32,
+        "unique_options": true,
+        "solver_checked": true
+      },
+      "status": "staged_not_live",
+      "counts_for_exam_diagnostic": false
+    },
+    {
+      "id": "ai_transfer_20261024_040",
+      "source": "ai_generated_review",
+      "language": "zh-CN",
+      "purpose": "same_method_transfer_only",
+      "skill": "容斥原理",
+      "method_group": "union_multiples",
+      "question": "从1到54的整数中，能被3或4整除的数共有多少个？",
+      "options": [
+        "25",
+        "27",
+        "28",
+        "26",
+        "29"
+      ],
+      "answer": "B",
+      "numeric_answer": 27,
+      "solution": "容斥：能被3整除的有⌊54/3⌋个；能被4整除的有⌊54/4⌋个；重复部分是能被最小公倍数12整除的数。两者相加减交集得 27。",
+      "parameters": {
+        "n": 54,
+        "a": 3,
+        "b": 4
+      },
+      "validation": {
+        "formula_result": 27,
+        "independent_result": 27,
+        "unique_options": true,
+        "solver_checked": true
+      },
+      "status": "staged_not_live",
+      "counts_for_exam_diagnostic": false
+    },
+    {
+      "id": "ai_transfer_20261024_041",
+      "source": "ai_generated_review",
+      "language": "zh-CN",
+      "purpose": "same_method_transfer_only",
+      "skill": "容斥原理",
+      "method_group": "union_multiples",
+      "question": "从1到60的整数中，能被2或5整除的数共有多少个？",
+      "options": [
+        "36",
+        "38",
+        "34",
+        "39",
+        "33"
+      ],
+      "answer": "A",
+      "numeric_answer": 36,
+      "solution": "容斥：能被2整除的有⌊60/2⌋个；能被5整除的有⌊60/5⌋个；重复部分是能被最小公倍数10整除的数。两者相加减交集得 36。",
+      "parameters": {
+        "n": 60,
+        "a": 2,
+        "b": 5
+      },
+      "validation": {
+        "formula_result": 36,
+        "independent_result": 36,
+        "unique_options": true,
+        "solver_checked": true
+      },
+      "status": "staged_not_live",
+      "counts_for_exam_diagnostic": false
+    },
+    {
+      "id": "ai_transfer_20261024_042",
+      "source": "ai_generated_review",
+      "language": "zh-CN",
+      "purpose": "same_method_transfer_only",
+      "skill": "容斥原理",
+      "method_group": "union_multiples",
+      "question": "从1到66的整数中，能被3或3整除的数共有多少个？",
+      "options": [
+        "25",
+        "19",
+        "26",
+        "18",
+        "22"
+      ],
+      "answer": "E",
+      "numeric_answer": 22,
+      "solution": "容斥：能被3整除的有⌊66/3⌋个；能被3整除的有⌊66/3⌋个；重复部分是能被最小公倍数3整除的数。两者相加减交集得 22。",
+      "parameters": {
+        "n": 66,
+        "a": 3,
+        "b": 3
+      },
+      "validation": {
+        "formula_result": 22,
+        "independent_result": 22,
+        "unique_options": true,
+        "solver_checked": true
+      },
+      "status": "staged_not_live",
+      "counts_for_exam_diagnostic": false
+    },
+    {
+      "id": "ai_transfer_20261024_043",
+      "source": "ai_generated_review",
+      "language": "zh-CN",
+      "purpose": "same_method_transfer_only",
+      "skill": "容斥原理",
+      "method_group": "union_multiples",
+      "question": "从1到72的整数中，能被2或4整除的数共有多少个？",
+      "options": [
+        "32",
+        "41",
+        "31",
+        "36",
+        "40"
+      ],
+      "answer": "D",
+      "numeric_answer": 36,
+      "solution": "容斥：能被2整除的有⌊72/2⌋个；能被4整除的有⌊72/4⌋个；重复部分是能被最小公倍数4整除的数。两者相加减交集得 36。",
+      "parameters": {
+        "n": 72,
+        "a": 2,
+        "b": 4
+      },
+      "validation": {
+        "formula_result": 36,
+        "independent_result": 36,
+        "unique_options": true,
+        "solver_checked": true
+      },
+      "status": "staged_not_live",
+      "counts_for_exam_diagnostic": false
+    },
+    {
+      "id": "ai_transfer_20261024_044",
+      "source": "ai_generated_review",
+      "language": "zh-CN",
+      "purpose": "same_method_transfer_only",
+      "skill": "容斥原理",
+      "method_group": "union_multiples",
+      "question": "从1到78的整数中，能被3或5整除的数共有多少个？",
+      "options": [
+        "43",
+        "29",
+        "36",
+        "41",
+        "31"
+      ],
+      "answer": "C",
+      "numeric_answer": 36,
+      "solution": "容斥：能被3整除的有⌊78/3⌋个；能被5整除的有⌊78/5⌋个；重复部分是能被最小公倍数15整除的数。两者相加减交集得 36。",
+      "parameters": {
+        "n": 78,
+        "a": 3,
+        "b": 5
+      },
+      "validation": {
+        "formula_result": 36,
+        "independent_result": 36,
+        "unique_options": true,
+        "solver_checked": true
+      },
+      "status": "staged_not_live",
+      "counts_for_exam_diagnostic": false
+    },
+    {
+      "id": "ai_transfer_20261024_045",
+      "source": "ai_generated_review",
+      "language": "zh-CN",
+      "purpose": "same_method_transfer_only",
+      "skill": "面积拆分与面积比",
+      "method_group": "rectangle_area_subtraction",
+      "question": "一张长6厘米、宽4厘米的长方形纸，沿右上角剪去一个长2厘米、宽1厘米的小长方形。剩余部分面积是多少平方厘米？",
+      "options": [
+        "13",
+        "22",
+        "29",
+        "15",
+        "31"
+      ],
+      "answer": "B",
+      "numeric_answer": 22,
+      "solution": "大长方形面积为6×4，剪去部分面积为2×1，相减得 22 平方厘米。",
+      "parameters": {
+        "w": 6,
+        "h": 4,
+        "cutW": 2,
+        "cutH": 1
+      },
+      "validation": {
+        "formula_result": 22,
+        "independent_result": 22,
+        "unique_options": true,
+        "solver_checked": true
+      },
+      "status": "staged_not_live",
+      "counts_for_exam_diagnostic": false
+    },
+    {
+      "id": "ai_transfer_20261024_046",
+      "source": "ai_generated_review",
+      "language": "zh-CN",
+      "purpose": "same_method_transfer_only",
+      "skill": "面积拆分与面积比",
+      "method_group": "rectangle_area_subtraction",
+      "question": "一张长7厘米、宽5厘米的长方形纸，沿右上角剪去一个长3厘米、宽2厘米的小长方形。剩余部分面积是多少平方厘米？",
+      "options": [
+        "29",
+        "38",
+        "20",
+        "39",
+        "19"
+      ],
+      "answer": "A",
+      "numeric_answer": 29,
+      "solution": "大长方形面积为7×5，剪去部分面积为3×2，相减得 29 平方厘米。",
+      "parameters": {
+        "w": 7,
+        "h": 5,
+        "cutW": 3,
+        "cutH": 2
+      },
+      "validation": {
+        "formula_result": 29,
+        "independent_result": 29,
+        "unique_options": true,
+        "solver_checked": true
+      },
+      "status": "staged_not_live",
+      "counts_for_exam_diagnostic": false
+    },
+    {
+      "id": "ai_transfer_20261024_047",
+      "source": "ai_generated_review",
+      "language": "zh-CN",
+      "purpose": "same_method_transfer_only",
+      "skill": "面积拆分与面积比",
+      "method_group": "rectangle_area_subtraction",
+      "question": "一张长8厘米、宽6厘米的长方形纸，沿右上角剪去一个长4厘米、宽1厘米的小长方形。剩余部分面积是多少平方厘米？",
+      "options": [
+        "54",
+        "34",
+        "56",
+        "32",
+        "44"
+      ],
+      "answer": "E",
+      "numeric_answer": 44,
+      "solution": "大长方形面积为8×6，剪去部分面积为4×1，相减得 44 平方厘米。",
+      "parameters": {
+        "w": 8,
+        "h": 6,
+        "cutW": 4,
+        "cutH": 1
+      },
+      "validation": {
+        "formula_result": 44,
+        "independent_result": 44,
+        "unique_options": true,
+        "solver_checked": true
+      },
+      "status": "staged_not_live",
+      "counts_for_exam_diagnostic": false
+    },
+    {
+      "id": "ai_transfer_20261024_048",
+      "source": "ai_generated_review",
+      "language": "zh-CN",
+      "purpose": "same_method_transfer_only",
+      "skill": "面积拆分与面积比",
+      "method_group": "rectangle_area_subtraction",
+      "question": "一张长9厘米、宽7厘米的长方形纸，沿右上角剪去一个长2厘米、宽2厘米的小长方形。剩余部分面积是多少平方厘米？",
+      "options": [
+        "47",
+        "74",
+        "44",
+        "59",
+        "71"
+      ],
+      "answer": "D",
+      "numeric_answer": 59,
+      "solution": "大长方形面积为9×7，剪去部分面积为2×2，相减得 59 平方厘米。",
+      "parameters": {
+        "w": 9,
+        "h": 7,
+        "cutW": 2,
+        "cutH": 2
+      },
+      "validation": {
+        "formula_result": 59,
+        "independent_result": 59,
+        "unique_options": true,
+        "solver_checked": true
+      },
+      "status": "staged_not_live",
+      "counts_for_exam_diagnostic": false
+    },
+    {
+      "id": "ai_transfer_20261024_049",
+      "source": "ai_generated_review",
+      "language": "zh-CN",
+      "purpose": "same_method_transfer_only",
+      "skill": "面积拆分与面积比",
+      "method_group": "rectangle_area_subtraction",
+      "question": "一张长10厘米、宽4厘米的长方形纸，沿右上角剪去一个长3厘米、宽1厘米的小长方形。剩余部分面积是多少平方厘米？",
+      "options": [
+        "55",
+        "19",
+        "37",
+        "52",
+        "22"
+      ],
+      "answer": "C",
+      "numeric_answer": 37,
+      "solution": "大长方形面积为10×4，剪去部分面积为3×1，相减得 37 平方厘米。",
+      "parameters": {
+        "w": 10,
+        "h": 4,
+        "cutW": 3,
+        "cutH": 1
+      },
+      "validation": {
+        "formula_result": 37,
+        "independent_result": 37,
+        "unique_options": true,
+        "solver_checked": true
+      },
+      "status": "staged_not_live",
+      "counts_for_exam_diagnostic": false
+    },
+    {
+      "id": "ai_transfer_20261024_050",
+      "source": "ai_generated_review",
+      "language": "zh-CN",
+      "purpose": "same_method_transfer_only",
+      "skill": "面积拆分与面积比",
+      "method_group": "rectangle_area_subtraction",
+      "question": "一张长11厘米、宽5厘米的长方形纸，沿右上角剪去一个长4厘米、宽2厘米的小长方形。剩余部分面积是多少平方厘米？",
+      "options": [
+        "23",
+        "47",
+        "65",
+        "29",
+        "71"
+      ],
+      "answer": "B",
+      "numeric_answer": 47,
+      "solution": "大长方形面积为11×5，剪去部分面积为4×2，相减得 47 平方厘米。",
+      "parameters": {
+        "w": 11,
+        "h": 5,
+        "cutW": 4,
+        "cutH": 2
+      },
+      "validation": {
+        "formula_result": 47,
+        "independent_result": 47,
+        "unique_options": true,
+        "solver_checked": true
+      },
+      "status": "staged_not_live",
+      "counts_for_exam_diagnostic": false
+    },
+    {
+      "id": "ai_transfer_20261024_051",
+      "source": "ai_generated_review",
+      "language": "zh-CN",
+      "purpose": "same_method_transfer_only",
+      "skill": "面积拆分与面积比",
+      "method_group": "rectangle_area_subtraction",
+      "question": "一张长12厘米、宽6厘米的长方形纸，沿右上角剪去一个长2厘米、宽1厘米的小长方形。剩余部分面积是多少平方厘米？",
+      "options": [
+        "70",
+        "94",
+        "46",
+        "100",
+        "40"
+      ],
+      "answer": "A",
+      "numeric_answer": 70,
+      "solution": "大长方形面积为12×6，剪去部分面积为2×1，相减得 70 平方厘米。",
+      "parameters": {
+        "w": 12,
+        "h": 6,
+        "cutW": 2,
+        "cutH": 1
+      },
+      "validation": {
+        "formula_result": 70,
+        "independent_result": 70,
+        "unique_options": true,
+        "solver_checked": true
+      },
+      "status": "staged_not_live",
+      "counts_for_exam_diagnostic": false
+    },
+    {
+      "id": "ai_transfer_20261024_052",
+      "source": "ai_generated_review",
+      "language": "zh-CN",
+      "purpose": "same_method_transfer_only",
+      "skill": "面积拆分与面积比",
+      "method_group": "rectangle_area_subtraction",
+      "question": "一张长13厘米、宽7厘米的长方形纸，沿右上角剪去一个长3厘米、宽2厘米的小长方形。剩余部分面积是多少平方厘米？",
+      "options": [
+        "115",
+        "55",
+        "86",
+        "84",
+        "85"
+      ],
+      "answer": "E",
+      "numeric_answer": 85,
+      "solution": "大长方形面积为13×7，剪去部分面积为3×2，相减得 85 平方厘米。",
+      "parameters": {
+        "w": 13,
+        "h": 7,
+        "cutW": 3,
+        "cutH": 2
+      },
+      "validation": {
+        "formula_result": 85,
+        "independent_result": 85,
+        "unique_options": true,
+        "solver_checked": true
+      },
+      "status": "staged_not_live",
+      "counts_for_exam_diagnostic": false
+    },
+    {
+      "id": "ai_transfer_20261024_053",
+      "source": "ai_generated_review",
+      "language": "zh-CN",
+      "purpose": "same_method_transfer_only",
+      "skill": "数列与周期",
+      "method_group": "arithmetic_sequence_sum",
+      "question": "一个等差数列首项为2，公差为3，前9项的和是多少？",
+      "options": [
+        "125",
+        "128",
+        "124",
+        "126",
+        "127"
+      ],
+      "answer": "D",
+      "numeric_answer": 126,
+      "solution": "末项为 2+(9-1)×3=26，前9项和为首末项平均数乘以项数，等于 126。",
+      "parameters": {
+        "a": 2,
+        "d": 3,
+        "n": 9
+      },
+      "validation": {
+        "formula_result": 126,
+        "independent_result": 126,
+        "unique_options": true,
+        "solver_checked": true
+      },
+      "status": "staged_not_live",
+      "counts_for_exam_diagnostic": false
+    },
+    {
+      "id": "ai_transfer_20261024_054",
+      "source": "ai_generated_review",
+      "language": "zh-CN",
+      "purpose": "same_method_transfer_only",
+      "skill": "数列与周期",
+      "method_group": "arithmetic_sequence_sum",
+      "question": "一个等差数列首项为3，公差为4，前10项的和是多少？",
+      "options": [
+        "213",
+        "207",
+        "210",
+        "212",
+        "208"
+      ],
+      "answer": "C",
+      "numeric_answer": 210,
+      "solution": "末项为 3+(10-1)×4=39，前10项和为首末项平均数乘以项数，等于 210。",
+      "parameters": {
+        "a": 3,
+        "d": 4,
+        "n": 10
+      },
+      "validation": {
+        "formula_result": 210,
+        "independent_result": 210,
+        "unique_options": true,
+        "solver_checked": true
+      },
+      "status": "staged_not_live",
+      "counts_for_exam_diagnostic": false
+    },
+    {
+      "id": "ai_transfer_20261024_055",
+      "source": "ai_generated_review",
+      "language": "zh-CN",
+      "purpose": "same_method_transfer_only",
+      "skill": "数列与周期",
+      "method_group": "arithmetic_sequence_sum",
+      "question": "一个等差数列首项为4，公差为5，前11项的和是多少？",
+      "options": [
+        "315",
+        "319",
+        "322",
+        "316",
+        "323"
+      ],
+      "answer": "B",
+      "numeric_answer": 319,
+      "solution": "末项为 4+(11-1)×5=54，前11项和为首末项平均数乘以项数，等于 319。",
+      "parameters": {
+        "a": 4,
+        "d": 5,
+        "n": 11
+      },
+      "validation": {
+        "formula_result": 319,
+        "independent_result": 319,
+        "unique_options": true,
+        "solver_checked": true
+      },
+      "status": "staged_not_live",
+      "counts_for_exam_diagnostic": false
+    },
+    {
+      "id": "ai_transfer_20261024_056",
+      "source": "ai_generated_review",
+      "language": "zh-CN",
+      "purpose": "same_method_transfer_only",
+      "skill": "数列与周期",
+      "method_group": "arithmetic_sequence_sum",
+      "question": "一个等差数列首项为5，公差为6，前12项的和是多少？",
+      "options": [
+        "456",
+        "460",
+        "452",
+        "461",
+        "451"
+      ],
+      "answer": "A",
+      "numeric_answer": 456,
+      "solution": "末项为 5+(12-1)×6=71，前12项和为首末项平均数乘以项数，等于 456。",
+      "parameters": {
+        "a": 5,
+        "d": 6,
+        "n": 12
+      },
+      "validation": {
+        "formula_result": 456,
+        "independent_result": 456,
+        "unique_options": true,
+        "solver_checked": true
+      },
+      "status": "staged_not_live",
+      "counts_for_exam_diagnostic": false
+    },
+    {
+      "id": "ai_transfer_20261024_057",
+      "source": "ai_generated_review",
+      "language": "zh-CN",
+      "purpose": "same_method_transfer_only",
+      "skill": "中位数与数据分析",
+      "method_group": "median_sorted_odd",
+      "question": "某班7名同学的测试用时（分钟）分别为：3、5、8、11、14、20、23。这组数据的中位数是多少分钟？",
+      "options": [
+        "16",
+        "6",
+        "18",
+        "4",
+        "11"
+      ],
+      "answer": "E",
+      "numeric_answer": 11,
+      "solution": "7个数据已从小到大排列，中位数是第4个数，即 11。",
+      "parameters": {
+        "arr": [
+          3,
+          5,
+          8,
+          11,
+          14,
+          20,
+          23
+        ]
+      },
+      "validation": {
+        "formula_result": 11,
+        "independent_result": 11,
+        "unique_options": true,
+        "solver_checked": true
+      },
+      "status": "staged_not_live",
+      "counts_for_exam_diagnostic": false
+    },
+    {
+      "id": "ai_transfer_20261024_058",
+      "source": "ai_generated_review",
+      "language": "zh-CN",
+      "purpose": "same_method_transfer_only",
+      "skill": "中位数与数据分析",
+      "method_group": "median_sorted_odd",
+      "question": "某班7名同学的测试用时（分钟）分别为：4、6、9、12、15、21、24。这组数据的中位数是多少分钟？",
+      "options": [
+        "5",
+        "21",
+        "3",
+        "12",
+        "19"
+      ],
+      "answer": "D",
+      "numeric_answer": 12,
+      "solution": "7个数据已从小到大排列，中位数是第4个数，即 12。",
+      "parameters": {
+        "arr": [
+          4,
+          6,
+          9,
+          12,
+          15,
+          21,
+          24
+        ]
+      },
+      "validation": {
+        "formula_result": 12,
+        "independent_result": 12,
+        "unique_options": true,
+        "solver_checked": true
+      },
+      "status": "staged_not_live",
+      "counts_for_exam_diagnostic": false
+    },
+    {
+      "id": "ai_transfer_20261024_059",
+      "source": "ai_generated_review",
+      "language": "zh-CN",
+      "purpose": "same_method_transfer_only",
+      "skill": "中位数与数据分析",
+      "method_group": "median_sorted_odd",
+      "question": "某班7名同学的测试用时（分钟）分别为：5、7、10、13、16、22、25。这组数据的中位数是多少分钟？",
+      "options": [
+        "23",
+        "3",
+        "13",
+        "22",
+        "4"
+      ],
+      "answer": "C",
+      "numeric_answer": 13,
+      "solution": "7个数据已从小到大排列，中位数是第4个数，即 13。",
+      "parameters": {
+        "arr": [
+          5,
+          7,
+          10,
+          13,
+          16,
+          22,
+          25
+        ]
+      },
+      "validation": {
+        "formula_result": 13,
+        "independent_result": 13,
+        "unique_options": true,
+        "solver_checked": true
+      },
+      "status": "staged_not_live",
+      "counts_for_exam_diagnostic": false
+    },
+    {
+      "id": "ai_transfer_20261024_060",
+      "source": "ai_generated_review",
+      "language": "zh-CN",
+      "purpose": "same_method_transfer_only",
+      "skill": "中位数与数据分析",
+      "method_group": "median_sorted_odd",
+      "question": "某班7名同学的测试用时（分钟）分别为：6、8、11、14、17、23、26。这组数据的中位数是多少分钟？",
+      "options": [
+        "2",
+        "14",
+        "24",
+        "4",
+        "26"
+      ],
+      "answer": "B",
+      "numeric_answer": 14,
+      "solution": "7个数据已从小到大排列，中位数是第4个数，即 14。",
+      "parameters": {
+        "arr": [
+          6,
+          8,
+          11,
+          14,
+          17,
+          23,
+          26
+        ]
+      },
+      "validation": {
+        "formula_result": 14,
+        "independent_result": 14,
+        "unique_options": true,
+        "solver_checked": true
+      },
+      "status": "staged_not_live",
+      "counts_for_exam_diagnostic": false
+    }
+  ]
+}
