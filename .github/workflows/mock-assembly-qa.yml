@@ -4,12 +4,16 @@ on:
   push:
     paths:
       - 'index.html'
+      - 'CHANGELOG.md'
+      - 'README.md'
       - 'coach_mock_assembly_v06514.js'
       - 'qa_mock_assembly_v06514.cjs'
       - '.github/workflows/mock-assembly-qa.yml'
   pull_request:
     paths:
       - 'index.html'
+      - 'CHANGELOG.md'
+      - 'README.md'
       - 'coach_mock_assembly_v06514.js'
       - 'qa_mock_assembly_v06514.cjs'
       - '.github/workflows/mock-assembly-qa.yml'
