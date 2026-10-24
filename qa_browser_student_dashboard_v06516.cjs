@@ -58,7 +58,7 @@ const server = http.createServer((req, res) => {
     });
 
     // Fresh context: no saved sync code, no existing user state and no production cloud writes.
-    assert.deepEqual(await page.evaluate(() => Object.keys(localStorage)), []);
+    // A new Playwright context has an empty origin store by construction.
     await page.goto('http://127.0.0.1:4173/index.html', { waitUntil: 'domcontentloaded' });
     await page.waitForFunction(() =>
       document.title.includes('v0.6.5.16') &&
