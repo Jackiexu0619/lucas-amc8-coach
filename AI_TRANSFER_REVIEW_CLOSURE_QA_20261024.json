@@ -79,7 +79,9 @@
         "undo removes AI review attempts",
         "QA harness included",
         "report refreshes after AI submission",
-        "Only one eligibleDailyBank selector definition remains; CI asserts 30/14/7-day windows and Q13–Q25 restriction."
+        "Only one eligibleDailyBank selector definition remains; duplicate overrides are blocked.",
+        "The active weekday selector contains 30/14/7-day exclusion windows.",
+        "The active weekday selector remains restricted to official AMC8 Q13–Q25."
       ]
     },
     "weekday_selector_regression": {
