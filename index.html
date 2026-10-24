@@ -1,10 +1,10 @@
 <!doctype html>
-<!-- BUILD: Lucas AMC8 Coach v0.6.5.12 / archive_official_v1 -->
+<!-- BUILD: Lucas AMC8 Coach v0.6.5.13 / archive_official_v1 -->
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Lucas AMC8 Coach v0.6.5.12</title>
+<title>Lucas AMC8 Coach v0.6.5.13</title>
 <style>
 :root{--bg:#f4f7fb;--card:#fff;--text:#162235;--muted:#657287;--accent:#2d67d9;--line:#dbe3ef;--good:#137a4e;--warn:#a86400;--bad:#b42318}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
@@ -191,7 +191,7 @@ hr{border:0;border-top:1px solid var(--line);margin:15px 0}.two{display:grid;gri
 </head>
 <body>
 <header>
-<div><h1>Lucas AMC8 Coach <span style="font-size:12px;font-weight:400">v0.6.5.12</span></h1><div class=sub>真实AMC8题库核心 · Daily Adaptive Engine · Authentic Exam Assembly · 每日锁卷 · 免注册云同步</div></div>
+<div><h1>Lucas AMC8 Coach <span style="font-size:12px;font-weight:400">v0.6.5.13</span></h1><div class=sub>真实AMC8题库核心 · Daily Adaptive Engine · Authentic Exam Assembly · 每日锁卷 · 免注册云同步</div></div>
 <nav aria-label="主导航">
 <button onclick="show('home')">主页</button>
 <button onclick="show('practice')">每日训练</button>
@@ -221,7 +221,7 @@ const SEED={"version":"0.6.3","profile":{"name":"Lucas","goal":"2027-01 AMC 8","
 const ZH_DOMAIN={"arithmetic":"基础运算","ratio":"比例","rate":"速度与行程","algebra":"代数/应用","number_theory":"数论","coordinate":"坐标与变换","data":"数据与统计","patterns":"数列与规律","combinatorics":"组合/概率","geometry":"几何","probability":"概率","spatial":"立体与空间","logic":"逻辑与逆推","misc":"综合","meta":"综合习惯"};
 const ZH_SKILL={"percent_two_step":"连续百分比","ratio_change":"比例变化","average_speed":"平均速度","divisible_but_not":"整除但不整除","composite_divisibility":"复合整除","transformations":"坐标变换","median_change":"中位数变化","arithmetic_series":"等差求和","round_robin":"两两配对计数","area_ratio":"面积比","exactly_two_colors":"恰好两种颜色","distribution":"分配与角色","painted_cuboid":"涂色长方体","machine_reverse":"机器逆推","execution_complete":"做题完整性","rectangle_cutout":"割补与周长","right_triangle_altitude":"直角三角形高","trapezoid_area":"梯形面积","rectangle_midpoint":"长方形与中点","square_point_area":"正方形面积关系","sector_area":"扇形面积","parallelogram_area":"平行四边形面积","triangle_angle_ratio":"三角形角度比","fraction_remainder":"分数连续变化","reverse_percent":"反求原价","percent_change_chain":"连续百分比变化","unit_price":"单价与包装","map_scale":"地图比例尺","proportional_sharing":"按比分配","mixture_ratio":"混合比例","ratio_transfer":"转移后的比例","fraction_ratio":"分数化比例","distance_speed_time":"路程速度时间","catch_up":"追及问题","meeting":"相遇问题","work_rate":"工程问题","upstream_downstream":"流水行船","average_speed_equal_distance":"等路程平均速度","average_speed_equal_time":"等时间平均速度","rectangle_perimeter":"长方形周长","triangle_area":"三角形面积","pythagorean":"勾股关系","similar_triangles":"相似三角形","triangle_angle_sum":"三角形内角和","coordinate_distance":"坐标距离","coordinate_midpoint":"坐标中点","reflection_translation":"对称与平移","painted_cuboid_one_face":"恰一面涂色","prism_volume":"长方体体积","prism_surface_area":"长方体表面积","handshakes":"握手计数","permutations":"全排列","adjacent_arrangements":"相邻排列","identical_distribution":"相同物分配","lattice_paths":"格点路径","single_draw_probability":"单次抽取概率","at_least_one":"至少一个","two_dice_sum":"两骰点数和","exact_heads":"恰好若干正面","inclusion_exclusion":"容斥计数","divisor_count":"因数个数","gcd":"最大公因数","lcm":"最小公倍数","modular_remainder":"幂的余数","digit_divisibility":"数字整除","last_digit":"个位循环","square_divisors":"平方因数","multiples_union":"倍数并集","remainder_count":"余数类计数","palindrome_divisibility":"回文与整除","arithmetic_sequence":"等差数列第n项","recurrence":"递推数列","repeating_cycle":"循环规律","growing_blocks":"增长图案","machine_reverse_even":"奇偶机器逆推","relative_order":"相对次序","pigeonhole":"抽屉原理","mean_change":"平均数变化","weighted_average":"加权平均","range_change":"极差变化","mode_change":"众数变化","frequency_mean":"频数平均数","frequency_median":"频数中位数","frequency_percent":"频数百分比"};
 
-const ENGINE_VERSION='0.6.5.12';
+const ENGINE_VERSION='0.6.5.13';
 const MOCK_TOPIC_MAP={
   arithmetic:'application',ratio:'application',rate:'application',algebra:'application',misc:'patterns_logic',
   geometry:'geometry',coordinate:'geometry',spatial:'geometry',
@@ -1631,7 +1631,46 @@ function renderReport(){
     <div class=card><h3>当前训练参考</h3>${est?`<p style="font-size:28px;font-weight:750">${est.low}-${est.high}/25</p><p>加权中心约 <b>${est.avg.toFixed(1)}</b>。</p><div class=notice>这是训练数据区间，不是对正式考试成绩的承诺或预测。</div>`:'<div class=notice>整套样本不足，暂不估计。</div>'}</div>
   </div>
   <div class=card style="margin-top:13px"><h3>整套趋势</h3>${mh.length?`<table><tr><th>日期</th><th>独立正确</th></tr>${mh.map(x=>`<tr><td>${x.date}</td><td>${x.independent_score}/25</td></tr>`).join('')}</table>`:'<p class=muted>暂无</p>'}</div>`;
-  renderDailyReviewIntoReport();
+
+  renderLatestMockInsightsIntoReport();
+}
+
+function renderLatestMockInsightsIntoReport(){
+  const host=document.getElementById('report');if(!host)return;
+  const history=(S.mock_detail_history||[]).filter(x=>x&&Array.isArray(x.per_question)&&x.per_question.length);
+  const latest=history[history.length-1];
+  const wrap=document.createElement('section');wrap.className='card';wrap.style.marginTop='14px';wrap.id='latestMockLearningReport';
+  if(!latest){wrap.innerHTML='<h3>最近一次完整模拟 · 学习诊断</h3><p class="muted">录入一套25题模拟的逐题结果后，这里会生成得分概览、薄弱知识点和下一步训练建议。不会用每日专项数据冒充整套模拟结果。</p>';host.appendChild(wrap);return;}
+  const per=latest.per_question||[];
+  const rows=per.map((r,i)=>({r,q:qById(r.qid||latest.question_ids?.[i]),n:r.index||i+1})).filter(x=>x.q);
+  const attempted=per.filter(r=>r.attempted).length,correct=per.filter(r=>r.correct).length;
+  const independent=Number.isFinite(+latest.independent_score)?+latest.independent_score:per.filter(r=>r.correct&&!r.guessed).length;
+  const wrong=per.filter(r=>r.result_status==='wrong'),unable=per.filter(r=>r.result_status==='unable'),skipped=per.filter(r=>r.result_status==='skipped'),guessed=per.filter(r=>r.correct&&r.guessed);
+  const dm=new Map(),sm=new Map();
+  for(const {r,q,n} of rows){
+    const domain=zhDomain(q.domain||'misc'),skill=zhSkill(q.skill||''),weak=!r.correct||r.guessed||r.result_status==='unable'||r.result_status==='skipped';
+    if(!dm.has(domain))dm.set(domain,{name:domain,n:0,correct:0});const d=dm.get(domain);d.n++;if(r.correct&&!r.guessed)d.correct++;
+    const key=domain+' / '+skill;if(!sm.has(key))sm.set(key,{name:key,weak:0,ids:[],methods:[]});const z=sm.get(key);
+    if(weak){z.weak++;z.ids.push(n);const m=q.core_method||q.skill;if(m&&!z.methods.includes(m))z.methods.push(m);}
+  }
+  const domains=[...dm.values()].sort((a,b)=>(b.correct/Math.max(1,b.n))-(a.correct/Math.max(1,a.n)));
+  const weakSkills=[...sm.values()].filter(x=>x.weak>0).sort((a,b)=>b.weak-a.weak).slice(0,5);
+  const strengths=domains.filter(x=>x.n>=2&&x.correct/x.n>=.75).slice(0,3);
+  const cells=per.map((r,i)=>{const color=r.result_status==='skipped'?'#94a3b8':r.result_status==='unable'?'#7c3aed':!r.correct?'#ef4444':r.guessed?'#f59e0b':'#15966b';const title='第'+(r.index||i+1)+'题：'+(r.result_status==='unable'?'不会':r.result_status==='skipped'?'未做':!r.correct?'答错':r.guessed?'猜对':'独立答对');return '<div title="'+esc(title)+'" style="height:24px;border-radius:4px;background:'+color+';display:flex;align-items:center;justify-content:center;color:white;font-size:10px">'+(r.index||i+1)+'</div>';}).join('');
+  const next=[];
+  if(unable.length)next.push('先复盘'+unable.map(r=>'第'+r.index+'题').join('、')+'：说清第一步从哪里入手，再做1道同方法变式。');
+  if(wrong.length)next.push('针对'+wrong.map(r=>'第'+r.index+'题').join('、')+'逐题标注错因，区分知识缺口、方法选择和计算执行，不直接重复原题。');
+  if(guessed.length)next.push('把猜对的'+guessed.map(r=>'第'+r.index+'题').join('、')+'列为待确认掌握，隔几天用新题复测。');
+  if(skipped.length)next.push('检查'+skipped.map(r=>'第'+r.index+'题').join('、')+'是否由时间不足造成，再决定是否安排中后段限时训练。');
+  if(!next.length)next.push('本套没有记录到错题、猜题或漏题；保留综合训练，并通过下一套新题验证是否稳定掌握。');
+  wrap.innerHTML=`<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap"><div><div class="muted">LATEST FULL MOCK · LEARNING REPORT</div><h3 style="margin:4px 0">${esc(latest.date||'日期未知')} · ${esc(latest.paper_id||latest.mock_key||'周末模拟')}</h3><div class="small">仅依据这套模拟的逐题记录；不与每日专项成绩混算。</div></div><div style="font-size:30px;font-weight:800;color:#172b4d">${Number.isFinite(+latest.score)?latest.score:correct}<span class="muted" style="font-size:14px"> / 25</span></div></div>
+  <div class="grid" style="margin-top:12px"><div class="card"><div class="muted">答对</div><div class="big">${correct}</div></div><div class="card"><div class="muted">独立正确</div><div class="big">${independent}</div></div><div class="card"><div class="muted">答错 / 不会</div><div class="big">${wrong.length} / ${unable.length}</div></div><div class="card"><div class="muted">猜对 / 未做</div><div class="big">${guessed.length} / ${skipped.length}</div></div></div>
+  <div style="margin-top:14px"><h3>逐题表现</h3><div style="display:grid;grid-template-columns:repeat(25,minmax(0,1fr));gap:4px">${cells}</div><div class="small" style="margin-top:6px">绿色：独立答对　橙色：猜对　红色：答错　紫色：不会　灰色：未做</div></div>
+  <div class="two" style="margin-top:14px"><div class="card"><h3>能力结构</h3>${domains.length?domains.map(d=>`<div style="margin:9px 0"><div style="display:flex;justify-content:space-between;gap:8px"><span>${esc(d.name)}</span><b>${d.correct}/${d.n} 独立正确</b></div><div style="height:7px;background:#e8edf4;border-radius:9px;overflow:hidden;margin-top:4px"><div style="height:100%;width:${Math.round(d.correct/Math.max(1,d.n)*100)}%;background:${d.correct/Math.max(1,d.n)>=.75?'#15966b':d.correct/Math.max(1,d.n)>=.5?'#f59e0b':'#ef4444'}"></div></div></div>`).join(''):'<p class="muted">题库知识点标签不足，暂不能分析。</p>'}</div>
+  <div class="card"><h3>本次诊断</h3><p><b>本次表现：</b>录入${attempted}/25题，独立正确${independent}题。${guessed.length?'另有'+guessed.length+'道猜对题暂不视为稳定掌握。':''}</p><p><b>相对稳定：</b>${strengths.length?strengths.map(x=>esc(x.name)+'（'+x.correct+'/'+x.n+'）').join('、'):'目前没有足够样本确认某一领域已稳定掌握。'}</p><p><b>需要关注：</b>${weakSkills.length?weakSkills.map(x=>esc(x.name)+'（'+x.weak+'题待复盘）').join('；'):'本套未识别出明确的知识点集中薄弱，但仍需用新题验证。'}</p><p class="small">这是基于作答记录和题库标签的自动诊断，不把少量样本包装成确定的能力结论。</p></div></div>
+  <div class="card" style="margin-top:12px"><h3>知识点与方法待复盘</h3>${weakSkills.length?weakSkills.map(x=>`<div style="padding:9px 0;border-bottom:1px solid #e7edf4"><b>${esc(x.name)}</b><div class="small">待复盘题号：${x.ids.map(n=>'Q'+n).join('、')}${x.methods.length?'；方法线索：'+x.methods.map(esc).join('、'):''}</div></div>`).join(''):'<p class="muted">当前没有待复盘的知识点。</p>'}</div>
+  <div class="card" style="margin-top:12px;border-left:4px solid #5965e8"><h3>下一步训练建议</h3><ol>${next.map(x=>'<li style="margin:7px 0">'+esc(x)+'</li>').join('')}</ol><p class="small">后续周中训练应使用新题或同方法变式题；近期已练过的原题不应直接重复。</p></div>`;
+  host.appendChild(wrap);
 }
 
 // v0.6.5.1 — read-only, persistent per-question review for daily paper sessions.
@@ -2183,7 +2222,7 @@ initV063();
 <script src="coach_v0641.js"></script>
 
 <!-- AMC8 v0.6.4.2 SAFE SKILL MODULE: BEGIN -->
-<script src="coach_skill_import_v4_offline.js?v=0.6.5.12"></script>
+<script src="coach_skill_import_v4_offline.js?v=0.6.5.13"></script>
 <!-- Legacy panel disabled: knowledge lives in its dedicated view, owned by index.html. -->
 <script src="coach_mock_submission_guard.js"></script>
 <!-- AMC8 v0.6.4.2 SAFE SKILL MODULE: END -->
@@ -2275,6 +2314,6 @@ async function startup(){
 startup();
 })();
 </script>
-<script src="coach_review_cycle_v065.js?v=0.6.5.12"></script>
-<script src="coach_ai_transfer_review_v066.js?v=0.6.5.12"></script>
+<script src="coach_review_cycle_v065.js?v=0.6.5.13"></script>
+<script src="coach_ai_transfer_review_v066.js?v=0.6.5.13"></script>
 </body></html>
