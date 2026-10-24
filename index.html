@@ -1348,7 +1348,7 @@ function undoTodayDailySubmission(){
   if(!p||p.date!==today()||!p.submitted){alert('今天没有可撤销的每日3题提交。');return}
   if(!confirm(`撤销今天这次每日3题提交？\n卷号：${pid}\n只删除今天这一套的作答和统计，不删除题库。`))return;
   const ids=new Set(p.question_ids||[]);
-  S.attempts=(S.attempts||[]).filter(a=>!(a.date===today()&&a.source==='paper_daily'&&ids.has(a.question_id)));
+  S.attempts=(S.attempts||[]).filter(a=>!(a.date===today()&&['paper_daily','ai_transfer_review'].includes(a.source)&&ids.has(a.question_id)));
   S.daily_sessions=(S.daily_sessions||[]).filter(x=>!(x.date===today()&&x.source==='paper_daily'&&x.paper_id===pid));
   // 重建受影响技能：从SEED基线开始，再重放保留下来的后续记录。
   for(const id of ids){
