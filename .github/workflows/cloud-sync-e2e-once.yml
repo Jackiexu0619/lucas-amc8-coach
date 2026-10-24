@@ -1,0 +1,22 @@
+name: One-time live cloud sync round-trip QA
+
+on:
+  push:
+    paths:
+      - 'cloud_sync_e2e_once.cjs'
+      - '.github/workflows/cloud-sync-e2e-once.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  live-cloud-roundtrip:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Verify live Supabase sync contract
+        run: node cloud_sync_e2e_once.cjs
