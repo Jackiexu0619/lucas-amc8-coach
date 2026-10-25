@@ -78,4 +78,22 @@ task=window.amcAiTransferV066.queue().tasks.find(t=>t.origin_question_id===origi
 assert.equal(task.status,'completed','four independent passes complete the review loop');
 assert.equal(task.due,null,'completed task has no due date');
 assert.equal(ctx.qById('ai_transfer_rework_20261024_026').official,false,'AI question is not marked official');
-console.log('PASS 24 assertions: gated pilot count, diagnostic isolation, daily-slot integration, locked-paper persistence, source mapping, 7/14/30 spacing, completion, and AI/official separation.');
+
+S.attempts=[{question_id:original.id,date:'2026-10-24',correct:true,guessed:false,hint_level:0,result_status:'correct',error_type:'time_issue',error_detail:'correct_but_slow',source:'paper_daily'}];
+S.daily_sessions=[];S.daily_plan=null;window.__amcAiTransferSelected=null;
+q=window.amcAiTransferV066.queue();
+task=q.tasks.find(t=>t.origin_question_id===original.id);
+assert.ok(task&&task.status==='pending','a correct-but-slow original question must trigger same-method AI review');
+assert.equal(task.last_result,'source_question_failed');
+
+S.attempts=[
+  {question_id:original.id,date:'2026-10-24',correct:false,guessed:false,result_status:'wrong',source:'paper_daily'},
+  {question_id:'ai_transfer_rework_20261024_023',date:'2026-10-27',correct:true,guessed:false,hint_level:0,error_type:'time_issue',error_detail:'correct_but_slow',source:'ai_transfer_review',method_group:'prime_factor_divisors',review_origin_question_id:original.id}
+];
+S.daily_sessions=[];S.daily_plan=null;window.__amcAiTransferSelected=null;
+q=window.amcAiTransferV066.queue();
+task=q.tasks.find(t=>t.origin_question_id===original.id);
+assert.equal(task.stage,0,'a correct-but-slow AI transfer does not advance mastery stage');
+assert.equal(task.last_result,'not_independent_pass');
+
+console.log('PASS: AI transfer loop preserves diagnostic isolation, same-method retests, 7/14/30 spacing, completion, and correct-but-slow handling.');
