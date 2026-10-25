@@ -13,7 +13,18 @@ Keep the learning loop simple and evidence-based:
 ## Current production baseline
 
 - Production branch: `main`
-- Production page version: `v0.6.5.15` (dashboard merged; Pages deployment pending final status check)
+- Production page version: `v0.6.5.17` (Pages deployment and deployed-browser smoke confirmed successful on 2026-10-25); release candidate `v0.6.5.18` is on branch `fix/learning-loop-integration-v06518` and is not yet deployed.
+
+## v0.6.5.18 release candidate — learning-loop integration fixes
+
+- Confirmed by script load-order inspection: the final coach_learning_closure_v06514.js override of buildArchiveMockCore() discarded the filtered archive and reserved-year options passed by coach_v064.js. The active override now preserves and records the filter.
+- Correct-but-slow weekday attempts now remain eligible for targeted retesting; parent-marked time_issue on a correct weekend answer is saved and enters the review queue.
+- AI transfer review now treats correct-but-slow source attempts as a reason to start a same-method transfer, and correct-but-slow AI answers do not advance mastery.
+- Skill evidence no longer labels repeated slow performance as stable.
+- Regression coverage added for reserved-year exclusion through the final active override and for weekday/weekend/AI correct-but-slow paths.
+- QA: mock assembly PASS — https://github.com/Jackiexu0619/lucas-amc8-coach/actions/runs/40153030047; learning closure PASS — https://github.com/Jackiexu0619/lucas-amc8-coach/actions/runs/40153017475; AI transfer review PASS — https://github.com/Jackiexu0619/lucas-amc8-coach/actions/runs/40152914249; dashboard QA PASS — https://github.com/Jackiexu0619/lucas-amc8-coach/actions/runs/40153017472.
+- Release gate still open: review/merge PR, confirm GitHub Pages deploys v0.6.5.18, then rerun deployed-browser smoke against that exact live build. No learner records or Supabase data were changed by these tests.
+
 - Reference product: https://luminamath.top/student
 - Preserve the current locked/printed weekend paper and all existing learner/cloud records.
 - AI-created transfer questions remain separate from official AMC8 weekend mocks and official diagnostic scores.
