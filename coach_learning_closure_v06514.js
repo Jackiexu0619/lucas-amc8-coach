@@ -110,6 +110,22 @@ function summarizeWeakness(records) {
   }
   return [...groups.values()].sort((a,b)=>b.weight-a.weight).slice(0,8);
 }
+function latestCompleteMockDetail(state={}) {
+  const history=Array.isArray(state.mock_detail_history)?state.mock_detail_history:[];
+  for(let i=history.length-1;i>=0;i--){
+    const row=history[i];
+    if(row&&Array.isArray(row.per_question)&&row.per_question.length===25)return row;
+  }
+  return null;
+}
+function selectionEvidenceFor(state={},latest=latestCompleteMockDetail(state)) {
+  if(latest){
+    const evidence=latest.selection_meta;
+    return evidence&&Array.isArray(evidence.weekly_weakness_coverage)?evidence:null;
+  }
+  const current=state.printable_mock_meta;
+  return current&&Array.isArray(current.weekly_weakness_coverage)?current:null;
+}
 function selectArchivePaper(options={}) {
   const bank=Array.isArray(options.bank)?options.bank:[],state=options.state||{},tagMap=tagMapOf(options.tagMap);
   const today=options.today||new Date().toISOString().slice(0,10),random=typeof options.randomFn==='function'?options.randomFn:Math.random;
@@ -159,7 +175,7 @@ function selectArchivePaper(options={}) {
 }
 root.__amcDailyQuestionCooldownIds=dailyQuestionCooldownIds;
 if(typeof module!=='undefined'&&module.exports){
-  module.exports={POSITIONS,resolveTags,classifyMatch,matchesFor,affinityFor,summarizeWeakness,selectArchivePaper,dailyQuestionCooldownIds};
+  module.exports={POSITIONS,resolveTags,classifyMatch,matchesFor,affinityFor,summarizeWeakness,selectArchivePaper,dailyQuestionCooldownIds,latestCompleteMockDetail,selectionEvidenceFor};
   return;
 }
 
@@ -254,15 +270,15 @@ function renderClosurePanel(){
   try{records=typeof weeklyWeakRecords==='function'?weeklyWeakRecords():[];}catch(e){}
   const mappedRecords=records.filter(r=>mapped(r.tags||{}));
   const focus=typeof weeklyWeaknessSummary==='function'?weeklyWeaknessSummary():[];
-  const latest=(state.mock_detail_history||[]).filter(x=>x&&Array.isArray(x.per_question)&&x.per_question.length).slice(-1)[0]||null;
-  const selection=state.printable_mock_meta&&Array.isArray(state.printable_mock_meta.weekly_weakness_coverage)?state.printable_mock_meta:(latest&&latest.selection_meta?latest.selection_meta:null);
+  const latest=latestCompleteMockDetail(state);
+  const selection=selectionEvidenceFor(state,latest);
   const tasks=((state.v065_review_cycle&&state.v065_review_cycle.tasks)||[]).filter(t=>t&&t.status==='pending').sort((a,b)=>(b.priority||0)-(a.priority||0)||String(a.due||'').localeCompare(String(b.due||''))).slice(0,5);
   const focusHtml=focus.length?'<ul>'+focus.slice(0,4).map(x=>'<li><b>'+escHtml(x.group_key||x.skill||'未标注')+'</b>：'+x.count+'条'+(x.method?'；方法线索：'+escHtml(x.method):'')+'</li>').join('')+'</ul>':'<p>近7天暂无可可靠归类的周中薄弱记录。</p>';
   const coverage=selection&&Array.isArray(selection.weekly_weakness_coverage)?selection.weekly_weakness_coverage:[];
   const coverageHtml=coverage.length?'<ul>'+coverage.map(x=>{
     const matches=(x.matches||[]).slice(0,2).map(m=>escHtml(m.match_type||'标签匹配')+'：'+escHtml(m.group_key||m.skill||m.method||'题库标签')+'（来源'+escHtml(m.question_id||'未知题目')+'）').join('；');
     return '<li><b>Q'+x.position+'</b> → '+escHtml(x.question_id)+'：'+(matches||escHtml(x.selection_reason||'无可靠匹配，按原题号难度与去重规则选题'))+'</li>';
-  }).join('')+'</ul>':'<p>尚无可验证的个性化选题记录；本周已打印试卷不会回写或重组。下一套新卷会记录实际匹配证据。</p>';
+  }).join('')+'</ul>':latest?'<p>这套已完成模拟未保存可验证的选题证据；不会拿当前锁定卷的证据冒充历史卷的选题依据。</p>':selection?'<p>当前锁定的新卷尚无可验证的个性化选题证据。</p>':'<p>尚无可验证的个性化选题记录；本周已打印试卷不会回写或重组。下一套新卷会记录实际匹配证据。</p>';
   const taskHtml=tasks.length?'<ol>'+tasks.map(t=>'<li><b>'+escHtml(t.skill||'待核对考点')+'</b>：'+escHtml(t.source||'专项复测')+'；'+escHtml(['次日迁移','7天保持','14天保持','30天回测'][Math.min(3,t.stage||0)])+'；计划日期 '+escHtml(t.due||'待安排')+'</li>').join('')+'</ol>':'<p>当前没有可列出的待复测任务。标签不足时会保留未映射记录，不伪造考点；可映射的错题会进入现有复测队列。</p>';
   let mockSummary='<p>尚无已提交的完整模拟明细。</p>';
   if(latest){
