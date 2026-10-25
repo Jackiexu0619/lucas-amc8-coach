@@ -71,7 +71,7 @@ assert.ok(cooldown30.has('pending_daily_q'),'pending daily paper must always be 
 const cooldown7=dailyQuestionCooldownIds(cooldownState,'2026-10-25',7);
 assert.ok(!cooldown7.has('attempt_30d'),'14/7-day fallback should relax old attempted questions');
 assert.ok(cooldown7.has('locked_weekend_q')&&cooldown7.has('pending_daily_q'),'fallback must never reuse locked papers');
-const submittedDaily=dailyQuestionCooldownIds({daily_plan:{date:'2026-10-01',question_ids:['old_submitted_daily_q'],submitted:true}},'2026-10-25',30);
+const submittedDaily=dailyQuestionCooldownIds({daily_plan:{date:'2026-09-20',question_ids:['old_submitted_daily_q'],submitted:true}},'2026-10-25',30);
 assert.ok(!submittedDaily.has('old_submitted_daily_q'),'old submitted daily paper should age out normally');
 const recentSubmittedDaily=dailyQuestionCooldownIds({daily_plan:{date:'2026-10-20',question_ids:['recent_submitted_daily_q'],submitted:true}},'2026-10-25',30);
 assert.ok(recentSubmittedDaily.has('recent_submitted_daily_q'),'recent submitted daily paper should be covered by the cooldown');
