@@ -80,7 +80,7 @@ for (let i = 0; i < 25; i++) {
     domain: 'misc',
     skill: 'archive_unclassified_' + (i + 1),
     core_method: 'archive_method_' + (i + 1),
-assert.match(rendered, /Compare powers of two: 2\^9=512 and 2\^10=1024/);
+    solution_html: i === 0 ? '<p>Compare powers of two: 2^9=512 and 2^10=1024.</p>' : '',
     solution_source_url: 'https://live.poshenloh.com/past-contests/amc8/' + (i === 0 ? 2013 : 2018) + '/solutions'
   });
 }
