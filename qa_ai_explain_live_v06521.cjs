@@ -16,10 +16,10 @@ async function main(){
     if(request.url().endsWith('/functions/v1/amc8-explain'))requests.push(Object.keys(request.headers()));
   });
   try{
-    await page.goto('https://jackiexu0619.github.io/lucas-amc8-coach/?qa=live-v06521',
+    await page.goto('https://jackiexu0619.github.io/lucas-amc8-coach/?qa=live-v06522',
       {waitUntil:'domcontentloaded'});
     await page.waitForFunction(()=>typeof ARCHIVE_BANK!=='undefined'&&ARCHIVE_BANK.length===575,null,{timeout:60000});
-    assert.match(await page.locator('h1').innerText(),/v0\.6\.5\.21/);
+    assert.match(await page.locator('h1').innerText(),/v0\.6\.5\.22/);
     const original=await page.evaluate(()=>({paper:S.printable_mock_id,
       questions:JSON.stringify(S.printable_mock_questions||[]),attempts:(S.attempts||[]).length}));
     await page.evaluate(qaCode=>{
