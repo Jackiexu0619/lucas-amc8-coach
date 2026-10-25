@@ -52,7 +52,7 @@ const errors = [];
     await page.locator('#guidedStudentDashboard').waitFor({ state: 'attached', timeout: 30000 });
     const deployedTitle = await page.title();
     console.log('Observed deployed title: ' + deployedTitle);
-    assert.match(deployedTitle, /Lucas AMC8 Coach v0\.6\.5\.18/, 'live site must be exactly v0.6.5.19');
+    assert.match(deployedTitle, /Lucas AMC8 Coach v0\.6\.5\.19/, 'live site must be exactly v0.6.5.19');
     assert.ok((await page.locator('#guidedStudentDashboard').innerText()).includes('YOUR AMC8 LEARNING PATH'),
       'guided learning path should render');
 
@@ -90,6 +90,22 @@ const errors = [];
       }, item.section);
       const contentLength = (await section.innerText()).trim().length;
       assert.ok(contentLength > 30, item.button + ' view should render meaningful content (got ' + contentLength + ' chars)');
+
+      if (item.button === '周末模拟') {
+        const guess = page.locator('#mockQuestionBox label.guess-prompt input[type="checkbox"]');
+        await guess.check();
+        const answerA = page.locator('#mockQuestionBox button[data-question-index="0"][data-answer="A"]');
+        await answerA.click();
+        const questionText = await page.locator('#mockQuestionBox').innerText();
+        assert.ok(questionText.includes('第 2 / 25 题'), 'clicking A should automatically advance from Q1 to Q2');
+        const afterAnswer = await page.evaluate(key => JSON.parse(localStorage.getItem(key) || 'null'), 'lucas_amc8_coach_v05');
+        assert.equal(afterAnswer.mock_drafts[weekendPaperId].answers['0'], 'A', 'selected answer should be saved to the isolated draft');
+        assert.equal(afterAnswer.mock_drafts[weekendPaperId].guesses['0'], true, 'guess marker should survive answer selection');
+        assert.equal((afterAnswer.attempts || []).length, 0, 'answer selection must not submit learner attempts');
+        assert.equal((afterAnswer.mock_detail_history || []).length, 0, 'answer selection must not submit a mock result');
+        assert.equal((afterAnswer.daily_sessions || []).length, 0, 'answer selection must not write daily result sessions');
+        assert.doesNotMatch(questionText, /录入 Lucas 纸上的答案/, 'duplicate answer-entry label should be absent');
+      }
       await assertLockedPapers(item.button);
     }
 
@@ -97,7 +113,7 @@ const errors = [];
       'returning home must not duplicate the guided dashboard');
     assert.deepEqual(errors, [], 'navigation should not produce uncaught JavaScript errors');
 
-    console.log('PASS: exact v0.6.5.19 live build, all six navigation destinations, locked weekend/daily paper preservation, no test answers written, return-home rendering, and zero uncaught page errors.');
+    console.log('PASS: exact v0.6.5.19 live build, clickable answer auto-advance, guess preservation, locked weekend/daily paper preservation, no submitted test results, all six navigation destinations, return-home rendering, and zero uncaught page errors.');
   } finally {
     await context.close();
     await browser.close();
