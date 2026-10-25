@@ -71,7 +71,7 @@ const errors = [];
     await page.locator('#guidedStudentDashboard').waitFor({ state: 'attached', timeout: 30000 });
     const deployedTitle = await page.title();
     console.log('Observed deployed title: ' + deployedTitle);
-    assert.match(deployedTitle, /Lucas AMC8 Coach v0\.6\.5\.19/, 'live site must be exactly v0.6.5.19');
+    assert.match(deployedTitle, /Lucas AMC8 Coach v0\.6\.5\.19/, 'live site must be exactly v0.6.5.20');
     assert.ok((await page.locator('#guidedStudentDashboard').innerText()).includes('YOUR AMC8 LEARNING PATH'),
       'guided learning path should render');
 
