@@ -54,4 +54,70 @@ assert.deepEqual(JSON.parse(JSON.stringify(rows)), [
 const solutionKey = vm.runInNewContext(html.slice(start, end) + '\nsolutionKey', {});
 assert.equal(solutionKey(2013, 9), '2013_9');
 
+// Render a representative full-paper report to verify actual output, not only source markers.
+const reportStart = html.indexOf('function renderLatestMockInsightsIntoReport(){');
+const reportEnd = html.indexOf('function renderDailyReviewIntoReport(){', reportStart);
+assert.ok(reportStart >= 0 && reportEnd > reportStart, 'the latest-mock report renderer should be extractable');
+const reportSource = html.slice(reportStart, reportEnd);
+const questionMap = new Map();
+for (let i = 0; i < 25; i++) {
+  questionMap.set('q' + i, {
+    id: 'q' + i,
+    year: i === 0 ? 2013 : 2018,
+    problem_number: i + 1,
+    answer: i === 0 ? 'C' : 'A',
+    archive_image: 'assets/test_' + i + '.webp',
+    domain: 'misc',
+    skill: 'archive_unclassified_' + (i + 1),
+    core_method: 'archive_method_' + (i + 1),
+    solution_html: i === 0 ? '<p>Compare powers of two: 2^9=512 and 2^10=1024.</p>' : '',
+    solution_source_url: 'https://live.poshenloh.com/past-contests/amc8/' + (i === 0 ? 2013 : 2018) + '/solutions'
+  });
+}
+const mockPerQuestion = Array.from({ length: 25 }, (_, i) => ({
+  qid: 'q' + i,
+  index: i + 1,
+  selected_answer: i === 0 ? 'B' : 'A',
+  result_status: i === 0 ? 'wrong' : 'correct',
+  correct: i !== 0,
+  guessed: false,
+  attempted: true,
+  answer: i === 0 ? 'C' : 'A'
+}));
+const reportHost = { appended: null, appendChild(node) { this.appended = node; } };
+const reportContext = {
+  S: { mock_detail_history: [{
+    date: '2026-10-25', paper_id: 'QA-MOCK', question_ids: Array.from({ length: 25 }, (_, i) => 'q' + i),
+    per_question: mockPerQuestion, score: 24, independent_score: 24, attempted: 25, total_minutes: 40
+  }] },
+  SOLUTION_BANK: new Map(),
+  document: {
+    getElementById(id) { return id === 'report' ? reportHost : null; },
+    createElement() { return { className: '', style: {}, id: '', innerHTML: '' }; }
+  },
+  qById(id) { return questionMap.get(id); },
+  learningTags(q) { return { topic: q.id === 'q0' ? '指数规律' : '组合', skill: q.id === 'q0' ? '幂的比较' : '', method: q.id === 'q0' ? '比较相邻的2的幂' : '', groupKey: '' }; },
+  zhDomain(x) { return x || '未标注'; },
+  zhSkill(x) { return x || '未标注'; },
+  esc(x) { return String(x ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); },
+  solutionKey(year, number) { return String(Number(year)) + '_' + String(Number(number)); },
+  sanitizeSolutionHtml(raw) { return String(raw || ''); },
+  mockReviewPromptHtml(q) { return '<img src="' + q.archive_image + '">'; },
+  mockReviewPromptChoicesHtml() { return ''; },
+  mockReviewAnswerText(q, letter) { return String(letter || ''); },
+  mockReviewStatus(r) { return r.result_status === 'wrong' ? '答错' : r.guessed ? '猜对 · 待确认掌握' : '独立答对'; },
+  console
+};
+vm.createContext(reportContext);
+vm.runInContext(reportSource + '\nrenderLatestMockInsightsIntoReport()', reportContext);
+const rendered = reportHost.appended?.innerHTML || '';
+assert.match(rendered, /逐题答案与解法/);
+assert.match(rendered, /你的答案：B/);
+assert.match(rendered, /正确答案：C/);
+assert.match(rendered, /Compare powers of two: 2\^9=512 and 2\^10=1024/);
+assert.match(rendered, /本地题库暂未保存这道题的完整推导/);
+assert.match(rendered, /打开2018年 AMC8 完整解析/);
+assert.equal((rendered.match(/class="mock-review-item"/g) || []).length, 25, 'all 25 questions should appear in the report');
+assert.match(rendered, /<details class="mock-review-item" open>/, 'the incorrect question should be expanded by default');
+
 console.log('PASS: per-question answer report, solution-bank indexing, source fallback links, honest missing-solution state, safe HTML, and solution normalization.');
