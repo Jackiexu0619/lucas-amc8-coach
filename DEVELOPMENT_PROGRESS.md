@@ -13,18 +13,19 @@ Keep the learning loop simple and evidence-based:
 ## Current production baseline
 
 - Production branch: `main`
-- Production page version: `v0.6.5.18` (merged to main; Pages deployment and exact-version deployed-browser smoke passed on 2026-10-25).
+- Production page version: `v0.6.5.19` (PR #8 merged; Pages deployment and exact-version browser smoke passed on 2026-10-25).
 
-## v0.6.5.19 — interactive mock answer UX (PR pending; not deployed)
+## v0.6.5.19 — deployed and browser-verified
 
-- Production remains `v0.6.5.18`; the interactive-answer changes are isolated on branch `fix/interactive-mock-answers-v06519`.
-- The active mock question now renders a single interactive answer control set. For image-based archive questions whose image already contains the full options, the controls are compact A–E buttons only; the redundant non-clickable “A. A / B. B” list is removed.
-- Clicking A–E saves the draft and advances automatically. The guess checkbox remains available before selection. “不会” and “未做” stay distinct and also advance; the final Q25 remains visible and shows the completion instruction.
-- The expanded 25-question preview uses the same clickable controls, so it no longer has a separate answer-entry system.
-- Added `qa_mock_answer_interaction_v06519.cjs` to test image-placeholder choices, structured choices, auto-advance, guess preservation, unable/skip separation, preview consistency and Q25 completion.
-- Pending validation: run CI, inspect the PR diff, merge only after tests pass, then deploy and run browser smoke against exact `v0.6.5.19`. No production learner records or Supabase data are changed by the UX tests.
-
-
+- PR #8 merged to main: https://github.com/Jackiexu0619/lucas-amc8-coach/pull/8.
+- Image-based archive questions now use one compact clickable A–E row instead of the duplicate non-clickable “A. A / B. B” list plus a second answer-entry section.
+- Structured questions render actual answer choice text as clickable buttons. Clicking A–E saves the existing paper draft and automatically advances to the next question.
+- The “这题是猜的” checkbox remains available before selection. “不会” and “未做” remain separate actions and also advance; Q25 stays visible with a clear completion instruction.
+- The expanded 25-question preview uses the same interactive controls.
+- Interactive QA PASS — https://github.com/Jackiexu0619/lucas-amc8-coach/actions/runs/40159365810. Existing mock assembly, learning-closure and dashboard QA also PASS on main: https://github.com/Jackiexu0619/lucas-amc8-coach/actions/runs/40159433852 ; https://github.com/Jackiexu0619/lucas-amc8-coach/actions/runs/40159433842 ; https://github.com/Jackiexu0619/lucas-amc8-coach/actions/runs/40159433874.
+- GitHub Pages deployment PASS — https://github.com/Jackiexu0619/lucas-amc8-coach/actions/runs/40159433556.
+- Exact v0.6.5.19 deployed-browser smoke PASS — https://github.com/Jackiexu0619/lucas-amc8-coach/actions/runs/40159596497. In isolated storage, clicking A on Q1 advanced to Q2, saved the answer and preserved the guess marker; it did not submit attempts/results, and the locked weekend and pending daily paper identities/question lists remained unchanged. All six navigation destinations worked and no uncaught JavaScript errors were reported.
+- The smoke test uses a disposable browser context; no real learner records or production Supabase data were modified. Release gate closed for v0.6.5.19.
 
 ## v0.6.5.18 — deployed and browser-verified
 
