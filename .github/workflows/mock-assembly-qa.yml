@@ -14,6 +14,7 @@ on:
       - 'coach_ai_explain_v06521.js'
       - 'qa_ai_explain_v06521.cjs'
       - 'qa_ai_explain_browser_v06521.cjs'
+      - 'qa_ai_explain_live_v06521.cjs'
       - 'supabase/functions/amc8-explain/**'
       - 'supabase/migrations/*amc8_explain_quota.sql'
       - '.github/workflows/mock-assembly-qa.yml'
@@ -30,6 +31,7 @@ on:
       - 'coach_ai_explain_v06521.js'
       - 'qa_ai_explain_v06521.cjs'
       - 'qa_ai_explain_browser_v06521.cjs'
+      - 'qa_ai_explain_live_v06521.cjs'
       - 'supabase/functions/amc8-explain/**'
       - 'supabase/migrations/*amc8_explain_quota.sql'
       - '.github/workflows/mock-assembly-qa.yml'
@@ -44,7 +46,7 @@ jobs:
         with:
           node-version: 20
       - name: Syntax check
-        run: node --check coach_mock_assembly_v06514.js && node --check coach_ai_explain_v06521.js
+        run: node --check coach_mock_assembly_v06514.js && node --check coach_ai_explain_v06521.js && node --check qa_ai_explain_live_v06521.cjs
       - name: Inline script syntax check
         run: |
           node - <<'NODE'
