@@ -66,7 +66,7 @@ const answerHelperStart = html.indexOf('function mockReviewChoicePlain(value){')
 const answerHelperEnd = html.indexOf('function mockReviewStatus(r){', answerHelperStart);
 assert.ok(answerHelperStart >= 0 && answerHelperEnd > answerHelperStart, 'answer display helpers should be extractable');
 const answerHelpers = vm.runInNewContext(html.slice(answerHelperStart, answerHelperEnd) + '\n({ mockReviewChoicePlain, mockReviewAnswerText })', {});
-assert.equal(answerHelpers.mockReviewChoicePlain('\\\\frac{1}{2}'), '1/2');
+assert.equal(answerHelpers.mockReviewChoicePlain('\\frac{1}{2}'), '1/2');
 assert.equal(answerHelpers.mockReviewAnswerText({archive_image:'x.webp',choice_texts:['9th','10th','11th','12th','13th']}, 'C'), 'C. 11th');
 const questionMap = new Map();
 for (let i = 0; i < 25; i++) {
