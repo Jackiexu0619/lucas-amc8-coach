@@ -15,9 +15,11 @@ async function main(){
   assert.equal(validateRequest({sync_code:'A'.repeat(32),paper_id:'p',question_id:'archive_9999_01',result_status:'wrong'},catalog).error,'unknown_question');
   const deepseek=buildDeepSeekRequest(input);
   assert.equal(MODEL,'deepseek-flash');
+  assert.equal(deepseek.reasoning_effort,'none');
+  assert.equal(JSON.stringify(deepseek).includes('official_answer'),false,'the official answer must not bias the model');
   assert.equal(deepseek.messages[1].content[1].image_url.url,'https://jackiexu0619.github.io/lucas-amc8-coach/'+q.image);
   assert.equal(deepseek.response_format.type,'json_object');
-  const lesson={question_id:qid,answer_letter:q.answer,option_content:'选项内容',knowledge_point:'知识点',method:'初等方法',
+  const lesson={question_id:qid,answer_letter:q.answer,option_content:'16',computed_result:'16',knowledge_point:'知识点',method:'初等方法',
     entry_point:'先观察条件',steps:['写出关系','计算并核对'],common_mistake:'不要漏条件',mastery_tip:'独立复述第一步',
     recognized_question:'题干摘要',image_sufficient:true};
   const payload=value=>({choices:[{finish_reason:'stop',message:{content:JSON.stringify(value)}}]});
@@ -25,6 +27,7 @@ async function main(){
   assert.equal(parseDeepSeekResponse(payload({...lesson,question_id:'archive_2000_02'}),input).error,'question_mismatch');
   assert.equal(parseDeepSeekResponse(payload({...lesson,answer_letter:'A'}),input).error,q.answer==='A'?undefined:'answer_mismatch');
   assert.equal(parseDeepSeekResponse(payload({...lesson,image_sufficient:false}),input).error,'image_insufficient');
+  assert.equal(parseDeepSeekResponse(payload({...lesson,computed_result:'14'}),input).error,'answer_mismatch');
   assert.equal(parseDeepSeekResponse({choices:[{finish_reason:'stop',message:{content:'not json'}}]},input).error,'invalid_model_json');
   assert.equal(parseDeepSeekResponse({choices:[{finish_reason:'length',message:{content:JSON.stringify(lesson)}}]},input).error,'incomplete_model_output');
 

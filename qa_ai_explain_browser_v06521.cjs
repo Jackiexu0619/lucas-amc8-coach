@@ -28,7 +28,7 @@ async function main(){
       await route.fulfill({status:504,contentType:'application/json',body:JSON.stringify({error:'model_timeout_or_network'})});return;
     }
     const answer=catalog[request.question_id].answer;
-    const lesson={question_id:request.question_id,answer_letter:answer,recognized_question:'测试题意',option_content:'测试选项',
+    const lesson={question_id:request.question_id,answer_letter:answer,recognized_question:'测试题意',option_content:'测试选项',computed_result:'测试选项',
       knowledge_point:'测试知识点',method:'测试方法',entry_point:'先看条件',steps:['第一步','第二步'],
       common_mistake:'遗漏条件',mastery_tip:'独立复述'};
     await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({ok:true,lesson})});

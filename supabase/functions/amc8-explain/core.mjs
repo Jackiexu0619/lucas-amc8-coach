@@ -27,10 +27,10 @@ export function buildDeepSeekRequest(input){
   const q=input.question;
   const imageUrl=new URL(q.image,IMAGE_ORIGIN).href;
   const task={question_id:input.questionId,year:q.year,problem_number:q.number,
-    official_answer:q.answer,student_answer:input.answer||'未录入',result_status:input.status};
-  return {model:MODEL,stream:false,response_format:{type:'json_object'},max_tokens:1500,
+    student_answer:input.answer||'未录入',result_status:input.status};
+  return {model:MODEL,stream:false,reasoning_effort:'none',response_format:{type:'json_object'},max_tokens:2500,
     messages:[
-      {role:'system',content:'你是面向小学高年级 AMC8 学生的中文数学讲解老师。只根据用户提供的原题图片解题，不得补造看不清的题干或图形。使用初等数学，简洁且可复核。Lucas 的答案只能用于指出可能的错误环节；没有过程证据不能推测他的实际思路。必须输出 JSON 对象，字段为 question_id, answer_letter, option_content, knowledge_point, method, entry_point, steps(字符串数组), common_mistake, mastery_tip, recognized_question, image_sufficient(布尔值)。若图片信息不足，设 image_sufficient=false，其他讲解字段可为空。题库标准答案仅用于核对，不能为了迎合标准答案而伪造推导。'},
+      {role:'system',content:'你是面向小学高年级 AMC8 学生的中文数学讲解老师。只根据用户提供的原题图片独立解题，不得补造看不清的题干或图形。先算出结果，再从图片选项中找到一致的字母和内容；逐步推导的最终数值必须与选项内容一致。使用初等数学，简洁且可复核。Lucas 的答案只能用于指出可能的错误环节；没有过程证据不能推测他的实际思路。必须输出 JSON 对象，字段为 question_id, answer_letter, option_content, computed_result, knowledge_point, method, entry_point, steps(字符串数组), common_mistake, mastery_tip, recognized_question, image_sufficient(布尔值)。若图片信息不足，设 image_sufficient=false，其他讲解字段可为空。'},
       {role:'user',content:[
         {type:'text',text:'请阅读这张原题图片中的完整题干、选项和图形，独立推导，然后用 JSON 返回。题目元数据：'+JSON.stringify(task)},
         {type:'image_url',image_url:{url:imageUrl,detail:'original'}}
@@ -48,11 +48,14 @@ export function parseDeepSeekResponse(payload,input){
   if(value.image_sufficient!==true)return {error:'image_insufficient'};
   if(!/^[A-E]$/.test(value.answer_letter||''))return {error:'invalid_model_answer'};
   if(value.answer_letter!==input.question.answer)return {error:'answer_mismatch',model_answer:value.answer_letter};
-  const fields=['recognized_question','option_content','knowledge_point','method','entry_point','common_mistake','mastery_tip'];
+  const fields=['recognized_question','option_content','computed_result','knowledge_point','method','entry_point','common_mistake','mastery_tip'];
   if(fields.some(k=>typeof value[k]!=='string'||!value[k].trim()||value[k].length>1200))return {error:'invalid_model_fields'};
   if(!Array.isArray(value.steps)||value.steps.length<1||value.steps.length>8||value.steps.some(s=>typeof s!=='string'||!s.trim()||s.length>1000))return {error:'invalid_model_fields'};
+  const simpleNumber=s=>String(s).trim().replace(/[,，\s]/g,'').match(/^[-−]?\d+(?:\.\d+)?(?:%|岁|平方单位)?$/)?.[0]?.replace(/^−/,'-').replace(/(?:岁|平方单位)$/,'');
+  const computed=simpleNumber(value.computed_result),option=simpleNumber(value.option_content);
+  if(computed&&option&&computed!==option)return {error:'answer_mismatch'};
   return {ok:true,lesson:{question_id:input.questionId,answer_letter:value.answer_letter,
-    recognized_question:value.recognized_question,option_content:value.option_content,
+    recognized_question:value.recognized_question,option_content:value.option_content,computed_result:value.computed_result,
     knowledge_point:value.knowledge_point,method:value.method,entry_point:value.entry_point,
     steps:value.steps,common_mistake:value.common_mistake,mastery_tip:value.mastery_tip,
     source:'DeepSeek AI 生成，需对照原题与官方解法核查'}};

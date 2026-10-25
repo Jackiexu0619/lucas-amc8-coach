@@ -55,7 +55,7 @@ Deno.serve(async(req:Request)=>{
   try{
     upstream=await fetch('https://api.deepseek.com/chat/completions',{
       method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+apiKey},
-      body:JSON.stringify(buildDeepSeekRequest(input)),signal:AbortSignal.timeout(30000)
+      body:JSON.stringify(buildDeepSeekRequest(input)),signal:AbortSignal.timeout(55000)
     });
   }catch{return json(req,{error:'model_timeout_or_network'},504);}
   if(!upstream.ok)return json(req,{error:'model_unavailable'},502);

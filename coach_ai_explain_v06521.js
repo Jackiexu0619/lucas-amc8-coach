@@ -1,6 +1,6 @@
 /* On-demand explanations for the latest complete weekend mock. AI output never changes learning state. */
 (function(root){'use strict';
-const CACHE_KEY='lucas_amc8_ai_explain_v1';
+const CACHE_KEY='lucas_amc8_ai_explain_v2';
 const MESSAGES={sync_code_required:'本机尚未绑定已有云同步码。请先在家长设置中绑定；不会自动上传学习数据。',
   sync_code_unregistered:'同步码尚未在云端登记，无法使用 AI 讲解。',rate_limited:'本同步码的 AI 讲解额度暂时用完，请稍后再试。',
   service_not_configured:'AI 服务密钥尚未配置。',model_timeout_or_network:'AI 请求超时或网络不可用，请单题重试。',
@@ -65,7 +65,7 @@ function showLesson(host,lesson){
   }
   const steps=el('ol');for(const step of lesson.steps)steps.append(el('li',step));
   host.append(el('b','逐步推导：'),steps);
-  const answer=el('p');answer.append(el('b','题库标准答案：'),document.createTextNode(lesson.answer_letter+'；AI 识别的选项内容：'+lesson.option_content+'（请对照原题核查）'));host.append(answer);
+  const answer=el('p');answer.append(el('b','题库标准答案：'),document.createTextNode(lesson.answer_letter+'；AI 计算结果：'+lesson.computed_result+'；AI 识别的选项内容：'+lesson.option_content+'（请对照原题核查）'));host.append(answer);
   for(const [label,value] of [['易错提醒',lesson.common_mistake],['掌握建议',lesson.mastery_tip]]){
     const p=el('p');p.append(el('b',label+'：'),document.createTextNode(value));host.append(p);
   }
@@ -77,7 +77,7 @@ async function requestOne(item){
   if(code.length<20)throw Object.assign(new Error('sync_code_required'),{code:'sync_code_required'});
   let response;
   try{response=await fetch(CLOUD_CFG.url+'/functions/v1/amc8-explain',{
-    method:'POST',headers:cloudHeaders(),signal:AbortSignal.timeout(35000),
+    method:'POST',headers:cloudHeaders(),signal:AbortSignal.timeout(60000),
     body:JSON.stringify({sync_code:code,paper_id:item.paperId,question_id:item.question.id,
       student_answer:item.answer,result_status:item.status})
   });}catch{throw Object.assign(new Error('model_timeout_or_network'),{code:'model_timeout_or_network'});}
