@@ -9,6 +9,7 @@ on:
       - 'README.md'
       - 'coach_mock_assembly_v06514.js'
       - 'qa_mock_assembly_v06514.cjs'
+      - 'qa_mock_answer_interaction_v06519.cjs'
       - '.github/workflows/mock-assembly-qa.yml'
   pull_request:
     paths:
@@ -33,3 +34,5 @@ jobs:
         run: node --check coach_mock_assembly_v06514.js
       - name: Selector and integration QA
         run: node qa_mock_assembly_v06514.cjs
+      - name: Interactive mock answer UX QA
+        run: node qa_mock_answer_interaction_v06519.cjs
