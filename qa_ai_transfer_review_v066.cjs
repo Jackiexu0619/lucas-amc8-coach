@@ -25,7 +25,7 @@ const ctx={
  questionPromptHtml:q=>q.prompt||'official',
  questionSourceBadge:q=>q.official?'official':'',
  generateDailyPlan:function(excludeIds){
-   return officialDailyBank.filter(q=>!(excludeIds instanceof Set&&excludeIds.has(q.id))).slice(0,3);
+   return officialDailyBank.filter(q=>!(excludeIds&&typeof excludeIds.has==='function'?excludeIds.has(q.id):Array.isArray(excludeIds)&&excludeIds.includes(q.id))).slice(0,3);
   },
  dailyPlan:function(){
   if(S.daily_plan?.question_ids)return S.daily_plan.question_ids.map(id=>ctx.qById(id)).filter(Boolean);
@@ -105,7 +105,7 @@ assert.equal(task.last_result,'not_independent_pass');
 S.attempts=[{question_id:original.id,date:'2026-10-24',correct:false,guessed:false,result_status:'wrong',source:'weekend_mock'}];
 S.daily_sessions=[];S.daily_plan=null;window.__amcAiTransferSelected=null;
 const previousPaperIds=new Set([original.id,other.id,prob.id]);
-const regenerated=ctx.generateDailyPlan(previousPaperIds);
+const regenerated=ctx.generateDailyPlan([...previousPaperIds]);
 assert.equal(regenerated.length,3,'regenerating an old daily paper still returns three questions');
 assert.equal(regenerated[0].source,'ai_generated_review','due AI transfer must remain active when regeneration passes exclusions');
 assert.ok(regenerated.every(q=>!previousPaperIds.has(q.id)),'regenerated paper must exclude every old locked question');
