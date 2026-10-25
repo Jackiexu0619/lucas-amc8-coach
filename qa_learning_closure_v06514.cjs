@@ -84,7 +84,7 @@ const recentSubmittedDaily=dailyQuestionCooldownIds({daily_plan:{date:'2026-10-2
 assert.ok(recentSubmittedDaily.has('recent_submitted_daily_q'),'recent submitted daily paper should be covered by the cooldown');
 const indexHtml=fs.readFileSync('index.html','utf8');
 assert.match(indexHtml,/function eligibleDailyBank\(\)[\s\S]{0,2200}__amcDailyQuestionCooldownIds/,'daily bank must use the shared cooldown helper');
-assert.match(indexHtml,/const ENGINE_VERSION='0\\\\.6\\\\.5\\\\.(18|19)'|const ENGINE_VERSION='0\\.6\\.5\\.(18|19)'/,'engine version must match the current release');
+assert.match(indexHtml,/const ENGINE_VERSION='0\.6\.5\.(18|19)'/,'engine version must match the current release');
 
 
 const partialMock={date:'2026-10-24',score:7,per_question:Array.from({length:8},(_,i)=>({index:i+1,correct:false}))};
