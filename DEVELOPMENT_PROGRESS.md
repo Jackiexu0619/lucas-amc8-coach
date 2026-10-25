@@ -13,31 +13,34 @@ Keep the learning loop simple and evidence-based:
 ## Current production baseline
 
 - Production branch: `main`
-- Production page version verified before this change: `v0.6.5.20` on 2026-10-25. The v0.6.5.21 source is on a separate branch until merged and deployed.
+- Production page version: `v0.6.5.21`, verified from the deployed HTML and an isolated live browser on 2026-10-25. Main merge commit: `f4a8d17632a239d2c2f23d5b70bc30a25df5c0ef`.
 
-## v0.6.5.21 — on-demand DeepSeek mock explanations (release in progress)
+## v0.6.5.21 — on-demand DeepSeek mock explanations (deployed and browser-verified)
 
 - Added a manual button to the latest complete mock report. It includes wrong, unable, skipped and guessed-correct questions, displays batch progress, preserves successful explanations if another item fails, and offers per-question retry. Independent correct responses trigger no request.
 - The separate browser cache is bound to engine version, paper ID, question ID, image path, prompt, choices and official answer. It never changes attempts, scores, mastery or the locked mock.
 - `amc8-explain` sends the canonical archive image to DeepSeek Vision, checks returned question ID and answer against the canonical catalog, and rejects incomplete or mismatched responses. Original solution material remains available. Only text nodes render model output.
 - Server authorization checks the existing sync-code hash without reading or changing learning payload. A separate RLS-enabled quota table limits each registered code to 10 requests per minute and 30 per UTC day. No new learning-data table or migration is involved.
 - Local automated QA passed for inline syntax, mock assembly, answer interaction, learning report, learning closure, AI explanation failures/cache/retry and an isolated desktop/mobile Playwright browser with mocked API responses. These tests do not spend DeepSeek credits or touch real learner data.
-- PR #10 is open as a draft: https://github.com/Jackiexu0619/lucas-amc8-coach/pull/10. GitHub Actions on the mobile-assertion revision passed for mock assembly/browser QA (https://github.com/Jackiexu0619/lucas-amc8-coach/actions/runs/40169307553), learning closure (https://github.com/Jackiexu0619/lucas-amc8-coach/actions/runs/40169307484), and dashboard (https://github.com/Jackiexu0619/lucas-amc8-coach/actions/runs/40169307482).
+- PR #10 merged: https://github.com/Jackiexu0619/lucas-amc8-coach/pull/10. Final-branch GitHub Actions passed for mock assembly/browser QA (https://github.com/Jackiexu0619/lucas-amc8-coach/actions/runs/40188705865), learning closure (https://github.com/Jackiexu0619/lucas-amc8-coach/actions/runs/40188705868), and dashboard (https://github.com/Jackiexu0619/lucas-amc8-coach/actions/runs/40188705869).
 - Supabase quota migration applied and Edge Function deployed. `DEEPSEEK_API_KEY` is configured in project Secrets; its value was never copied to the repository or chat. Unregistered sync code was rejected (403).
 - Real controlled DeepSeek calls with a disposable sync row: 2000 Q1 returned a coherent, manually checked solution (42 ÷ 2 − 5 = 16, answer B); 2001 Q8, whose archive image lacks the needed kite dimensions, returned `image_insufficient`; 2000 Q6 produced an inconsistent geometric derivation in an early attempt, then an independently computed answer different from the catalog and was blocked as `answer_mismatch`. These are evidence for the guardrails, not proof that every AI solution is mathematically correct.
-- Corrected the request to withhold the catalog answer from the model, use a bounded non-thinking output, and compare its computed result with the option content when both are simple numbers. Browser and regression tests must rerun on this revision. GitHub Pages deployment and deployed-browser acceptance remain pending.
-- Next: finish CI, merge and deploy Pages, run the real button in an isolated browser context, verify cache and retry, then delete the disposable QA sync row and quota records. Do not treat an API 200 as mathematical validation.
+- Corrected the request to withhold the catalog answer from the model, use a bounded non-thinking output, and compare its computed result with the option content when both are simple numbers. The model can still make mathematical mistakes; keep original solutions visible and review AI math against the source.
+- Pages deployment passed: https://github.com/Jackiexu0619/lucas-amc8-coach/actions/runs/40188798163. The live site returned the v0.6.5.21 build marker: https://jackiexu0619.github.io/lucas-amc8-coach/.
+- The real button was exercised in a fresh Playwright context against the deployed site and Edge Function. A first Q1 response lacked required fields and failed safely; single-question retry returned the manually checked 16/B derivation. Reopening the report and pressing batch again used the cache without another API call. Mobile width had no horizontal overflow, no uncaught browser errors occurred, and locked-paper identity and attempt count stayed unchanged. The reusable live script is `qa_ai_explain_live_v06521.cjs`; it requires a disposable registered QA sync code and is intentionally excluded from CI model calls.
+- The disposable QA sync row and its 11 quota rows were deleted by exact hash and marker; both remaining counts were verified as zero. No real learner records were modified.
+- Next: independent mathematical review of representative AI explanations, especially diagrams. A registered existing sync code is required on the device; the feature does not create or upload one automatically. Do not treat an API 200 or answer-letter match as proof that every derivation is correct.
 
-## v0.6.5.20 — per-question answer and solution report (PR pending; not deployed)
+## v0.6.5.20 — per-question answer and solution report (historical development notes)
 
-- Production remains `v0.6.5.19`; this work is isolated on `feature/full-mock-learning-report-v06520`.
+- This report shipped on `main` before v0.6.5.21 and remains the basis for the new AI explanation section.
 - The latest complete 25-question mock report now renders each question's original image or structured stem, Lucas's recorded answer, official answer, result status, topic/skill/method metadata, and a review action.
 - Incorrect, unable, skipped and guessed-correct items expand by default; independent correct answers stay collapsed for a compact report.
 - The app now indexes available worked-solution HTML from the existing public AMC8 solution data source for the years present in that dataset, then attaches it to matching archive questions. The local cache key is versioned so older cache entries lacking solutions are refreshed.
 - When a full worked solution is not available locally, the report explicitly says so and links to the corresponding year's full solution page. It does not fabricate a derivation from a method tag.
 - Solution HTML is sanitized before display. The new `qa_mock_learning_report_v06520.cjs` tests normalization and actual rendering of a 25-question fixture, including correct answer display, inline solution display, missing-solution fallback, and default expansion of weak items.
 - Mock assembly, answer-interaction and report QA PASS on the current feature branch: https://github.com/Jackiexu0619/lucas-amc8-coach/actions/runs/40163221841.
-- Remaining release gates: open PR, verify all required CI checks, merge, confirm Pages deployment, and run a deployed-browser smoke that checks the report with isolated fixture data. No real learner state is modified by QA.
+- The subsequent v0.6.5.21 acceptance above tested this report with isolated fixture data and left learner state unchanged.
 
 
 ## v0.6.5.19 — deployed and browser-verified
