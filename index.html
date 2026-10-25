@@ -1,10 +1,10 @@
 <!doctype html>
-<!-- BUILD: Lucas AMC8 Coach v0.6.5.18 / archive_official_v1 -->
+<!-- BUILD: Lucas AMC8 Coach v0.6.5.19 / archive_official_v1 -->
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Lucas AMC8 Coach v0.6.5.18</title>
+<title>Lucas AMC8 Coach v0.6.5.19</title>
 <style>
 :root{--bg:#f4f7fb;--card:#fff;--text:#162235;--muted:#657287;--accent:#2d67d9;--line:#dbe3ef;--good:#137a4e;--warn:#a86400;--bad:#b42318}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
@@ -19,6 +19,17 @@ button.primary,.btn.primary{background:var(--accent);color:#fff}.wrap{max-width:
 .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.right{margin-left:auto}.notice{padding:10px 12px;border:1px solid #d6e4f7;background:#eff6ff;border-radius:10px;font-size:13px}
 .qbox{font-size:18px;line-height:1.62;margin:14px 0}.en-main{font-weight:650}.zh-sub{font-size:13px;color:var(--muted);line-height:1.55;margin-top:6px}
 .choices{display:grid;gap:8px}.choice{background:#fff;border:1px solid var(--line);text-align:left;padding:12px}.choice.sel{outline:2px solid var(--accent);background:#f4f7ff}
+.choice.answer-option{width:100%;display:flex;align-items:flex-start;gap:8px;min-height:44px;line-height:1.45;font-size:15px}
+.choice.answer-option:hover,.choice-letter-btn:hover{border-color:var(--accent);background:#f4f7ff}
+.choice.answer-option:focus-visible,.choice-letter-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.choice-letter-grid{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.choice-letter-btn{min-width:48px;min-height:44px;padding:10px 16px;border:1px solid var(--line);border-radius:9px;background:#f8fafc;font-size:16px;font-weight:750}
+.choice-letter-btn.sel{outline:2px solid var(--accent);background:#f4f7ff;border-color:var(--accent)}
+.guess-prompt{display:flex;align-items:center;gap:6px;margin-top:10px}
+.answer-hint{margin:8px 0;color:var(--muted)}
+.exam-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.exam-btn.skip{background:#f1f4f8;color:#354258}
+
 table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}th{background:#f8fafc;color:#526074}
 input,select,textarea{border:1px solid var(--line);border-radius:8px;padding:8px;background:#fff}input[type=number]{width:90px}
 .bar{height:8px;background:#e7edf5;border-radius:999px;overflow:hidden}.bar span{display:block;height:100%;background:var(--accent)}
@@ -191,7 +202,7 @@ hr{border:0;border-top:1px solid var(--line);margin:15px 0}.two{display:grid;gri
 </head>
 <body>
 <header>
-<div><h1>Lucas AMC8 Coach <span style="font-size:12px;font-weight:400">v0.6.5.18</span></h1><div class=sub>真实AMC8题库核心 · Daily Adaptive Engine · Authentic Exam Assembly · 每日锁卷 · 免注册云同步</div></div>
+<div><h1>Lucas AMC8 Coach <span style="font-size:12px;font-weight:400">v0.6.5.19</span></h1><div class=sub>真实AMC8题库核心 · Daily Adaptive Engine · Authentic Exam Assembly · 每日锁卷 · 免注册云同步</div></div>
 <nav aria-label="主导航">
 <button onclick="show('home')">主页</button>
 <button onclick="show('practice')">每日训练</button>
@@ -221,7 +232,7 @@ const SEED={"version":"0.6.3","profile":{"name":"Lucas","goal":"2027-01 AMC 8","
 const ZH_DOMAIN={"arithmetic":"基础运算","ratio":"比例","rate":"速度与行程","algebra":"代数/应用","number_theory":"数论","coordinate":"坐标与变换","data":"数据与统计","patterns":"数列与规律","combinatorics":"组合/概率","geometry":"几何","probability":"概率","spatial":"立体与空间","logic":"逻辑与逆推","misc":"综合","meta":"综合习惯"};
 const ZH_SKILL={"percent_two_step":"连续百分比","ratio_change":"比例变化","average_speed":"平均速度","divisible_but_not":"整除但不整除","composite_divisibility":"复合整除","transformations":"坐标变换","median_change":"中位数变化","arithmetic_series":"等差求和","round_robin":"两两配对计数","area_ratio":"面积比","exactly_two_colors":"恰好两种颜色","distribution":"分配与角色","painted_cuboid":"涂色长方体","machine_reverse":"机器逆推","execution_complete":"做题完整性","rectangle_cutout":"割补与周长","right_triangle_altitude":"直角三角形高","trapezoid_area":"梯形面积","rectangle_midpoint":"长方形与中点","square_point_area":"正方形面积关系","sector_area":"扇形面积","parallelogram_area":"平行四边形面积","triangle_angle_ratio":"三角形角度比","fraction_remainder":"分数连续变化","reverse_percent":"反求原价","percent_change_chain":"连续百分比变化","unit_price":"单价与包装","map_scale":"地图比例尺","proportional_sharing":"按比分配","mixture_ratio":"混合比例","ratio_transfer":"转移后的比例","fraction_ratio":"分数化比例","distance_speed_time":"路程速度时间","catch_up":"追及问题","meeting":"相遇问题","work_rate":"工程问题","upstream_downstream":"流水行船","average_speed_equal_distance":"等路程平均速度","average_speed_equal_time":"等时间平均速度","rectangle_perimeter":"长方形周长","triangle_area":"三角形面积","pythagorean":"勾股关系","similar_triangles":"相似三角形","triangle_angle_sum":"三角形内角和","coordinate_distance":"坐标距离","coordinate_midpoint":"坐标中点","reflection_translation":"对称与平移","painted_cuboid_one_face":"恰一面涂色","prism_volume":"长方体体积","prism_surface_area":"长方体表面积","handshakes":"握手计数","permutations":"全排列","adjacent_arrangements":"相邻排列","identical_distribution":"相同物分配","lattice_paths":"格点路径","single_draw_probability":"单次抽取概率","at_least_one":"至少一个","two_dice_sum":"两骰点数和","exact_heads":"恰好若干正面","inclusion_exclusion":"容斥计数","divisor_count":"因数个数","gcd":"最大公因数","lcm":"最小公倍数","modular_remainder":"幂的余数","digit_divisibility":"数字整除","last_digit":"个位循环","square_divisors":"平方因数","multiples_union":"倍数并集","remainder_count":"余数类计数","palindrome_divisibility":"回文与整除","arithmetic_sequence":"等差数列第n项","recurrence":"递推数列","repeating_cycle":"循环规律","growing_blocks":"增长图案","machine_reverse_even":"奇偶机器逆推","relative_order":"相对次序","pigeonhole":"抽屉原理","mean_change":"平均数变化","weighted_average":"加权平均","range_change":"极差变化","mode_change":"众数变化","frequency_mean":"频数平均数","frequency_median":"频数中位数","frequency_percent":"频数百分比"};
 
-const ENGINE_VERSION='0.6.5.18';
+const ENGINE_VERSION='0.6.5.19';
 const MOCK_TOPIC_MAP={
   arithmetic:'application',ratio:'application',rate:'application',algebra:'application',misc:'patterns_logic',
   geometry:'geometry',coordinate:'geometry',spatial:'geometry',
@@ -1277,9 +1288,18 @@ function currentDraft(){
 function saveDraft(){saveStateLocal()}
 function draftAnswer(i){return currentDraft().answers?.[String(i)]||''}
 function draftGuess(i){return !!currentDraft().guesses?.[String(i)]}
-function chooseDraft(i,v){
-  const d=currentDraft();d.answers[String(i)]=v;saveDraft();renderMockQuestion();
-  const full=document.getElementById('fullMockPreview');if(full)renderFullMockPreview();
+function chooseDraftAndAdvance(i,v){
+  const idx=Math.max(0,Math.min(24,Number(i)||0));
+  const d=currentDraft();
+  d.answers[String(idx)]=v;
+  if(v==='N'||v==='X')d.guesses[String(idx)]=false;
+  saveDraft();
+  // Selecting an answer records it immediately and moves focus to the next question.
+  // Q25 remains visible so the learner can see the completed-paper state.
+  mockEntryIndex=Math.min(24,idx+1);
+  renderMockQuestion();
+  const full=document.getElementById('fullMockPreview');
+  if(full)renderFullMockPreview();
 }
 function setDraftGuess(i,v){const d=currentDraft();d.guesses[String(i)]=!!v;saveDraft()}
 function setDraftMinutes(v){const d=currentDraft();d.total_minutes=v===''?null:+v;saveDraft()}
@@ -1288,38 +1308,45 @@ function draftCount(){
   for(let i=0;i<qs.length;i++)if(d.answers?.[String(i)])n++;
   return n;
 }
-function answerButtonsHtml(i){
+function mockChoiceButtonsHtml(i,q){
+  const letters='ABCDE';
+  const raw=Array.isArray(q.choices)&&q.choices.length?q.choices:[...letters];
+  const labelsOnly=Boolean(q.archive_image)||raw.every((c,j)=>String(c??'').trim().toUpperCase()===letters[j]);
   const ans=draftAnswer(i);
-  let s='<div class="exam-buttons">';
-  for(const v of ['A','B','C','D','E']){
-    s+=`<button type="button" class="exam-btn ${ans===v?'active':''}" onclick="chooseDraft(${i},'${v}')">${v}</button>`;
-  }
-  s+=`<button type="button" class="exam-btn unable ${ans==='N'?'active':''}" onclick="chooseDraft(${i},'N')">不会</button>`;
-  s+=`<button type="button" class="exam-btn skip ${ans==='X'?'active':''}" onclick="chooseDraft(${i},'X')">未做</button>`;
-  s+='</div>';
-  return s;
+  const buttons=raw.slice(0,5).map((c,j)=>{
+    const letter=letters[j],active=ans===letter;
+    const label=labelsOnly?letter:`<span class="choice-letter">${letter}.</span> ${choiceDisplay(c)}`;
+    const cls=labelsOnly?'choice-letter-btn':'choice answer-option';
+    return `<button type="button" class="${cls}${active?' sel':''}" data-question-index="${i}" data-answer="${letter}" aria-pressed="${active?'true':'false'}" onclick="chooseDraftAndAdvance(${i},'${letter}')">${label}</button>`;
+  }).join('');
+  return labelsOnly
+    ? `<div class="choice-letter-grid" role="group" aria-label="第${i+1}题答案">${buttons}</div>`
+    : `<div class="choices" role="group" aria-label="第${i+1}题答案">${buttons}</div>`;
 }
 function renderMockQuestion(){
   const box=document.getElementById('mockQuestionBox');
   const qs=printableMock();
   if(!box||qs.length!==25)return;
   mockEntryIndex=Math.max(0,Math.min(24,mockEntryIndex));
-  const q=qs[mockEntryIndex],g=draftGuess(mockEntryIndex);
+  const q=qs[mockEntryIndex],g=draftGuess(mockEntryIndex),count=draftCount(),complete=count===25;
   box.innerHTML=`
     <div class="exam-top">
       <button ${mockEntryIndex===0?'disabled':''} onclick="mockEntryIndex--;renderMockQuestion()">← 上一题</button>
-      <div><b>第 ${mockEntryIndex+1} / 25 题</b>　<span class="progress-pill">已录 ${draftCount()}/25</span></div>
+      <div><b>第 ${mockEntryIndex+1} / 25 题</b>　<span class="progress-pill">已录 ${count}/25</span> ${complete?'<span class="tag good">25题已录完</span>':''}</div>
       <button ${mockEntryIndex===24?'disabled':''} onclick="mockEntryIndex++;renderMockQuestion()">下一题 →</button>
     </div>
     <div class="exam-panel">
       <div><span class=tag>${zhDomain(q.domain)}</span><span class=tag>${zhSkill(q.skill)}</span></div>
       <div class=qbox>${questionPromptHtml(q)}</div>
       ${figureHtml(q)}
-      <div class=choices>${q.choices.map((c,j)=>`<div class=choice>${'ABCDE'[j]}. ${choiceDisplay(c)}</div>`).join('')}</div>
-      <hr>
-      <div class=small>录入 Lucas 纸上的答案：</div>
-      ${answerButtonsHtml(mockEntryIndex)}
-      <label class=small style="display:block;margin-top:9px"><input type=checkbox ${g?'checked':''} onchange="setDraftGuess(${mockEntryIndex},this.checked)"> 这题是猜的</label>
+      <label class="small guess-prompt"><input type=checkbox ${g?'checked':''} onchange="setDraftGuess(${mockEntryIndex},this.checked)"> 这题是猜的（请先勾选，再点答案）</label>
+      <div class="small answer-hint">点击选项直接作答，系统会自动进入下一题。</div>
+      ${mockChoiceButtonsHtml(mockEntryIndex,q)}
+      <div class="exam-actions">
+        <button type="button" class="exam-btn unable" onclick="chooseDraftAndAdvance(mockEntryIndex,'N')">不会</button>
+        <button type="button" class="exam-btn skip" onclick="chooseDraftAndAdvance(mockEntryIndex,'X')">未做，跳过本题</button>
+      </div>
+      ${complete?'<div class="notice" style="margin-top:12px">25题已全部录完。请填写整卷实际用时，再提交整套记录。</div>':''}
     </div>`;
 }
 function renderFullMockPreview(){
@@ -1329,7 +1356,9 @@ function renderFullMockPreview(){
   qs.forEach((q,i)=>{
     out+=`<div class=preview-q><div><b>Q${i+1}</b> <span class=tag>${zhDomain(q.domain)}</span> <button class=right onclick="mockEntryIndex=${i};renderMockQuestion();window.scrollTo({top:document.getElementById('mockQuestionBox').getBoundingClientRect().top+window.scrollY-90,behavior:'smooth'})">跳到本题</button></div>`;
     out+=`<div style="margin-top:6px">${questionPromptHtml(q)}</div>${figureHtml(q)}`;
-    out+=`<div class=print-choices>${q.choices.map((c,j)=>`${'ABCDE'[j]}. ${choiceDisplay(c)}`).join('　')}</div>${answerButtonsHtml(i)}</div>`;
+    out+=`<label class="small guess-prompt"><input type=checkbox ${draftGuess(i)?'checked':''} onchange="setDraftGuess(${i},this.checked)"> 这题是猜的</label>`;
+    out+=mockChoiceButtonsHtml(i,q);
+    out+=`<div class="exam-actions"><button type="button" class="exam-btn unable" onclick="chooseDraftAndAdvance(${i},'N')">不会</button><button type="button" class="exam-btn skip" onclick="chooseDraftAndAdvance(${i},'X')">未做</button></div></div>`;
   });
   box.innerHTML=out;
 }
@@ -2324,12 +2353,12 @@ function renderAll(){renderHome();renderPractice();renderMock();renderReport();r
 async function initV063(){await loadAuthenticBank();try{await loadArchiveBank()}catch(e){console.error('双语真题库载入失败',e)}S=migrateState(S);saveStateLocal(false);renderAll();if(cloudConfigured()&&getSyncCode())cloudSyncAuto().catch(e=>console.warn(e));}
 initV063();
 </script>
-<script src="coach_mock_assembly_v06514.js?v=0.6.5.18"></script>
-<script src="coach_v064.js?v=0.6.5.18"></script>
+<script src="coach_mock_assembly_v06514.js?v=0.6.5.19"></script>
+<script src="coach_v064.js?v=0.6.5.19"></script>
 <script src="coach_v0641.js"></script>
 
 <!-- AMC8 v0.6.4.2 SAFE SKILL MODULE: BEGIN -->
-<script src="coach_skill_import_v4_offline.js?v=0.6.5.18"></script>
+<script src="coach_skill_import_v4_offline.js?v=0.6.5.19"></script>
 <!-- Legacy panel disabled: knowledge lives in its dedicated view, owned by index.html. -->
 <script src="coach_mock_submission_guard.js"></script>
 <!-- AMC8 v0.6.4.2 SAFE SKILL MODULE: END -->
@@ -2421,8 +2450,8 @@ async function startup(){
 startup();
 })();
 </script>
-<script src="coach_review_cycle_v065.js?v=0.6.5.18"></script>
-<script src="coach_ai_transfer_review_v066.js?v=0.6.5.18"></script>
-<script src="coach_learning_closure_v06514.js?v=0.6.5.18"></script>
-<script src="coach_student_dashboard_v06515.js?v=0.6.5.18"></script>
+<script src="coach_review_cycle_v065.js?v=0.6.5.19"></script>
+<script src="coach_ai_transfer_review_v066.js?v=0.6.5.19"></script>
+<script src="coach_learning_closure_v06514.js?v=0.6.5.19"></script>
+<script src="coach_student_dashboard_v06515.js?v=0.6.5.19"></script>
 </body></html>
