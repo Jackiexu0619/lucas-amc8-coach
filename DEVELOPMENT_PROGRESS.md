@@ -107,10 +107,13 @@ Finish browser-level integration review, then open/review the release PR. Do not
 - Deployed-browser smoke test on v0.6.5.16: PASS — https://github.com/Jackiexu0619/lucas-amc8-coach/actions/runs/40150268611. Verified build title, guided learning path, all six navigation destinations, return-home rendering and zero uncaught page errors.
 
 
-## v0.6.5.17 — report record integrity fix (in branch)
+## v0.6.5.17 — report record integrity fix (merged and deployed)
 
 - Audit found that the report selected the last non-empty mock-detail record, even if it contained fewer than 25 question rows, while labeling it a complete mock.
 - Audit also found that the closure panel preferred the currently locked paper's selection metadata even when showing a different historical mock score, which could mix evidence across papers.
 - Added `latestCompleteMockDetail` and `selectionEvidenceFor` helpers: reports require exactly 25 per-question rows, and selection evidence must belong to the reported completed mock. Current locked-paper evidence is shown only before any complete mock exists.
 - Added regression tests for partial latest records, no complete record, legacy complete mock without saved evidence, and current paper evidence isolation.
-- v0.6.5.16 remains deployed with the 30-day cooldown fix. v0.6.5.17 is not yet merged or deployed; release gate is learning closure QA, mock assembly QA, dashboard QA, then Pages and browser smoke checks.
+- PR #6 merged as `15e429cf3759c2ecf4317e92ed390308916b96d4`.
+- Final-main learning closure QA: PASS — https://github.com/Jackiexu0619/lucas-amc8-coach/actions/runs/40150675427; dashboard QA: PASS — https://github.com/Jackiexu0619/lucas-amc8-coach/actions/runs/40150675441; mock assembly QA: PASS — https://github.com/Jackiexu0619/lucas-amc8-coach/actions/runs/40150675398.
+- GitHub Pages deployment: PASS — https://github.com/Jackiexu0619/lucas-amc8-coach/actions/runs/40150675348.
+- Deployed browser smoke on v0.6.5.17: PASS — https://github.com/Jackiexu0619/lucas-amc8-coach/actions/runs/40150728712. Verified page version, guided dashboard, all six navigation destinations, return-home rendering and zero uncaught page errors.
