@@ -13,7 +13,17 @@ Keep the learning loop simple and evidence-based:
 ## Current production baseline
 
 - Production branch: `main`
-- Production page version: `v0.6.5.19` (PR #8 merged; Pages deployment and exact-version browser smoke passed on 2026-10-25).
+- Production page version verified before this change: `v0.6.5.20` on 2026-10-25. The v0.6.5.21 source is on a separate branch until merged and deployed.
+
+## v0.6.5.21 — on-demand DeepSeek mock explanations (release in progress)
+
+- Added a manual button to the latest complete mock report. It includes wrong, unable, skipped and guessed-correct questions, displays batch progress, preserves successful explanations if another item fails, and offers per-question retry. Independent correct responses trigger no request.
+- The separate browser cache is bound to engine version, paper ID, question ID, image path, prompt, choices and official answer. It never changes attempts, scores, mastery or the locked mock.
+- `amc8-explain` sends the canonical archive image to DeepSeek Vision, checks returned question ID and answer against the canonical catalog, and rejects incomplete or mismatched responses. Original solution material remains available. Only text nodes render model output.
+- Server authorization checks the existing sync-code hash without reading or changing learning payload. A separate RLS-enabled quota table limits each registered code to 10 requests per minute and 30 per UTC day. No new learning-data table or migration is involved.
+- Local automated QA passed for inline syntax, mock assembly, answer interaction, learning report, learning closure, AI explanation failures/cache/retry and an isolated Playwright browser with mocked API responses. These tests do not spend DeepSeek credits or touch real learner data.
+- Supabase quota migration applied and Edge Function version 1 deployed. Live endpoint rejected malformed JSON. At this writing, `DEEPSEEK_API_KEY` is not configured, so real model output has **not** been tested. GitHub CI, Pages deployment and deployed-browser acceptance remain pending.
+- Next: configure `DEEPSEEK_API_KEY` in project `dfwojiefseopguoqugzs` Secrets without sharing it in chat; run one controlled live-image explanation and inspect answer consistency; then complete CI, Pages and browser acceptance. Do not infer mathematical correctness from a successful API response.
 
 ## v0.6.5.20 — per-question answer and solution report (PR pending; not deployed)
 
