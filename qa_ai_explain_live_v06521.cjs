@@ -62,7 +62,7 @@ async function main(){
     assert.deepEqual(pageErrors,[]);
     assert.equal(requests.every(headers=>!headers.includes('authorization')),true,
       'browser requests must never carry the DeepSeek secret');
-    console.log('PASS: deployed v0.6.5.21, real browser-to-Edge model request, reviewed Q1 math, retry, cache, mobile layout, and unchanged learning state; calls='+count);
+    console.log('PASS: deployed v0.6.5.22, real browser-to-Edge model request, reviewed Q1 math, retry, cache, mobile layout, and unchanged learning state; calls='+count);
   }finally{await context.close();await browser.close();}
 }
 main().catch(e=>{console.error(e);process.exitCode=1;});
