@@ -1705,7 +1705,7 @@ function mockReviewChoicePlain(value){
   s=s.replace(/\\quad/g,' ').replace(/\\,/g,' ');
   s=s.replace(/\\dfrac\\{([^{}]+)\\}\\{([^{}]+)\\}/g,'$1/$2').replace(/\\frac\\{([^{}]+)\\}\\{([^{}]+)\\}/g,'$1/$2');
   s=s.replace(/\\sqrt\\{([^{}]+)\\}/g,'√($1)').replace(/\\pi/g,'π').replace(/\\cdot/g,'×').replace(/\\times/g,'×');
-  return s.replace(/[{}$]/g,'').replace(/\\s+/g,' ').trim();
+  return s.replace(/[{}$]/g,'').replace(/\s+/g,' ').trim();
 }
 function mockReviewAnswerText(q,letter){
   const answer=String(letter||'').toUpperCase();
