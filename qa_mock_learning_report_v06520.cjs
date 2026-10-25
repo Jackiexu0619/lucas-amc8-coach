@@ -80,7 +80,7 @@ for (let i = 0; i < 25; i++) {
     domain: 'misc',
     skill: 'archive_unclassified_' + (i + 1),
     core_method: 'archive_method_' + (i + 1),
-    solution_html: i === 0 ? '<p>Compare powers of two: 2^9=512 and 2^10=1024.</p>' : '',
+assert.match(rendered, /Compare powers of two: 2\^9=512 and 2\^10=1024/);
     solution_source_url: 'https://live.poshenloh.com/past-contests/amc8/' + (i === 0 ? 2013 : 2018) + '/solutions'
   });
 }
@@ -126,7 +126,7 @@ assert.match(rendered, /你的答案：B/);
 assert.match(rendered, /正确答案：C/);
 assert.match(rendered, /B\. 10th/);
 assert.match(rendered, /C\. 11th/);
-assert.match(rendered, /Compare powers of two: 2\\^9=512 and 2\\^10=1024/);
+assert.match(rendered, /Compare powers of two: 2\^9=512 and 2\^10=1024/);
 assert.match(rendered, /本地题库暂未保存这道题的完整推导/);
 assert.match(rendered, /打开2018年 AMC8 完整解析/);
 assert.equal((rendered.match(/class="mock-review-item"/g) || []).length, 25, 'all 25 questions should appear in the report');
