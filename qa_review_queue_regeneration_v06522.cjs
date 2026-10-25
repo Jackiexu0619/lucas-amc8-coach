@@ -73,7 +73,7 @@ const before=S.v065_review_cycle.tasks.filter(t=>t.origin==='weekend_mock');
 assert.equal(before.length,4,'all four weekend weak questions should create review tasks');
 assert.ok(before.every(t=>t.due==='2026-10-27'),'weekend review tasks should be due on the next training day');
 
-const regenerated=ctx.generateDailyPlan(new Set(oldPlan.map(q=>q.id)));
+const regenerated=ctx.generateDailyPlan(oldPlan.map(q=>q.id));
 assert.equal(regenerated.length,3,'regenerating a locked paper must still produce three questions');
 assert.equal(new Set(regenerated.map(q=>q.id)).size,3,'regenerated questions must be unique');
 assert.ok(regenerated.every(q=>!oldIds.has(q.id)),'every question from the old locked paper must be excluded');
