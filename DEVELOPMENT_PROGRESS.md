@@ -88,11 +88,11 @@ Finish browser-level integration review, then open/review the release PR. Do not
 ## Browser acceptance and cooldown-scope audit — 2026-10-25
 
 - Read-only inspection of the deployed v0.6.5.15 page confirms the guided dashboard renders, shows the currently locked weekend paper (`2026-W43-01`), and preserves the unsubmitted daily paper dated `2026-10-24`; no paper was regenerated and no learner data was changed.
-- Interactive browser navigation smoke test is still unverified. The first CI attempt failed because Playwright 1.55 does not support the `ubuntu-latest` runner image; a retry on `ubuntu-24.04` with current Playwright has not yet returned a final status. Do not mark full browser acceptance PASS until the final result is available.
+- Deployed-browser navigation smoke test on v0.6.5.15: PASS — https://github.com/Jackiexu0619/lucas-amc8-coach/actions/runs/40149286925. It checked the deployed title, guided dashboard, all six navigation destinations, return-home rendering and zero uncaught page errors. The same smoke test must be rerun against v0.6.5.16 after deployment.
 - Next logic-audit item: `eligibleDailyBank()` enforces a 30-day cooldown using `S.attempts`, but does not visibly include `mock_detail_history` or the currently locked `printable_mock_ids`. Verify against the requirement that weekday training avoid recently used questions; if confirmed, add regression coverage and extend the cooldown without altering the current locked paper.
 
 
-## v0.6.5.16 — weekday 30-day cooldown fix (in branch)
+## v0.6.5.16 — weekday 30-day cooldown fix (merged to main)
 
 - Confirmed gap: `eligibleDailyBank()` only considered `S.attempts`; recent weekend mock history and currently locked papers were not consistently blocked.
 - Added a pure `dailyQuestionCooldownIds` helper used by the production daily-bank selector.
@@ -101,4 +101,6 @@ Finish browser-level integration review, then open/review the release PR. Do not
 - Added regression cases for the 30-day boundary, 31-day expiry, recent/old mock history, locked mock, pending daily paper, and submitted daily-plan expiry.
 - Deployed-browser navigation smoke QA: PASS — https://github.com/Jackiexu0619/lucas-amc8-coach/actions/runs/40149286925
 - Cloud sync round-trip QA remains PASS — https://github.com/Jackiexu0619/lucas-amc8-coach/actions/runs/40111616475
-- This change is not yet merged or deployed. Release gate: learning-closure QA, mock-assembly QA and dashboard QA must pass on the final branch commit; then review PR and verify Pages deployment.
+- PR #5 merged as `163a10854cffcdf9244bba2769bd532ba8e0a31a`.
+- Final-main QA: learning closure PASS — https://github.com/Jackiexu0619/lucas-amc8-coach/actions/runs/40150195597; dashboard PASS — https://github.com/Jackiexu0619/lucas-amc8-coach/actions/runs/40150195602; mock assembly PASS — https://github.com/Jackiexu0619/lucas-amc8-coach/actions/runs/40150195648.
+- Pages deployment and browser smoke on v0.6.5.16 remain the final release gates.
