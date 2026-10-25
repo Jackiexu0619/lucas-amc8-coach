@@ -16,10 +16,10 @@ async function main(){
     if(request.url().endsWith('/functions/v1/amc8-explain'))requests.push(Object.keys(request.headers()));
   });
   try{
-    await page.goto('https://jackiexu0619.github.io/lucas-amc8-coach/?qa=live-v06521',
+    await page.goto('https://jackiexu0619.github.io/lucas-amc8-coach/?qa=live-v06522',
       {waitUntil:'domcontentloaded'});
     await page.waitForFunction(()=>typeof ARCHIVE_BANK!=='undefined'&&ARCHIVE_BANK.length===575,null,{timeout:60000});
-    assert.match(await page.locator('h1').innerText(),/v0\.6\.5\.21/);
+    assert.match(await page.locator('h1').innerText(),/v0\.6\.5\.22/);
     const original=await page.evaluate(()=>({paper:S.printable_mock_id,
       questions:JSON.stringify(S.printable_mock_questions||[]),attempts:(S.attempts||[]).length}));
     await page.evaluate(qaCode=>{
@@ -62,7 +62,7 @@ async function main(){
     assert.deepEqual(pageErrors,[]);
     assert.equal(requests.every(headers=>!headers.includes('authorization')),true,
       'browser requests must never carry the DeepSeek secret');
-    console.log('PASS: deployed v0.6.5.21, real browser-to-Edge model request, reviewed Q1 math, retry, cache, mobile layout, and unchanged learning state; calls='+count);
+    console.log('PASS: deployed v0.6.5.22, real browser-to-Edge model request, reviewed Q1 math, retry, cache, mobile layout, and unchanged learning state; calls='+count);
   }finally{await context.close();await browser.close();}
 }
 main().catch(e=>{console.error(e);process.exitCode=1;});

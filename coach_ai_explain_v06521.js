@@ -1,6 +1,8 @@
 /* On-demand explanations for the latest complete weekend mock. AI output never changes learning state. */
 (function(root){'use strict';
 const CACHE_KEY='lucas_amc8_ai_explain_v2';
+// This app-version bump does not change explanation prompts or payloads; keep v0.6.5.21 explanations reusable.
+const EXPLANATION_CACHE_VERSION='0.6.5.21';
 const MESSAGES={sync_code_required:'本机尚未绑定已有云同步码。请先在家长设置中绑定；不会自动上传学习数据。',
   sync_code_unregistered:'同步码尚未在云端登记，无法使用 AI 讲解。',rate_limited:'本同步码的 AI 讲解额度暂时用完，请稍后再试。',
   service_not_configured:'AI 服务密钥尚未配置。',model_timeout_or_network:'AI 请求超时或网络不可用，请单题重试。',
@@ -103,7 +105,7 @@ async function mount(){
   const cache=loadCache();
   const prepared=[];
   for(const item of items){
-    item.cacheKey=await cacheKey(item,ENGINE_VERSION);
+    item.cacheKey=await cacheKey(item,EXPLANATION_CACHE_VERSION);
     const row=el('div',undefined,'mock-ai-explain-row');
     const title=el('b','第'+item.index+'题 · '+item.question.year+' AMC8 Q'+item.question.problem_number);
     const question=el('img');question.className='mock-review-paper-image';question.src=item.question.archive_image;

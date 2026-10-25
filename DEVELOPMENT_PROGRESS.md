@@ -15,6 +15,15 @@ Keep the learning loop simple and evidence-based:
 - Production branch: `main`
 - Production page version: `v0.6.5.21`, verified from the deployed HTML and an isolated live browser on 2026-10-25. Main merge commit: `f4a8d17632a239d2c2f23d5b70bc30a25df5c0ef`.
 
+
+## v0.6.5.22 — daily regeneration keeps due reviews (fix branch; not yet deployed)
+
+- Live v0.6.5.21 state confirmed that the 2026-10-24 mock's four weak items were already present in the review queue and due on 2026-10-27. However, the locked daily paper was still dated 2026-10-24 and unsubmitted.
+- Root cause: `refreshArchiveDaily()` calls `generateDailyPlan(new Set(previous))`; the review-cycle and AI-transfer exclusion branches returned the generic selector directly, bypassing due review tasks.
+- Fix: explicit regeneration now applies the due same-method queue while excluding every old paper ID; the AI transfer selector also respects that exclusion set. Maximum remains three questions, with no repeated old-paper IDs.
+- AI explanation cache remains reusable because its own engine version stays at v0.6.5.21; no explanation prompt or payload changed.
+- Added regression coverage for the weekend review queue, regeneration exclusions, the three-question cap and AI transfer retention. Production remains v0.6.5.21 until the PR is merged and deployed.
+
 ## v0.6.5.21 — on-demand DeepSeek mock explanations (deployed and browser-verified)
 
 - Added a manual button to the latest complete mock report. It includes wrong, unable, skipped and guessed-correct questions, displays batch progress, preserves successful explanations if another item fails, and offers per-question retry. Independent correct responses trigger no request.

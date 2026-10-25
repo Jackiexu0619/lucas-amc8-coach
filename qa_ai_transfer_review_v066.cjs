@@ -10,7 +10,11 @@ assert.match(appSource,/ARCHIVE_BANK\.filter\(q=>q\.problem_number>=13&&q\.probl
 const original={id:'archive_2018_18',year:2018,problem_number:18,domain:'number_theory',skill:'质因数分解与因数个数',core_method:'质因数指数加一乘积求约数数目',answer:'C',choices:['A','B','C','D','E'],official:true};
 const other={id:'archive_2007_13',year:2007,problem_number:13,domain:'counting_probability',skill:'容斥',core_method:'两集合并集与交集公式',answer:'A',choices:['A','B','C','D','E'],official:true};
 const prob={id:'archive_2015_07',year:2015,problem_number:7,domain:'counting_probability',skill:'概率',core_method:'计算全奇数概率的补集',answer:'B',choices:['A','B','C','D','E'],official:true};
-const bank=new Map([[original.id,original],[other.id,other],[prob.id,prob]]);
+const extra1={id:'archive_2013_16',year:2013,problem_number:16,domain:'geometry',skill:'geometry',core_method:'extra one',answer:'A',choices:['A','B','C','D','E'],official:true};
+const extra2={id:'archive_2014_17',year:2014,problem_number:17,domain:'number_theory',skill:'number theory',core_method:'extra two',answer:'B',choices:['A','B','C','D','E'],official:true};
+const extra3={id:'archive_2015_20',year:2015,problem_number:20,domain:'algebra',skill:'algebra',core_method:'extra three',answer:'C',choices:['A','B','C','D','E'],official:true};
+const bank=new Map([[original.id,original],[other.id,other],[prob.id,prob],[extra1.id,extra1],[extra2.id,extra2],[extra3.id,extra3]]);
+const officialDailyBank=[original,other,prob,extra1,extra2,extra3];
 const S={attempts:[{question_id:original.id,date:'2026-10-24',correct:false,guessed:false,result_status:'wrong',source:'paper_daily'}],daily_sessions:[],skill_state:{}};
 const window={};
 const ctx={
@@ -20,7 +24,9 @@ const ctx={
  qById:id=>bank.get(id)||null,
  questionPromptHtml:q=>q.prompt||'official',
  questionSourceBadge:q=>q.official?'official':'',
- generateDailyPlan:()=>[original,other,prob],
+ generateDailyPlan:function(excludeIds){
+   return officialDailyBank.filter(q=>!(excludeIds&&typeof excludeIds.has==='function'?excludeIds.has(q.id):Array.isArray(excludeIds)&&excludeIds.includes(q.id))).slice(0,3);
+  },
  dailyPlan:function(){
   if(S.daily_plan?.question_ids)return S.daily_plan.question_ids.map(id=>ctx.qById(id)).filter(Boolean);
   const plan=ctx.generateDailyPlan();
@@ -96,4 +102,13 @@ task=q.tasks.find(t=>t.origin_question_id===original.id);
 assert.equal(task.stage,0,'a correct-but-slow AI transfer does not advance mastery stage');
 assert.equal(task.last_result,'not_independent_pass');
 
-console.log('PASS: AI transfer loop preserves diagnostic isolation, same-method retests, 7/14/30 spacing, completion, and correct-but-slow handling.');
+S.attempts=[{question_id:original.id,date:'2026-10-24',correct:false,guessed:false,result_status:'wrong',source:'weekend_mock'}];
+S.daily_sessions=[];S.daily_plan=null;window.__amcAiTransferSelected=null;
+const previousPaperIds=new Set([original.id,other.id,prob.id]);
+const regenerated=ctx.generateDailyPlan([...previousPaperIds]);
+assert.equal(regenerated.length,3,'regenerating an old daily paper still returns three questions');
+assert.equal(regenerated[0].source,'ai_generated_review','due AI transfer must remain active when regeneration passes exclusions');
+assert.ok(regenerated.every(q=>!previousPaperIds.has(q.id)),'regenerated paper must exclude every old locked question');
+assert.equal(regenerated.filter(q=>q.official).length,2,'AI transfer still leaves two authentic AMC8 questions');
+
+console.log('PASS: AI transfer loop preserves diagnostic isolation, same-method retests, 7/14/30 spacing, completion, correct-but-slow handling, and excluded-ID regeneration.');
