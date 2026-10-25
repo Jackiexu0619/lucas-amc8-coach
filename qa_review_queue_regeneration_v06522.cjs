@@ -80,7 +80,7 @@ assert.ok(regenerated.every(q=>!oldIds.has(q.id)),'every question from the old l
 assert.ok(regenerated.some(q=>q.id==='archive_2018_19'),'due area-ratio transfer should survive regeneration');
 assert.ok(regenerated.some(q=>q.id==='archive_2012_25'),'due similar-triangle transfer should survive regeneration');
 assert.equal(window.amcV065Planned.length,2,'at most two explicit due-review slots should be assigned');
-assert.deepEqual(window.amcV065Planned.map(x=>x.skill).sort(),['相似直角三角形','面积与面积比'].sort(),
+assert.deepEqual(Array.from(window.amcV065Planned,x=>x.skill).sort(),['相似直角三角形','面积与面积比'].sort(),
  'highest-priority due weekend tasks should be selected first');
 
 console.log('PASS: weekend weak tasks survive explicit daily-paper regeneration, old paper IDs remain excluded, and the daily limit stays at three.');
