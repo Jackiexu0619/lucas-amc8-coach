@@ -15,6 +15,18 @@ Keep the learning loop simple and evidence-based:
 - Production branch: `main`
 - Production page version: `v0.6.5.19` (PR #8 merged; Pages deployment and exact-version browser smoke passed on 2026-10-25).
 
+## v0.6.5.20 — per-question answer and solution report (PR pending; not deployed)
+
+- Production remains `v0.6.5.19`; this work is isolated on `feature/full-mock-learning-report-v06520`.
+- The latest complete 25-question mock report now renders each question's original image or structured stem, Lucas's recorded answer, official answer, result status, topic/skill/method metadata, and a review action.
+- Incorrect, unable, skipped and guessed-correct items expand by default; independent correct answers stay collapsed for a compact report.
+- The app now indexes available worked-solution HTML from the existing public AMC8 solution data source for the years present in that dataset, then attaches it to matching archive questions. The local cache key is versioned so older cache entries lacking solutions are refreshed.
+- When a full worked solution is not available locally, the report explicitly says so and links to the corresponding year's full solution page. It does not fabricate a derivation from a method tag.
+- Solution HTML is sanitized before display. The new `qa_mock_learning_report_v06520.cjs` tests normalization and actual rendering of a 25-question fixture, including correct answer display, inline solution display, missing-solution fallback, and default expansion of weak items.
+- Mock assembly, answer-interaction and report QA PASS on the current feature branch: https://github.com/Jackiexu0619/lucas-amc8-coach/actions/runs/40163221841.
+- Remaining release gates: open PR, verify all required CI checks, merge, confirm Pages deployment, and run a deployed-browser smoke that checks the report with isolated fixture data. No real learner state is modified by QA.
+
+
 ## v0.6.5.19 — deployed and browser-verified
 
 - PR #8 merged to main: https://github.com/Jackiexu0619/lucas-amc8-coach/pull/8.
