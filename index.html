@@ -1,10 +1,10 @@
 <!doctype html>
-<!-- BUILD: Lucas AMC8 Coach v0.6.5.19 / archive_official_v1 -->
+<!-- BUILD: Lucas AMC8 Coach v0.6.5.20 / archive_official_v1 -->
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Lucas AMC8 Coach v0.6.5.19</title>
+<title>Lucas AMC8 Coach v0.6.5.20</title>
 <style>
 :root{--bg:#f4f7fb;--card:#fff;--text:#162235;--muted:#657287;--accent:#2d67d9;--line:#dbe3ef;--good:#137a4e;--warn:#a86400;--bad:#b42318}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
@@ -197,12 +197,26 @@ hr{border:0;border-top:1px solid var(--line);margin:15px 0}.two{display:grid;gri
     height: auto !important; margin: 0 !important;
   }
 }
+
+.mock-question-review-section .mock-review-item{border:1px solid #dce4ee;border-radius:10px;margin:8px 0;overflow:hidden}
+.mock-question-review-section .mock-review-item>summary{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:12px;cursor:pointer;background:#f8fafc}
+.mock-review-body{padding:12px;border-top:1px solid #e2e8f0}
+.mock-review-paper-image{display:block;max-width:100%;height:auto;max-height:520px;object-fit:contain;margin:8px auto;border:1px solid #e2e8f0;border-radius:6px}
+.mock-review-choices{padding-left:24px;line-height:1.75}
+.mock-review-answer-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin:10px 0}
+.mock-review-answer-card{padding:10px;border-radius:8px;background:#f8fafc;border:1px solid #e2e8f0;overflow-wrap:anywhere}
+.mock-review-method{padding:10px;background:#f5f7ff;border-radius:8px;margin:8px 0;line-height:1.7}
+.mock-review-solution{margin-top:10px;padding:12px;background:#fff;border:1px solid #dce4ee;border-radius:8px;overflow-wrap:anywhere;line-height:1.7}
+.mock-solution-html img{max-width:100%;height:auto}
+.mock-solution-html table{max-width:100%;display:block;overflow-x:auto}
+.mock-solution-html p{line-height:1.7}
+.mock-review-solution h4{margin:0 0 8px}
 </style>
 <script src="official_bank.js"></script>
 </head>
 <body>
 <header>
-<div><h1>Lucas AMC8 Coach <span style="font-size:12px;font-weight:400">v0.6.5.19</span></h1><div class=sub>真实AMC8题库核心 · Daily Adaptive Engine · Authentic Exam Assembly · 每日锁卷 · 免注册云同步</div></div>
+<div><h1>Lucas AMC8 Coach <span style="font-size:12px;font-weight:400">v0.6.5.20</span></h1><div class=sub>真实AMC8题库核心 · Daily Adaptive Engine · Authentic Exam Assembly · 每日锁卷 · 免注册云同步</div></div>
 <nav aria-label="主导航">
 <button onclick="show('home')">主页</button>
 <button onclick="show('practice')">每日训练</button>
@@ -232,7 +246,7 @@ const SEED={"version":"0.6.3","profile":{"name":"Lucas","goal":"2027-01 AMC 8","
 const ZH_DOMAIN={"arithmetic":"基础运算","ratio":"比例","rate":"速度与行程","algebra":"代数/应用","number_theory":"数论","coordinate":"坐标与变换","data":"数据与统计","patterns":"数列与规律","combinatorics":"组合/概率","geometry":"几何","probability":"概率","spatial":"立体与空间","logic":"逻辑与逆推","misc":"综合","meta":"综合习惯"};
 const ZH_SKILL={"percent_two_step":"连续百分比","ratio_change":"比例变化","average_speed":"平均速度","divisible_but_not":"整除但不整除","composite_divisibility":"复合整除","transformations":"坐标变换","median_change":"中位数变化","arithmetic_series":"等差求和","round_robin":"两两配对计数","area_ratio":"面积比","exactly_two_colors":"恰好两种颜色","distribution":"分配与角色","painted_cuboid":"涂色长方体","machine_reverse":"机器逆推","execution_complete":"做题完整性","rectangle_cutout":"割补与周长","right_triangle_altitude":"直角三角形高","trapezoid_area":"梯形面积","rectangle_midpoint":"长方形与中点","square_point_area":"正方形面积关系","sector_area":"扇形面积","parallelogram_area":"平行四边形面积","triangle_angle_ratio":"三角形角度比","fraction_remainder":"分数连续变化","reverse_percent":"反求原价","percent_change_chain":"连续百分比变化","unit_price":"单价与包装","map_scale":"地图比例尺","proportional_sharing":"按比分配","mixture_ratio":"混合比例","ratio_transfer":"转移后的比例","fraction_ratio":"分数化比例","distance_speed_time":"路程速度时间","catch_up":"追及问题","meeting":"相遇问题","work_rate":"工程问题","upstream_downstream":"流水行船","average_speed_equal_distance":"等路程平均速度","average_speed_equal_time":"等时间平均速度","rectangle_perimeter":"长方形周长","triangle_area":"三角形面积","pythagorean":"勾股关系","similar_triangles":"相似三角形","triangle_angle_sum":"三角形内角和","coordinate_distance":"坐标距离","coordinate_midpoint":"坐标中点","reflection_translation":"对称与平移","painted_cuboid_one_face":"恰一面涂色","prism_volume":"长方体体积","prism_surface_area":"长方体表面积","handshakes":"握手计数","permutations":"全排列","adjacent_arrangements":"相邻排列","identical_distribution":"相同物分配","lattice_paths":"格点路径","single_draw_probability":"单次抽取概率","at_least_one":"至少一个","two_dice_sum":"两骰点数和","exact_heads":"恰好若干正面","inclusion_exclusion":"容斥计数","divisor_count":"因数个数","gcd":"最大公因数","lcm":"最小公倍数","modular_remainder":"幂的余数","digit_divisibility":"数字整除","last_digit":"个位循环","square_divisors":"平方因数","multiples_union":"倍数并集","remainder_count":"余数类计数","palindrome_divisibility":"回文与整除","arithmetic_sequence":"等差数列第n项","recurrence":"递推数列","repeating_cycle":"循环规律","growing_blocks":"增长图案","machine_reverse_even":"奇偶机器逆推","relative_order":"相对次序","pigeonhole":"抽屉原理","mean_change":"平均数变化","weighted_average":"加权平均","range_change":"极差变化","mode_change":"众数变化","frequency_mean":"频数平均数","frequency_median":"频数中位数","frequency_percent":"频数百分比"};
 
-const ENGINE_VERSION='0.6.5.19';
+const ENGINE_VERSION='0.6.5.20';
 const MOCK_TOPIC_MAP={
   arithmetic:'application',ratio:'application',rate:'application',algebra:'application',misc:'patterns_logic',
   geometry:'geometry',coordinate:'geometry',spatial:'geometry',
@@ -1666,6 +1680,44 @@ function renderReport(){
   renderLatestMockInsightsIntoReport();
 }
 
+function sanitizeSolutionHtml(raw){
+  if(!raw)return '';
+  try{
+    const doc=new DOMParser().parseFromString(String(raw),'text/html');
+    doc.querySelectorAll('script,iframe,object,embed,form,style,link,meta,video,audio').forEach(x=>x.remove());
+    doc.querySelectorAll('*').forEach(el=>{
+      [...el.attributes].forEach(attr=>{
+        if(/^on/i.test(attr.name)||attr.name.toLowerCase()==='srcdoc')el.removeAttribute(attr.name);
+        else if(['href','src','xlink:href'].includes(attr.name)&&/^\\s*javascript:/i.test(attr.value))el.removeAttribute(attr.name);
+      });
+    });
+    doc.querySelectorAll('a').forEach(a=>a.removeAttribute('href'));
+    return doc.body.innerHTML;
+  }catch(e){return esc(String(raw))}
+}
+function mockReviewPromptHtml(q){
+  if(q?.archive_image)return `<img loading="lazy" class="mock-review-paper-image" src="${esc(q.archive_image)}" alt="${esc((q.year||'')+' AMC8 Q'+(q.problem_number||''))} 原题（含选项与图形）">`;
+  if(q?.official&&q.problem_html)return sanitizeOfficialHtml(q.problem_html);
+  return questionPromptHtml(q);
+}
+function mockReviewAnswerText(q,letter){
+  const answer=String(letter||'').toUpperCase();
+  const idx='ABCDE'.indexOf(answer);
+  if(idx<0||q?.archive_image)return answer||'未保存';
+  const choice=q?.choices?.[idx];
+  return choice===undefined?answer:answer+'. '+choiceDisplay(choice);
+}
+function mockReviewStatus(r){
+  if(r?.result_status==='unable')return '不会';
+  if(r?.result_status==='skipped')return '未做';
+  if(r?.correct&&r?.guessed)return '猜对 · 待确认掌握';
+  if(r?.correct)return '独立答对';
+  return '答错';
+}
+function mockReviewPromptChoicesHtml(q){
+  if(q?.archive_image||!Array.isArray(q?.choices)||!q.choices.length)return '';
+  return `<ol class="mock-review-choices">${q.choices.map((c,i)=>`<li><b>${'ABCDE'[i]}.</b> ${esc(choiceDisplay(c))}</li>`).join('')}</ol>`;
+}
 function renderLatestMockInsightsIntoReport(){
   const host=document.getElementById('report');if(!host)return;
   const history=(S.mock_detail_history||[]).filter(x=>x&&Array.isArray(x.per_question)&&x.per_question.length===25);
@@ -1697,13 +1749,41 @@ function renderLatestMockInsightsIntoReport(){
   if(guessed.length)next.push('把猜对的'+guessed.map(r=>'第'+r.index+'题').join('、')+'列为待确认掌握，隔几天用新题复测。');
   if(skipped.length)next.push('检查'+skipped.map(r=>'第'+r.index+'题').join('、')+'是否由时间不足造成，再决定是否安排中后段限时训练。');
   if(!next.length)next.push('本套没有记录到错题、猜题或漏题；保留综合训练，并通过下一套新题验证是否稳定掌握。');
+  const solutionCount=rows.filter(({q})=>!!(q.solution_html||SOLUTION_BANK.get(solutionKey(q.year,q.problem_number)))).length;
+  const questionReviews=per.map((r,i)=>{
+    const n=Number(r.index)||i+1;
+    const q=qById(r.qid||latest.question_ids?.[i]);
+    if(!q)return `<details class="mock-review-item"><summary>第${n}题 · 题库记录缺失</summary><div class="mock-review-body"><p>你的答案：${esc(r.selected_answer||r.result_status||'未保存')}；正确答案：${esc(r.answer||'未保存')}。</p><p class="muted">当前题库未找到这道题，无法可靠显示原题和详细推导。</p></div></details>`;
+    const status=mockReviewStatus(r);
+    const own=(r.result_status==='unable'?'不会':r.result_status==='skipped'?'未做':mockReviewAnswerText(q,r.selected_answer));
+    const correct=mockReviewAnswerText(q,q.answer||r.answer);
+    const tags=typeof learningTags==='function'?learningTags(q):{};
+    const topic=(tags.topic&& !/^archive_unclassified_/.test(tags.topic))?tags.topic:((q.domain&&q.domain!=='misc')?zhDomain(q.domain):'尚未可靠映射');
+    const skill=tags.skill&&!/^archive_unclassified_|^official_/.test(tags.skill)?tags.skill:'';
+    const method=tags.method&&!/^archive_method_|^official_/.test(tags.method)?tags.method:'';
+    const solutionRaw=q.solution_html||SOLUTION_BANK.get(solutionKey(q.year,q.problem_number))||'';
+    const solution=solutionRaw?sanitizeSolutionHtml(solutionRaw):'';
+    const sourceUrl=q.solution_source_url||(q.year&&q.year!==2021?`https://live.poshenloh.com/past-contests/amc8/${q.year}/solutions`:'');
+    let reviewAction='';
+    if(r.result_status==='unable')reviewAction='先合上解析，自己说出第一步，再用一道同方法变式题练习。';
+    else if(r.result_status==='skipped')reviewAction='核对是否因时间不足跳过；下一次先标记卡题并继续推进整卷。';
+    else if(!r.correct)reviewAction='先找出自己解法与下面步骤的第一处分歧，再归类为知识、方法或计算执行问题。';
+    else if(r.guessed)reviewAction='猜对暂不算稳定掌握；请不看解析复述关键步骤，并用新题验证。';
+    else reviewAction='请尝试不看解析复述关键步骤；能独立讲清，才算真正掌握。';
+    const needsOpen=!r.correct||r.guessed||r.result_status==='unable'||r.result_status==='skipped';
+    const solutionPanel=solution
+      ? `<div class="mock-review-solution"><h4>详细解法（解答资料原文）</h4><div class="mock-solution-html">${solution}</div></div>`
+      : `<div class="mock-review-solution"><h4>详细解法</h4><p>本地题库暂未保存这道题的完整推导。为避免把知识点标签误当成完整证明，这里只提供已读取的方法线索，并保留该年份的逐题解答入口。</p>${method?`<p><b>方法线索：</b>${esc(method)}</p>`:''}${sourceUrl?`<a class="btn primary" href="${esc(sourceUrl)}" target="_blank" rel="noopener noreferrer">打开${esc(q.year)}年 AMC8 完整解析（定位第${esc(q.problem_number)}题）</a>`:''}</div>`;
+    return `<details class="mock-review-item" ${needsOpen?'open':''}><summary><span><b>第${n}题</b> · ${esc(q.year||'')} AMC8 Q${esc(q.problem_number||'')}</span><span class="tag">${esc(status)}</span><span class="small">你的答案：${esc(own)}　正确答案：${esc(correct)}</span></summary><div class="mock-review-body"><div class="mock-review-question">${mockReviewPromptHtml(q)}${mockReviewPromptChoicesHtml(q)}</div><div class="mock-review-answer-grid"><div class="mock-review-answer-card"><div class="muted">Lucas 的答案</div><b>${esc(own)}</b></div><div class="mock-review-answer-card"><div class="muted">标准答案</div><b>${esc(correct)}</b></div><div class="mock-review-answer-card"><div class="muted">本题结果</div><b>${esc(status)}</b></div></div><div class="mock-review-method"><b>考点：</b>${esc(topic)}${skill?'　<b>细分技能：</b>'+esc(skill):''}${method?'<div style="margin-top:5px"><b>解题方法：</b>'+esc(method)+'</div>':''}</div>${solutionPanel}<div class="notice" style="margin-top:10px"><b>复盘动作：</b>${esc(reviewAction)}</div>${sourceUrl&&solution?`<p class="small"><a href="${esc(sourceUrl)}" target="_blank" rel="noopener noreferrer">打开${esc(q.year)}年 AMC8 原始逐题解析，核对第${esc(q.problem_number)}题</a></p>`:''}</div></details>`;
+  }).join('');
   wrap.innerHTML=`<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap"><div><div class="muted">LATEST FULL MOCK · LEARNING REPORT</div><h3 style="margin:4px 0">${esc(latest.date||'日期未知')} · ${esc(latest.paper_id||latest.mock_key||'周末模拟')}</h3><div class="small">仅依据这套模拟的逐题记录；不与每日专项成绩混算。</div></div><div style="font-size:30px;font-weight:800;color:#172b4d">${Number.isFinite(+latest.score)?latest.score:correct}<span class="muted" style="font-size:14px"> / 25</span></div></div>
   <div class="grid" style="margin-top:12px"><div class="card"><div class="muted">答对</div><div class="big">${correct}</div></div><div class="card"><div class="muted">独立正确</div><div class="big">${independent}</div></div><div class="card"><div class="muted">答错 / 不会</div><div class="big">${wrong.length} / ${unable.length}</div></div><div class="card"><div class="muted">猜对 / 未做</div><div class="big">${guessed.length} / ${skipped.length}</div></div></div>
   <div style="margin-top:14px"><h3>逐题表现</h3><div style="display:grid;grid-template-columns:repeat(25,minmax(0,1fr));gap:4px">${cells}</div><div class="small" style="margin-top:6px">绿色：独立答对　橙色：猜对　红色：答错　紫色：不会　灰色：未做</div></div>
   <div class="two" style="margin-top:14px"><div class="card"><h3>能力结构</h3>${domains.length?domains.map(d=>`<div style="margin:9px 0"><div style="display:flex;justify-content:space-between;gap:8px"><span>${esc(d.name)}</span><b>${d.correct}/${d.n} 独立正确</b></div><div style="height:7px;background:#e8edf4;border-radius:9px;overflow:hidden;margin-top:4px"><div style="height:100%;width:${Math.round(d.correct/Math.max(1,d.n)*100)}%;background:${d.correct/Math.max(1,d.n)>=.75?'#15966b':d.correct/Math.max(1,d.n)>=.5?'#f59e0b':'#ef4444'}"></div></div></div>`).join(''):'<p class="muted">题库知识点标签不足，暂不能分析。</p>'}</div>
   <div class="card"><h3>本次诊断</h3><p><b>本次表现：</b>录入${attempted}/25题，独立正确${independent}题。${guessed.length?'另有'+guessed.length+'道猜对题暂不视为稳定掌握。':''}</p><p><b>相对稳定：</b>${strengths.length?strengths.map(x=>esc(x.name)+'（'+x.correct+'/'+x.n+'）').join('、'):'目前没有足够样本确认某一领域已稳定掌握。'}</p><p><b>需要关注：</b>${weakSkills.length?weakSkills.map(x=>esc(x.name)+'（'+x.weak+'题待复盘）').join('；'):'本套未识别出明确的知识点集中薄弱，但仍需用新题验证。'}</p><p class="small">这是基于作答记录和题库标签的自动诊断，不把少量样本包装成确定的能力结论。</p></div></div>
   <div class="card" style="margin-top:12px"><h3>知识点与方法待复盘</h3>${weakSkills.length?weakSkills.map(x=>`<div style="padding:9px 0;border-bottom:1px solid #e7edf4"><b>${esc(x.name)}</b><div class="small">待复盘题号：${x.ids.map(n=>'Q'+n).join('、')}${x.methods.length?'；方法线索：'+x.methods.map(esc).join('、'):''}</div></div>`).join(''):'<p class="muted">当前没有待复盘的知识点。</p>'}</div>
-  <div class="card" style="margin-top:12px;border-left:4px solid #5965e8"><h3>下一步训练建议</h3><ol>${next.map(x=>'<li style="margin:7px 0">'+esc(x)+'</li>').join('')}</ol><p class="small">后续周中训练应使用新题或同方法变式题；近期已练过的原题不应直接重复。</p></div>`;
+  <div class="card" style="margin-top:12px;border-left:4px solid #5965e8"><h3>下一步训练建议</h3><ol>${next.map(x=>'<li style="margin:7px 0">'+esc(x)+'</li>').join('')}</ol><p class="small">后续周中训练应使用新题或同方法变式题；近期已练过的原题不应直接重复。</p></div>
+  <div class="card mock-question-review-section" style="margin-top:12px"><h3>逐题答案与解法</h3><p class="small">本套25题都显示你的答案、标准答案、结果和考点。当前本地完整解法覆盖 <b>${solutionCount}/${per.length}</b> 题；其余题会明确标出并提供该年度的逐题解答入口，不会编造推导。答错、不会、未做和猜对的题默认展开。</p>${questionReviews}</div>`;
   host.appendChild(wrap);
 }
 
@@ -1763,7 +1843,7 @@ function renderData(){document.getElementById('data').innerHTML=`<div class=card
 const AUTHENTIC_BANK_URL='https://raw.githubusercontent.com/iuruoy-shao/training-problems/main/problem-classification/amc_8_problems_with_sol.json';
 const AUTHENTIC_LABEL_URL='https://raw.githubusercontent.com/iuruoy-shao/training-problems/main/problem-classification/outputs_file_8.txt';
 const AUTHENTIC_YEARS=new Set([2015,2016,2017,2018]);
-const AUTHENTIC_CACHE_KEY='lucas_amc8_authentic_bank_v063';
+const AUTHENTIC_CACHE_KEY='lucas_amc8_authentic_bank_v064_solution_report';
 const SYNC_CODE_KEY='lucas_amc8_sync_code_v1';
 const CLOUD_CFG=window.AMC8_CLOUD_CONFIG||{};
 let authenticLoadState={status:'idle',message:''};
@@ -1825,6 +1905,15 @@ function makeRealQuestion(key,v,labelMap){
 
 // ---------- archive_official_v1: image-preserving, bilingual source PDFs ----------
 let ARCHIVE_BANK=[];
+let SOLUTION_BANK=new Map();
+function solutionKey(year,number){return `${Number(year)}_${Number(number)}`;}
+function normalizeSolutionRows(data){
+  return Object.entries(data||{}).map(([key,v])=>{
+    const solutions=Array.isArray(v?.solutions)?v.solutions:[];
+    const solutionHtml=solutions.find(x=>typeof x==='string'&&x.trim())||'';
+    return {year:Number(v?.test?.[0]),problem_number:Number(v?.number),solution_html:String(solutionHtml)};
+  }).filter(x=>Number.isInteger(x.year)&&Number.isInteger(x.problem_number)&&x.solution_html.trim());
+}
 function archiveQuestion(r){
  const d=r.number<=8?1:r.number<=16?2:r.number<=21?3:4;
  // No unverified knowledge labels; 2015-18 classifications reused if available.
@@ -1834,7 +1923,10 @@ function archiveQuestion(r){
    domain,skill:prior?.skill||'archive_unclassified_'+r.year+'_'+r.number,
    core_method:prior?.core_method||'archive_method_'+r.year+'_'+r.number,
    difficulty:d,answer:r.answer,choices:['A','B','C','D','E'],prompt:'原版中英双语题目图像',prompt_en:'',prompt_zh:'',
-   archive_image:r.image,archive_height:r.height,official:true,active:true,quality_tier:'original_pdf',
+   archive_image:r.image,archive_height:r.height,
+   solution_html:SOLUTION_BANK.get(solutionKey(r.year,r.number))||'',
+   solution_source_url:`https://live.poshenloh.com/past-contests/amc8/${r.year}/solutions`,
+   official:true,active:true,quality_tier:'original_pdf',
    variant_group:'archive_'+r.year+'_'+r.number};
 }
 async function loadArchiveBank(){
@@ -1989,35 +2081,44 @@ function buildArchiveMockCore(options={}){
 }
 
 async function loadAuthenticBank(){
-  authenticLoadState={status:'loading',message:'正在加载2015–2018真实AMC8题库…'};
+  authenticLoadState={status:'loading',message:'正在加载2015–2018真实AMC8题库与逐题解法资料…'};
   try{
-    let rows=null;
+    let rows=null,solutionRows=null;
     const cached=localStorage.getItem(AUTHENTIC_CACHE_KEY);
     if(cached){
       try{
         const c=JSON.parse(cached);
         if(Array.isArray(c?.rows)&&c.rows.length===100)rows=c.rows;
+        if(Array.isArray(c?.solutions)&&c.solutions.length>0)solutionRows=c.solutions;
       }catch(e){}
     }
-    if(!rows){
+    if(!rows||!solutionRows){
       const [r1,r2]=await Promise.all([fetch(AUTHENTIC_BANK_URL,{cache:'no-cache'}),fetch(AUTHENTIC_LABEL_URL,{cache:'no-cache'})]);
       if(!r1.ok||!r2.ok)throw new Error(`题库源响应异常 ${r1.status}/${r2.status}`);
       const data=await r1.json(),labelMap=parseLabelText(await r2.text());
-      rows=Object.entries(data).map(([k,v])=>makeRealQuestion(k,v,labelMap)).filter(q=>AUTHENTIC_YEARS.has(q.year)&&q.choices.length===5&&'ABCDE'.includes(q.answer));
-      rows.sort((a,b)=>a.year-b.year||a.problem_number-b.problem_number);
-      if(rows.length!==100)throw new Error(`2015–2018应有100题，实际加载${rows.length}题`);
-      localStorage.setItem(AUTHENTIC_CACHE_KEY,JSON.stringify({cached_at:new Date().toISOString(),rows}));
+      if(!rows){
+        rows=Object.entries(data).map(([k,v])=>makeRealQuestion(k,v,labelMap)).filter(q=>AUTHENTIC_YEARS.has(q.year)&&q.choices.length===5&&'ABCDE'.includes(q.answer));
+        rows.sort((a,b)=>a.year-b.year||a.problem_number-b.problem_number);
+        if(rows.length!==100)throw new Error(`2015–2018应有100题，实际加载${rows.length}题`);
+      }
+      if(!solutionRows)solutionRows=normalizeSolutionRows(data);
+      try{
+        localStorage.setItem(AUTHENTIC_CACHE_KEY,JSON.stringify({cached_at:new Date().toISOString(),rows,solutions:solutionRows}));
+      }catch(cacheError){
+        console.warn('AMC8解法缓存未写入；本次会话仍可使用已加载的解法',cacheError);
+      }
     }
+    SOLUTION_BANK=new Map((solutionRows||[]).map(x=>[solutionKey(x.year,x.problem_number),x.solution_html]));
     REAL_BANK=rows;
     BANK=[...LEGACY_BANK,...REAL_BANK];
-    authenticLoadState={status:'ready',message:`已加载 ${REAL_BANK.length} 道2015–2018真实AMC8题`};
+    authenticLoadState={status:'ready',message:`已加载 ${REAL_BANK.length} 道2015–2018真实AMC8题与 ${SOLUTION_BANK.size} 道逐题解法`};
   }catch(e){
     REAL_BANK=[];
+    SOLUTION_BANK=new Map();
     BANK=[...LEGACY_BANK];
     authenticLoadState={status:'error',message:'真实AMC8题库加载失败：'+e.message};
   }
 }
-
 function eligibleDailyBank(){
   // Weekday training uses AMC8 Q13–Q25 and avoids questions seen in any recent practice/mock.
   // Locked papers are always protected; the 30-day window relaxes to 14 then 7 days only if needed.
@@ -2353,12 +2454,12 @@ function renderAll(){renderHome();renderPractice();renderMock();renderReport();r
 async function initV063(){await loadAuthenticBank();try{await loadArchiveBank()}catch(e){console.error('双语真题库载入失败',e)}S=migrateState(S);saveStateLocal(false);renderAll();if(cloudConfigured()&&getSyncCode())cloudSyncAuto().catch(e=>console.warn(e));}
 initV063();
 </script>
-<script src="coach_mock_assembly_v06514.js?v=0.6.5.19"></script>
-<script src="coach_v064.js?v=0.6.5.19"></script>
+<script src="coach_mock_assembly_v06514.js?v=0.6.5.20"></script>
+<script src="coach_v064.js?v=0.6.5.20"></script>
 <script src="coach_v0641.js"></script>
 
 <!-- AMC8 v0.6.4.2 SAFE SKILL MODULE: BEGIN -->
-<script src="coach_skill_import_v4_offline.js?v=0.6.5.19"></script>
+<script src="coach_skill_import_v4_offline.js?v=0.6.5.20"></script>
 <!-- Legacy panel disabled: knowledge lives in its dedicated view, owned by index.html. -->
 <script src="coach_mock_submission_guard.js"></script>
 <!-- AMC8 v0.6.4.2 SAFE SKILL MODULE: END -->
@@ -2450,8 +2551,8 @@ async function startup(){
 startup();
 })();
 </script>
-<script src="coach_review_cycle_v065.js?v=0.6.5.19"></script>
-<script src="coach_ai_transfer_review_v066.js?v=0.6.5.19"></script>
-<script src="coach_learning_closure_v06514.js?v=0.6.5.19"></script>
-<script src="coach_student_dashboard_v06515.js?v=0.6.5.19"></script>
+<script src="coach_review_cycle_v065.js?v=0.6.5.20"></script>
+<script src="coach_ai_transfer_review_v066.js?v=0.6.5.20"></script>
+<script src="coach_learning_closure_v06514.js?v=0.6.5.20"></script>
+<script src="coach_student_dashboard_v06515.js?v=0.6.5.20"></script>
 </body></html>
