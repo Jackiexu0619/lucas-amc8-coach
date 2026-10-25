@@ -91,7 +91,7 @@ const changelog = fs.readFileSync(path.join(__dirname, 'CHANGELOG.md'), 'utf8');
 assert.equal((html.match(/function buildPrintableMockCore\s*\(/g) || []).length, 1, 'only one active buildPrintableMockCore definition may exist');
 assert.match(html, /coach_mock_assembly_v06514\.js\?v=0\.6\.5\.(14|16|17|18)/, 'new selector module must be cache-busted and loaded');
 assert.match(html, /function archiveWeaknessScore\s*\(/, 'application must calculate a same-method weakness score');
-assert.match(html, /selectArchiveMock\s*\(/, 'active archive selector must use the tested selector module');
+assert.match(closure, /const result=selectArchivePaper\(\{bank,state,tagMap,weakRecords:records,today:/, 'the final active picker must invoke the tested learning-closure selector');
 assert.match(html, /weekly_weakness_coverage/, 'mock metadata must retain traceable weakness coverage');
 assert.match(html, /coach_v064\.js\?v=0\.6\.5\.(14|16|17|18)/, 'the production override must be cache-busted');
 assert.match(coach, /buildArchiveMockCore\(\{\s*archive:allowedArchive,reservedYears:RESERVED_YEARS\}\)/, 'production personalized mode must pass the filtered archive and reserved years');
