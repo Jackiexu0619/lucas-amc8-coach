@@ -1703,8 +1703,8 @@ function mockReviewPromptHtml(q){
 function mockReviewChoicePlain(value){
   let s=String(value??'').replace(/<[^>]*>/g,' ').trim();
   s=s.replace(/\\quad/g,' ').replace(/\\,/g,' ');
-  s=s.replace(/\\dfrac\\{([^{}]+)\\}\\{([^{}]+)\\}/g,'$1/$2').replace(/\\frac\\{([^{}]+)\\}\\{([^{}]+)\\}/g,'$1/$2');
-  s=s.replace(/\\sqrt\\{([^{}]+)\\}/g,'√($1)').replace(/\\pi/g,'π').replace(/\\cdot/g,'×').replace(/\\times/g,'×');
+  s=s.replace(/\\dfrac\{([^{}]+)\}\{([^{}]+)\}/g,'$1/$2').replace(/\\frac\{([^{}]+)\}\{([^{}]+)\}/g,'$1/$2');
+  s=s.replace(/\\sqrt\{([^{}]+)\}/g,'√($1)').replace(/\\pi/g,'π').replace(/\\cdot/g,'×').replace(/\\times/g,'×');
   return s.replace(/[{}$]/g,'').replace(/\s+/g,' ').trim();
 }
 function mockReviewAnswerText(q,letter){
