@@ -22,7 +22,7 @@ Keep the learning loop simple and evidence-based:
 - AI transfer review now treats correct-but-slow source attempts as a reason to start a same-method transfer, and correct-but-slow AI answers do not advance mastery.
 - Skill evidence no longer labels repeated slow performance as stable.
 - Regression coverage added for reserved-year exclusion through the final active override and for weekday/weekend/AI correct-but-slow paths.
-- QA: mock assembly PASS — https://github.com/Jackiexu0619/lucas-amc8-coach/actions/runs/40153030047; learning closure PASS — https://github.com/Jackiexu0619/lucas-amc8-coach/actions/runs/40153017475; AI transfer review PASS — https://github.com/Jackiexu0619/lucas-amc8-coach/actions/runs/40152914249; dashboard QA PASS — https://github.com/Jackiexu0619/lucas-amc8-coach/actions/runs/40153017472.
+- QA: mock assembly PASS — https://github.com/Jackiexu0619/lucas-amc8-coach/actions/runs/40153537029; learning closure PASS — https://github.com/Jackiexu0619/lucas-amc8-coach/actions/runs/40153536995; AI transfer review PASS — https://github.com/Jackiexu0619/lucas-amc8-coach/actions/runs/40153536989; dashboard QA PASS — https://github.com/Jackiexu0619/lucas-amc8-coach/actions/runs/40153536988.
 - Release gate still open: review/merge PR, confirm GitHub Pages deploys v0.6.5.18, then rerun deployed-browser smoke against that exact live build. No learner records or Supabase data were changed by these tests.
 
 - Reference product: https://luminamath.top/student
