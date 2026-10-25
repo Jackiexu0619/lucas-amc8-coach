@@ -70,9 +70,10 @@ function queue(){
  const state={version:1,tasks:out,used_candidate_ids:[...used],updated_at:new Date().toISOString(),approved_candidate_count:approved.length};
  S[KEY]=state;saveStateLocal(false);return state;
 }
-function pickDue(){
- const d=todayLocal(),used=new Set(queue().used_candidate_ids);
- const tasks=queue().tasks.filter(t=>t.status==='pending'&&t.due&&t.due<=d&&t.available>0)
+function pickDue(excludeIds=new Set()){
+ const exclusion=excludeIds instanceof Set?new Set(excludeIds):new Set(Array.isArray(excludeIds)?excludeIds:[]);
+ const state=queue(),d=todayLocal(),used=new Set([...(state.used_candidate_ids||[]),...exclusion]);
+ const tasks=state.tasks.filter(t=>t.status==='pending'&&t.due&&t.due<=d&&t.available>0)
   .sort((a,b)=>(b.priority||0)-(a.priority||0)||a.due.localeCompare(b.due));
  for(const t of tasks){
   const pool=(groups[t.method_group]||[]).filter(q=>!used.has(q.id)&&q.id!==t.origin_question_id);
@@ -106,14 +107,15 @@ const originalBadge=questionSourceBadge;
 questionSourceBadge=function(q){if(q?.source==='ai_generated_review')return '<span class="tag warn">AI同方法复测（非真题）</span>';return originalBadge(q)};
 const originalGenerate=generateDailyPlan;
 generateDailyPlan=function(excludeIds){
- const hasExclusions=excludeIds&&(excludeIds instanceof Set?excludeIds.size:Array.isArray(excludeIds)?excludeIds.length:0);
- if(hasExclusions)return originalGenerate(excludeIds);
- const base=originalGenerate();
+ const exclusion=excludeIds instanceof Set?new Set(excludeIds):new Set(Array.isArray(excludeIds)?excludeIds:[]);
+ window.__amcAiTransferSelected=null;
+ const base=originalGenerate(exclusion);
  if(!Array.isArray(base)||base.length!==3)return base;
- const ai=pickDue();if(!ai)return base;
- const result=[ai,...base.filter(q=>q.id!==ai.id).slice(0,2)];
+ const ai=pickDue(exclusion);if(!ai)return base;
+ const result=[ai,...base.filter(q=>q?.id!==ai.id&&!exclusion.has(q.id)).slice(0,2)];
+ if(result.length!==3)return base;
  window.__amcAiTransferSelected=ai;
- return result.length===3?result:base;
+ return result;
 };
 function renderQueue(){
  const state=queue(),tasks=state.tasks,pending=tasks.filter(t=>t.status==='pending'),due=pending.filter(t=>t.due<=todayLocal());
