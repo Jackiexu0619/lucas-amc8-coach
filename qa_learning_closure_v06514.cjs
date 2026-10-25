@@ -141,4 +141,41 @@ assert.equal(weekendSlow.error_type,'time_issue','a parent-marked slow correct a
 assert.equal(weekendSlow.error_detail,'correct_but_slow');
 assert.ok(reviewWindow.amc8V065Queue().tasks.some(t=>t.first_question_id===slowWeekendQ.id&&t.status==='pending'),'a parent-marked slow weekend answer must create a pending retest task');
 
-console.log('PASS: 575 tags, weak-point matching, reserved-year protection, 30-day cooldown, complete-mock report integrity, and correct-but-slow retest integration.');
+async function testLiveBuilderOverride(){
+  const liveBank=[];
+  for(const year of [2015,2016,2017,2018])for(let pos=1;pos<=25;pos++){
+    liveBank.push({id:'archive_'+year+'_'+String(pos).padStart(2,'0'),year,problem_number:pos,answer:'A',choices:['A','B','C','D','E']});
+  }
+  const liveState={attempts:[],mock_detail_history:[],printable_mock_ids:[],printable_mock_meta:null,
+    v064_question_tags:{},v064_specific_skills:{},daily_plan:null,mock_drafts:{}};
+  const liveWindow={document:{getElementById:()=>null}};
+  const liveCtx={
+    window:liveWindow,S:liveState,ARCHIVE_BANK:liveBank,ENGINE_VERSION:'0.6.5.18',
+    EXAM_DIFFICULTY_BY_POSITION:Array.from({length:25},(_,i)=>i+1<=8?1:i+1<=16?2:i+1<=21?3:4),
+    archivePaperPicker:()=>null,buildArchiveMockCore:()=>false,submitPrintableMockAnswers:()=>true,
+    learningTags:()=>({skill:'',method:'',domain:''}),weeklyWeakRecords:()=>[],weeklyWeaknessSummary:()=>[],
+    weeklyWeakMatch:()=>[],weeklyWeakAffinity:()=>0,resetWeeklyWeaknessCache:()=>{},
+    renderReport:()=>{},saveStateLocal:()=>{},renderAll:()=>{},today:()=> '2026-10-25',
+    alert:()=>{},fetch:async()=>({ok:false,status:503}),console
+  };
+  vm.createContext(liveCtx);
+  vm.runInContext(closureSource,liveCtx,{filename:'coach_learning_closure_v06514.js:browser-override'});
+  await liveWindow.amcLearningClosureV06514.ready;
+  const built=liveCtx.buildArchiveMockCore({archive:liveBank,reservedYears:[2017,2018]});
+  assert.equal(built,true,'the active browser override should assemble the paper');
+  assert.equal(liveState.printable_mock_ids.length,25,'the active browser override must create 25 questions');
+  assert.equal(new Set(liveState.printable_mock_ids).size,25,'the active browser override must keep question IDs unique');
+  assert.ok(liveState.printable_mock_meta.source_mix.every(q=>![2017,2018].includes(q.year)),
+    'the final active browser override must not consume reserved diagnostic years');
+  assert.deepEqual(liveState.printable_mock_meta.reserved_years_excluded,[2017,2018]);
+  assert.equal(liveState.printable_mock_meta.reserved_year_filter_applied,true);
+  assert.equal(liveState.printable_mock_meta.constraints.reserved_year_filter_applied,true);
+  assert.ok(liveState.printable_mock_meta.source_mix.every((q,i)=>q.original_position===i+1),
+    'the active browser override must preserve all 25 original AMC8 positions');
+}
+testLiveBuilderOverride().then(()=>{
+  console.log('PASS: 575 tags, weakness matching, reserved-year protection through the final active browser override, 30-day cooldown, report integrity, and correct-but-slow retest integration.');
+}).catch(error=>{
+  console.error(error&&error.stack?error.stack:String(error));
+  process.exitCode=1;
+});
