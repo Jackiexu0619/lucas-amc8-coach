@@ -67,24 +67,23 @@ function candidates(t,used){
  pool.sort((a,b)=>Number(seen.has(a.id))-Number(seen.has(b.id))||Math.abs(a.problem_number-target)-Math.abs(b.problem_number-target)||a.year-b.year||a.problem_number-b.problem_number);
  return pool;
 }
-function pickAndMark(){
- const base=window.amc8V0641PickDaily?window.amc8V0641PickDaily():[];
- const queue=rebuildQueue().tasks.filter(t=>t.status==='pending'&&t.due&&t.due<=today()).sort((a,b)=>b.priority-a.priority||a.due.localeCompare(b.due));
- const selected=[],ids=new Set();const matched=[];
- for(const t of queue){if(selected.length>=2)break;const q=candidates(t,ids)[0];if(!q)continue;selected.push(q);ids.add(q.id);matched.push({qid:q.id,key:t.key,source:t.source,skill:t.skill});}
- for(const q of base){if(selected.length>=3)break;if(!ids.has(q.id)){selected.push(q);ids.add(q.id)}}
- if(selected.length<3){for(const q of eligibleDailyBank()){if(selected.length===3)break;if(!ids.has(q.id)){selected.push(q);ids.add(q.id)}}}
- // Store evidence only in session display; the paper lock is authored by dailyPlan(), never rewritten.
- window.amcV065Planned=matched;
- return selected.slice(0,3);
+function pickAndMark(excludeIds=new Set()){
+  const exclusion=excludeIds instanceof Set?new Set(excludeIds):new Set(Array.isArray(excludeIds)?excludeIds:[]);
+  const base=window.amc8V0641PickDaily?window.amc8V0641PickDaily():[];
+  const selected=[],ids=new Set(exclusion);const matched=[];
+  const queue=rebuildQueue().tasks.filter(t=>t.status==='pending'&&t.due&&t.due<=today()).sort((a,b)=>b.priority-a.priority||a.due.localeCompare(b.due));
+  for(const t of queue){if(selected.length>=2)break;const q=candidates(t,ids)[0];if(!q)continue;selected.push(q);ids.add(q.id);matched.push({qid:q.id,key:t.key,source:t.source,skill:t.skill});}
+  for(const q of base){if(selected.length>=3)break;if(!ids.has(q.id)){selected.push(q);ids.add(q.id)}}
+  if(selected.length<3){for(const q of eligibleDailyBank()){if(selected.length===3)break;if(!ids.has(q.id)){selected.push(q);ids.add(q.id)}}}
+  // Explicit regeneration still consumes due tasks, while excluding every ID in the old locked paper.
+  window.amcV065Planned=matched;
+  return selected.slice(0,3);
 }
-// The earlier v0.6.4.2.8 proactive rebuild may use generateDailyPlan(exclusions).
-// Keep that contract: exclude old question IDs for explicit regeneration, otherwise use the due queue.
-const priorGenerate=generateDailyPlan;
+// Regeneration passes the old paper IDs here. Keep the review queue active instead of
+// falling back to the generic selector; pickAndMark applies exclusions to both review and fill slots.
 generateDailyPlan=function(excludeIds){
- const exclusion=excludeIds instanceof Set?excludeIds:new Set();
- if(exclusion.size){const p=priorGenerate(exclusion);return p.filter(q=>!exclusion.has(q.id));}
- return pickAndMark();
+  const exclusion=excludeIds instanceof Set?new Set(excludeIds):new Set(Array.isArray(excludeIds)?excludeIds:[]);
+  return pickAndMark(exclusion);
 };
 function reviewText(){const tasks=rebuildQueue().tasks;const pending=tasks.filter(t=>t.status==='pending');const due=pending.filter(t=>t.due<=today());const missing=due.filter(t=>!candidates(t,new Set()).length);
  let text='<div class="card" style="margin:12px 0"><h3>专项复测队列</h3>';
