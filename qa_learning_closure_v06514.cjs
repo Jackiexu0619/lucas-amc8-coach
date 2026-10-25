@@ -1,7 +1,7 @@
 'use strict';
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
-const {resolveTags,selectArchivePaper,classifyMatch,dailyQuestionCooldownIds}=require('./coach_learning_closure_v06514.js');
+const {resolveTags,selectArchivePaper,classifyMatch,dailyQuestionCooldownIds,latestCompleteMockDetail,selectionEvidenceFor}=require('./coach_learning_closure_v06514.js');
 const data=JSON.parse(fs.readFileSync('coach_skill_bank.json','utf8'));
 assert.equal(data.questions.length,575);
 const ids=new Set();
@@ -77,6 +77,22 @@ const recentSubmittedDaily=dailyQuestionCooldownIds({daily_plan:{date:'2026-10-2
 assert.ok(recentSubmittedDaily.has('recent_submitted_daily_q'),'recent submitted daily paper should be covered by the cooldown');
 const indexHtml=fs.readFileSync('index.html','utf8');
 assert.match(indexHtml,/function eligibleDailyBank\(\)[\s\S]{0,2200}__amcDailyQuestionCooldownIds/,'daily bank must use the shared cooldown helper');
-assert.match(indexHtml,/const ENGINE_VERSION='0\\.6\\.5\\.16'|const ENGINE_VERSION='0\.6\.5\.16'/,'engine version must match cooldown fix release');
+assert.match(indexHtml,/const ENGINE_VERSION='0\\.6\\.5\\.17'|const ENGINE_VERSION='0\.6\.5\.17'/,'engine version must match cooldown fix release');
 
-console.log('PASS: 575 tags, 25-position curve, weakness matching, unmapped safeguards, and complete 30-day question cooldown.');
+
+const partialMock={date:'2026-10-24',score:7,per_question:Array.from({length:8},(_,i)=>({index:i+1,correct:false}))};
+const completeMock={date:'2026-10-20',score:16,per_question:Array.from({length:25},(_,i)=>({index:i+1,correct:i<16})),selection_meta:{weekly_weakness_coverage:[{position:5,question_id:'archive_2016_05',matches:[]}]}};
+assert.equal(latestCompleteMockDetail({mock_detail_history:[completeMock,partialMock]}),completeMock,'a newer partial mock must not replace the latest complete mock');
+assert.equal(latestCompleteMockDetail({mock_detail_history:[partialMock]}),null,'partial records alone must not be reported as a completed full mock');
+const currentSelection={weekly_weakness_coverage:[{position:5,question_id:'current_locked_mock'}]};
+assert.equal(selectionEvidenceFor({printable_mock_meta:currentSelection,mock_detail_history:[completeMock,partialMock]},completeMock),completeMock.selection_meta,'completed mock report must use that mock’s saved selection evidence');
+const legacyComplete={date:'2026-10-21',per_question:Array.from({length:25},(_,i)=>({index:i+1}))};
+assert.equal(selectionEvidenceFor({printable_mock_meta:currentSelection,mock_detail_history:[legacyComplete]},legacyComplete),null,'do not attach current paper evidence to an older completed mock without its own evidence');
+assert.equal(selectionEvidenceFor({printable_mock_meta:currentSelection,mock_detail_history:[]},null),currentSelection,'before any completed mock, current locked paper evidence may be shown');
+const reportHtml=fs.readFileSync('index.html','utf8');
+assert.match(reportHtml,/Array\.isArray\(x\.per_question\)&&x\.per_question\.length===25/,'learning report must ignore partial mock detail records');
+const closureSource=fs.readFileSync('coach_learning_closure_v06514.js','utf8');
+assert.match(closureSource,/const latest=latestCompleteMockDetail\(state\)/,'closure panel must use the latest complete mock');
+assert.match(closureSource,/const selection=selectionEvidenceFor\(state,latest\)/,'selection evidence must belong to the mock being reported');
+
+console.log('PASS: 575 tags, weak-point matching, complete 30-day cooldown, and report integrity for full mock records.');
