@@ -18,7 +18,11 @@ function fine(q){let f=S.v064_specific_skills?.[q?.id];if(f?.status==='pdf_expla
 function parent(q){const t=S.v064_question_tags?.[q?.id];return t?.status==='reviewed'&&t.skill?t:null}
 function descriptor(q){const p=parent(q);if(p)return {key:'parent-skill:'+p.skill,skill:p.skill,source:'家长确认·同技能迁移'};const f=fine(q);return f?{key:'pdf-method:'+(f.group_key||f.skill),skill:f.skill,method:f.method||'',source:'PDF方法分组·待核对'}:null}
 function recordKey(a,i){return [a.paper_id||'',a.question_id||'',a.date||'',a.source||'',a.paper_question_index||'',i].join('|')}
-const resultOK=a=>a.correct&&!a.guessed&&a.result_status!=='skipped'&&a.result_status!=='unable';
+const isSlow=a=>{
+ const error=String(a?.error_type||'').toLowerCase(),detail=String(a?.error_detail||'').toLowerCase(),speed=String(a?.speed_label||'');
+ return ['time_issue','correct_but_slow'].includes(error)||detail==='correct_but_slow'||speed.includes('偏慢')||speed.includes('需复盘');
+};
+const resultOK=a=>a.correct&&!a.guessed&&a.result_status!=='skipped'&&a.result_status!=='unable'&&!isSlow(a);
 function rebuildQueue(){
  const old=S[KEY]||{};
  const rows=(S.attempts||[]).map((a,i)=>({a,i})).filter(({a})=>a&&a.question_id&&a.date&&(a.source==='paper_daily'||a.source==='weekend_mock'));
@@ -109,7 +113,14 @@ submitPrintableMockAnswers=function(){const prev=(S.mock_detail_history||[]).len
  const res=oldSubmitMock.apply(this,arguments);
  if((S.mock_detail_history||[]).length!==prev+1)return res;
  const reasons=draft?.error_types||{};
- for(const a of S.attempts||[]){if(a.source!=='weekend_mock'||a.paper_id!==id||a.correct&&!a.guessed)continue;const idx=a.paper_question_index-1;const reason=reasons[String(idx)]||'unsure';a.error_type=reason==='unsure'?null:reason;a.error_detail=reason==='unsure'?'parent_review_pending':reason;}
+ for(const a of S.attempts||[]){
+  if(a.source!=='weekend_mock'||a.paper_id!==id)continue;
+  const idx=a.paper_question_index-1,reason=reasons[String(idx)]||'unsure';
+  // An independently correct answer is normally a pass, but a parent-marked time issue must remain reviewable.
+  if(a.correct&&!a.guessed&&reason!=='time_issue')continue;
+  a.error_type=reason==='unsure'?null:reason;
+  a.error_detail=reason==='unsure'?'parent_review_pending':(reason==='time_issue'&&a.correct?'correct_but_slow':reason);
+ }
  const detail=S.mock_detail_history.at(-1);if(detail)detail.error_types={...reasons};
  rebuildQueue();saveStateLocal();renderAll();return res;
 };
