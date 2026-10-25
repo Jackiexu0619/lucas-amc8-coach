@@ -14,6 +14,38 @@ const ageDays = (date,today) => {
   const a=Date.parse(String(date).slice(0,10)+'T00:00:00Z'), b=Date.parse(String(today).slice(0,10)+'T00:00:00Z');
   return Number.isFinite(a)&&Number.isFinite(b)?Math.round((b-a)/86400000):99999;
 };
+
+function dailyQuestionCooldownIds(state={},today=new Date().toISOString().slice(0,10),days=30) {
+  const ids=new Set();
+  const addList=value=>{for(const id of Array.isArray(value)?value:[])if(id)ids.add(id);};
+  const addRecent=(id,date)=>{
+    if(!id)return;
+    const age=ageDays(date,today);
+    if(age>=0&&age<=days)ids.add(id);
+  };
+  for(const a of Array.isArray(state.attempts)?state.attempts:[]) {
+    addRecent(a&&a.question_id,a&&(a.date||a.submitted_at||a.created_at));
+  }
+  for(const m of Array.isArray(state.mock_detail_history)?state.mock_detail_history:[]) {
+    const date=m&&(m.date||m.mock_date||m.submitted_at||m.created_at);
+    const age=ageDays(date,today);
+    if(age<0||age>days)continue;
+    addList(m.question_ids);
+    for(const row of Array.isArray(m.per_question)?m.per_question:[]) {
+      if(row)addRecent(row.qid||row.question_id,date);
+    }
+  }
+  // A currently locked weekend paper is protected even before its answers are submitted.
+  addList(state.printable_mock_ids);
+  // A pending daily paper must not be silently reused by a newly generated plan.
+  const daily=state.daily_plan;
+  if(daily&&Array.isArray(daily.question_ids)) {
+    const age=ageDays(daily.date,today);
+    if(daily.submitted!==true||(age>=0&&age<=days))addList(daily.question_ids);
+  }
+  return ids;
+}
+
 function resolveTags(q,state={},tagMap=new Map()) {
   if(!q)return {skill:'',method:'',groupKey:'',group_key:'',topic:'',domain:'',source:'unmapped',confidence:'unknown'};
   const external=tagMapOf(tagMap).get(q.id)||{};
@@ -125,8 +157,9 @@ function selectArchivePaper(options={}) {
     weekly_weakness_focus:summarizeWeakness(mappedWeak),personalized_positions:POSITIONS.map(p=>p+1),weekly_weakness_coverage:coverage
   }};
 }
+root.__amcDailyQuestionCooldownIds=dailyQuestionCooldownIds;
 if(typeof module!=='undefined'&&module.exports){
-  module.exports={POSITIONS,resolveTags,classifyMatch,matchesFor,affinityFor,summarizeWeakness,selectArchivePaper};
+  module.exports={POSITIONS,resolveTags,classifyMatch,matchesFor,affinityFor,summarizeWeakness,selectArchivePaper,dailyQuestionCooldownIds};
   return;
 }
 
