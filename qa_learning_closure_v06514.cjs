@@ -167,7 +167,7 @@ async function testLiveBuilderOverride(){
   assert.equal(new Set(liveState.printable_mock_ids).size,25,'the active browser override must keep question IDs unique');
   assert.ok(liveState.printable_mock_meta.source_mix.every(q=>![2017,2018].includes(q.year)),
     'the final active browser override must not consume reserved diagnostic years');
-  assert.deepEqual(liveState.printable_mock_meta.reserved_years_excluded,[2017,2018]);
+  assert.equal(JSON.stringify(liveState.printable_mock_meta.reserved_years_excluded),JSON.stringify([2017,2018]),'reserved-year metadata should survive the active browser override');
   assert.equal(liveState.printable_mock_meta.reserved_year_filter_applied,true);
   assert.equal(liveState.printable_mock_meta.constraints.reserved_year_filter_applied,true);
   assert.ok(liveState.printable_mock_meta.source_mix.every((q,i)=>q.original_position===i+1),
