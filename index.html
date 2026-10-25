@@ -1700,12 +1700,19 @@ function mockReviewPromptHtml(q){
   if(q?.official&&q.problem_html)return sanitizeOfficialHtml(q.problem_html);
   return questionPromptHtml(q);
 }
+function mockReviewChoicePlain(value){
+  let s=String(value??'').replace(/<[^>]*>/g,' ').trim();
+  s=s.replace(/\\quad/g,' ').replace(/\\,/g,' ');
+  s=s.replace(/\\dfrac\\{([^{}]+)\\}\\{([^{}]+)\\}/g,'$1/$2').replace(/\\frac\\{([^{}]+)\\}\\{([^{}]+)\\}/g,'$1/$2');
+  s=s.replace(/\\sqrt\\{([^{}]+)\\}/g,'√($1)').replace(/\\pi/g,'π').replace(/\\cdot/g,'×').replace(/\\times/g,'×');
+  return s.replace(/[{}$]/g,'').replace(/\\s+/g,' ').trim();
+}
 function mockReviewAnswerText(q,letter){
   const answer=String(letter||'').toUpperCase();
   const idx='ABCDE'.indexOf(answer);
-  if(idx<0||q?.archive_image)return answer||'未保存';
-  const choice=q?.choices?.[idx];
-  return choice===undefined?answer:answer+'. '+choiceDisplay(choice);
+  if(idx<0)return answer||'未保存';
+  const choice=q?.choice_texts?.[idx]??(q?.archive_image?undefined:q?.choices?.[idx]);
+  return choice===undefined?answer:answer+'. '+mockReviewChoicePlain(choice);
 }
 function mockReviewStatus(r){
   if(r?.result_status==='unable')return '不会';
@@ -1906,12 +1913,13 @@ function makeRealQuestion(key,v,labelMap){
 // ---------- archive_official_v1: image-preserving, bilingual source PDFs ----------
 let ARCHIVE_BANK=[];
 let SOLUTION_BANK=new Map();
+let SOLUTION_CHOICE_BANK=new Map();
 function solutionKey(year,number){return `${Number(year)}_${Number(number)}`;}
 function normalizeSolutionRows(data){
   return Object.entries(data||{}).map(([key,v])=>{
     const solutions=Array.isArray(v?.solutions)?v.solutions:[];
     const solutionHtml=solutions.find(x=>typeof x==='string'&&x.trim())||'';
-    return {year:Number(v?.test?.[0]),problem_number:Number(v?.number),solution_html:String(solutionHtml)};
+    return {year:Number(v?.test?.[0]),problem_number:Number(v?.number),solution_html:String(solutionHtml),choices:Array.isArray(v?.choices)?v.choices.map(x=>String(x)):[]};
   }).filter(x=>Number.isInteger(x.year)&&Number.isInteger(x.problem_number)&&x.solution_html.trim());
 }
 function archiveQuestion(r){
@@ -1925,6 +1933,7 @@ function archiveQuestion(r){
    difficulty:d,answer:r.answer,choices:['A','B','C','D','E'],prompt:'原版中英双语题目图像',prompt_en:'',prompt_zh:'',
    archive_image:r.image,archive_height:r.height,
    solution_html:SOLUTION_BANK.get(solutionKey(r.year,r.number))||'',
+   choice_texts:SOLUTION_CHOICE_BANK.get(solutionKey(r.year,r.number))||null,
    solution_source_url:`https://live.poshenloh.com/past-contests/amc8/${r.year}/solutions`,
    official:true,active:true,quality_tier:'original_pdf',
    variant_group:'archive_'+r.year+'_'+r.number};
@@ -2109,12 +2118,14 @@ async function loadAuthenticBank(){
       }
     }
     SOLUTION_BANK=new Map((solutionRows||[]).map(x=>[solutionKey(x.year,x.problem_number),x.solution_html]));
+    SOLUTION_CHOICE_BANK=new Map((solutionRows||[]).filter(x=>Array.isArray(x.choices)&&x.choices.length===5).map(x=>[solutionKey(x.year,x.problem_number),x.choices]));
     REAL_BANK=rows;
     BANK=[...LEGACY_BANK,...REAL_BANK];
     authenticLoadState={status:'ready',message:`已加载 ${REAL_BANK.length} 道2015–2018真实AMC8题与 ${SOLUTION_BANK.size} 道逐题解法`};
   }catch(e){
     REAL_BANK=[];
     SOLUTION_BANK=new Map();
+    SOLUTION_CHOICE_BANK=new Map();
     BANK=[...LEGACY_BANK];
     authenticLoadState={status:'error',message:'真实AMC8题库加载失败：'+e.message};
   }
