@@ -93,7 +93,7 @@ assert.match(html, /coach_mock_assembly_v06514\.js\?v=0\.6\.5\.(14|16|17|18|19)/
 assert.match(html, /function archiveWeaknessScore\s*\(/, 'application must calculate a same-method weakness score');
 assert.match(closure, /const result=selectArchivePaper\(\{bank,state,tagMap,weakRecords:records,today:/, 'the final active picker must invoke the tested learning-closure selector');
 assert.match(html, /weekly_weakness_coverage/, 'mock metadata must retain traceable weakness coverage');
-assert.match(html, /coach_v064\.js\?v=0\.6\.5\.(14|16|17|18)/, 'the production override must be cache-busted');
+assert.match(html, /coach_v064\.js\?v=0\.6\.5\.(14|16|17|18|19)/, 'the production override must be cache-busted');
 assert.match(coach, /buildArchiveMockCore\(\{\s*archive:allowedArchive,reservedYears:RESERVED_YEARS\}\)/, 'production personalized mode must pass the filtered archive and reserved years');
 assert.match(closure, /archivePaperPicker=function\(options=\{\}\)/, 'the final active picker override must accept options');
 assert.match(closure, /const sourceBank=Array\.isArray\(options\.archive\)\?options\.archive/, 'the final active picker must honor the filtered candidate archive');
