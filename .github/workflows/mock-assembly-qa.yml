@@ -12,6 +12,11 @@ on:
       - 'qa_mock_answer_interaction_v06519.cjs'
       - 'qa_mock_learning_report_v06520.cjs'
       - 'coach_ai_explain_v06521.js'
+      - 'coach_review_cycle_v065.js'
+      - 'coach_ai_transfer_review_v066.js'
+      - 'qa_ai_transfer_review_v066.cjs'
+      - 'qa_review_queue_regeneration_v06522.cjs'
+      - 'DEVELOPMENT_PROGRESS.md'
       - 'qa_ai_explain_v06521.cjs'
       - 'qa_ai_explain_browser_v06521.cjs'
       - 'qa_ai_explain_live_v06521.cjs'
@@ -46,7 +51,7 @@ jobs:
         with:
           node-version: 20
       - name: Syntax check
-        run: node --check coach_mock_assembly_v06514.js && node --check coach_ai_explain_v06521.js && node --check qa_ai_explain_live_v06521.cjs
+        run: node --check coach_mock_assembly_v06514.js && node --check coach_ai_explain_v06521.js && node --check coach_review_cycle_v065.js && node --check coach_ai_transfer_review_v066.js && node --check qa_ai_explain_live_v06521.cjs && node --check qa_ai_transfer_review_v066.cjs && node --check qa_review_queue_regeneration_v06522.cjs
       - name: Inline script syntax check
         run: |
           node - <<'NODE'
@@ -65,6 +70,10 @@ jobs:
         run: node qa_mock_learning_report_v06520.cjs
       - name: On-demand DeepSeek explanation QA with mocked responses
         run: node qa_ai_explain_v06521.cjs
+      - name: Review queue regeneration QA
+        run: node qa_review_queue_regeneration_v06522.cjs
+      - name: AI transfer review QA
+        run: node qa_ai_transfer_review_v066.cjs
       - name: Isolated browser explanation QA
         run: |
           npm install --no-save playwright
