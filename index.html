@@ -1688,7 +1688,7 @@ function sanitizeSolutionHtml(raw){
     doc.querySelectorAll('*').forEach(el=>{
       [...el.attributes].forEach(attr=>{
         if(/^on/i.test(attr.name)||attr.name.toLowerCase()==='srcdoc')el.removeAttribute(attr.name);
-        else if(['href','src','xlink:href'].includes(attr.name)&&/^\\s*javascript:/i.test(attr.value))el.removeAttribute(attr.name);
+        else if(['href','src','xlink:href'].includes(attr.name)&&attr.value.trim().toLowerCase().startsWith('javascript:'))el.removeAttribute(attr.name);
       });
     });
     doc.querySelectorAll('a').forEach(a=>a.removeAttribute('href'));
