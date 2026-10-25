@@ -12,6 +12,8 @@ assert.match(html, /function normalizeSolutionRows\(data\)/,
   'source solution records should be normalized separately from the 2015-2018 training bank');
 assert.match(html, /SOLUTION_BANK=new Map\(\(solutionRows\|\|\[\]\)\.map/,
   'the loaded solution records should be indexed by year and question number');
+assert.match(html, /SOLUTION_CHOICE_BANK=new Map/,
+  'answer option text should be indexed when the source dataset provides it');
 assert.match(html, /solution_html:SOLUTION_BANK\.get\(solutionKey\(r\.year,r\.number\)\)\|\|''/,
   'archive questions should receive matching worked solutions when available');
 assert.match(html, /function renderLatestMockInsightsIntoReport\(\)/);
@@ -31,6 +33,7 @@ assert.match(html, /attr\.value\.trim\(\)\.toLowerCase\(\)\.startsWith\('javascr
   'solution HTML sanitization must reject javascript URLs');
 assert.match(html, /答错、不会、未做和猜对的题默认展开/);
 assert.match(html, /function mockReviewStatus\(r\)/);
+assert.match(html, /function mockReviewChoicePlain\(value\)/);
 assert.match(html, /猜对 · 待确认掌握/);
 assert.match(html, /本题结果/);
 assert.match(html, /复盘动作/);
@@ -42,14 +45,14 @@ assert.ok(start >= 0 && end > start, 'solution key and normalizer helpers should
 const helperSource = html.slice(start, end) + '\nnormalizeSolutionRows';
 const normalizeSolutionRows = vm.runInNewContext(helperSource, {});
 const rows = normalizeSolutionRows({
-  '2013 AMC 8 #9': { test: [2013, 8], number: 9, solutions: ['', '<p>Verified solution</p>', '<p>Alternative</p>'] },
+  '2013 AMC 8 #9': { test: [2013, 8], number: 9, solutions: ['', '<p>Verified solution</p>', '<p>Alternative</p>'], choices: ['9th','10th','11th','12th','13th'] },
   '2014 AMC 8 #1': { test: [2014, 8], number: 1, solutions: [] },
-  '2018 AMC 8 #2': { test: [2018, 8], number: 2, solutions: ['<p>Second test solution</p>'] },
+  '2018 AMC 8 #2': { test: [2018, 8], number: 2, solutions: ['<p>Second test solution</p>'], choices: ['1','2','3','4','5'] },
   'broken': { test: ['not-a-year', 8], number: 2, solutions: ['<p>Bad</p>'] }
 });
 assert.deepEqual(JSON.parse(JSON.stringify(rows)), [
-  { year: 2013, problem_number: 9, solution_html: '<p>Verified solution</p>' },
-  { year: 2018, problem_number: 2, solution_html: '<p>Second test solution</p>' }
+  { year: 2013, problem_number: 9, solution_html: '<p>Verified solution</p>', choices: ['9th','10th','11th','12th','13th'] },
+  { year: 2018, problem_number: 2, solution_html: '<p>Second test solution</p>', choices: ['1','2','3','4','5'] }
 ]);
 const solutionKey = vm.runInNewContext(html.slice(start, end) + '\nsolutionKey', {});
 assert.equal(solutionKey(2013, 9), '2013_9');
@@ -59,6 +62,12 @@ const reportStart = html.indexOf('function renderLatestMockInsightsIntoReport(){
 const reportEnd = html.indexOf('function renderDailyReviewIntoReport(){', reportStart);
 assert.ok(reportStart >= 0 && reportEnd > reportStart, 'the latest-mock report renderer should be extractable');
 const reportSource = html.slice(reportStart, reportEnd);
+const answerHelperStart = html.indexOf('function mockReviewChoicePlain(value){');
+const answerHelperEnd = html.indexOf('function mockReviewStatus(r){', answerHelperStart);
+assert.ok(answerHelperStart >= 0 && answerHelperEnd > answerHelperStart, 'answer display helpers should be extractable');
+const answerHelpers = vm.runInNewContext(html.slice(answerHelperStart, answerHelperEnd) + '\\n({ mockReviewChoicePlain, mockReviewAnswerText })', {});
+assert.equal(answerHelpers.mockReviewChoicePlain('\\\\frac{1}{2}'), '1/2');
+assert.equal(answerHelpers.mockReviewAnswerText({archive_image:'x.webp',choice_texts:['9th','10th','11th','12th','13th']}, 'C'), 'C. 11th');
 const questionMap = new Map();
 for (let i = 0; i < 25; i++) {
   questionMap.set('q' + i, {
@@ -67,6 +76,7 @@ for (let i = 0; i < 25; i++) {
     problem_number: i + 1,
     answer: i === 0 ? 'C' : 'A',
     archive_image: 'assets/test_' + i + '.webp',
+    choice_texts: i === 0 ? ['9th','10th','11th','12th','13th'] : null,
     domain: 'misc',
     skill: 'archive_unclassified_' + (i + 1),
     core_method: 'archive_method_' + (i + 1),
@@ -104,7 +114,7 @@ const reportContext = {
   sanitizeSolutionHtml(raw) { return String(raw || ''); },
   mockReviewPromptHtml(q) { return '<img src="' + q.archive_image + '">'; },
   mockReviewPromptChoicesHtml() { return ''; },
-  mockReviewAnswerText(q, letter) { return String(letter || ''); },
+  mockReviewAnswerText: answerHelpers.mockReviewAnswerText,
   mockReviewStatus(r) { return r.result_status === 'wrong' ? '答错' : r.guessed ? '猜对 · 待确认掌握' : '独立答对'; },
   console
 };
@@ -114,6 +124,8 @@ const rendered = reportHost.appended?.innerHTML || '';
 assert.match(rendered, /逐题答案与解法/);
 assert.match(rendered, /你的答案：B/);
 assert.match(rendered, /正确答案：C/);
+assert.match(rendered, /B\\. 10th/);
+assert.match(rendered, /C\\. 11th/);
 assert.match(rendered, /Compare powers of two: 2\^9=512 and 2\^10=1024/);
 assert.match(rendered, /本地题库暂未保存这道题的完整推导/);
 assert.match(rendered, /打开2018年 AMC8 完整解析/);
