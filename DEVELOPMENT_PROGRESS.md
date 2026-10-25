@@ -15,6 +15,17 @@ Keep the learning loop simple and evidence-based:
 - Production branch: `main`
 - Production page version: `v0.6.5.18` (merged to main; Pages deployment and exact-version deployed-browser smoke passed on 2026-10-25).
 
+## v0.6.5.19 — interactive mock answer UX (PR pending; not deployed)
+
+- Production remains `v0.6.5.18`; the interactive-answer changes are isolated on branch `fix/interactive-mock-answers-v06519`.
+- The active mock question now renders a single interactive answer control set. For image-based archive questions whose image already contains the full options, the controls are compact A–E buttons only; the redundant non-clickable “A. A / B. B” list is removed.
+- Clicking A–E saves the draft and advances automatically. The guess checkbox remains available before selection. “不会” and “未做” stay distinct and also advance; the final Q25 remains visible and shows the completion instruction.
+- The expanded 25-question preview uses the same clickable controls, so it no longer has a separate answer-entry system.
+- Added `qa_mock_answer_interaction_v06519.cjs` to test image-placeholder choices, structured choices, auto-advance, guess preservation, unable/skip separation, preview consistency and Q25 completion.
+- Pending validation: run CI, inspect the PR diff, merge only after tests pass, then deploy and run browser smoke against exact `v0.6.5.19`. No production learner records or Supabase data are changed by the UX tests.
+
+
+
 ## v0.6.5.18 — deployed and browser-verified
 
 - Confirmed by script load-order inspection: the final coach_learning_closure_v06514.js override of buildArchiveMockCore() discarded the filtered archive and reserved-year options passed by coach_v064.js. The active override now preserves and records the filter.
