@@ -92,7 +92,7 @@ assert.match(html, /coach_mock_assembly_v06514\.js\?v=0\.6\.5\.(14|16)/, 'new se
 assert.match(html, /function archiveWeaknessScore\s*\(/, 'application must calculate a same-method weakness score');
 assert.match(html, /selectArchiveMock\s*\(/, 'active archive selector must use the tested selector module');
 assert.match(html, /weekly_weakness_coverage/, 'mock metadata must retain traceable weakness coverage');
-assert.match(html, /coach_v064\.js\?v=0\.6\.5\.14/, 'the production override must be cache-busted');
+assert.match(html, /coach_v064\.js\?v=0\.6\.5\.(14|16)/, 'the production override must be cache-busted');
 assert.match(coach, /buildArchiveMockCore\(\{\s*archive:allowedArchive,reservedYears:RESERVED_YEARS\}\)/, 'production personalized mode must use the tested selector and reserve diagnostic years');
 assert.match(coach, /chosen=pickDiagnostic\(\)/, 'full-year diagnostic mode must remain independent');
 assert.match(coach, /paper_type:'personalized_practice'/, 'personalized mock type must be preserved for submission history');
