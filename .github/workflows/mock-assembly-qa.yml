@@ -11,6 +11,11 @@ on:
       - 'qa_mock_assembly_v06514.cjs'
       - 'qa_mock_answer_interaction_v06519.cjs'
       - 'qa_mock_learning_report_v06520.cjs'
+      - 'coach_ai_explain_v06521.js'
+      - 'qa_ai_explain_v06521.cjs'
+      - 'qa_ai_explain_browser_v06521.cjs'
+      - 'supabase/functions/amc8-explain/**'
+      - 'supabase/migrations/*amc8_explain_quota.sql'
       - '.github/workflows/mock-assembly-qa.yml'
   pull_request:
     paths:
@@ -22,6 +27,11 @@ on:
       - 'qa_mock_assembly_v06514.cjs'
       - 'qa_mock_answer_interaction_v06519.cjs'
       - 'qa_mock_learning_report_v06520.cjs'
+      - 'coach_ai_explain_v06521.js'
+      - 'qa_ai_explain_v06521.cjs'
+      - 'qa_ai_explain_browser_v06521.cjs'
+      - 'supabase/functions/amc8-explain/**'
+      - 'supabase/migrations/*amc8_explain_quota.sql'
       - '.github/workflows/mock-assembly-qa.yml'
   workflow_dispatch:
 
@@ -34,10 +44,27 @@ jobs:
         with:
           node-version: 20
       - name: Syntax check
-        run: node --check coach_mock_assembly_v06514.js
+        run: node --check coach_mock_assembly_v06514.js && node --check coach_ai_explain_v06521.js
+      - name: Inline script syntax check
+        run: |
+          node - <<'NODE'
+          const fs=require('node:fs'),vm=require('node:vm');
+          const html=fs.readFileSync('index.html','utf8');
+          const pattern=/<script\b(?![^>]*\bsrc\s*=)[^>]*>([\s\S]*?)<\/script>/gi;
+          let match,count=0;
+          while((match=pattern.exec(html))!==null){if(match[1].trim()){new vm.Script(match[1],{filename:'index.html:inline-'+(++count)});}}
+          if(!count)throw Error('No inline script found');
+          NODE
       - name: Selector and integration QA
         run: node qa_mock_assembly_v06514.cjs
       - name: Interactive mock answer UX QA
         run: node qa_mock_answer_interaction_v06519.cjs
       - name: Per-question learning report QA
         run: node qa_mock_learning_report_v06520.cjs
+      - name: On-demand DeepSeek explanation QA with mocked responses
+        run: node qa_ai_explain_v06521.cjs
+      - name: Isolated browser explanation QA
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+          node qa_ai_explain_browser_v06521.cjs
