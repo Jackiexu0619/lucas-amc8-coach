@@ -77,7 +77,7 @@ const recentSubmittedDaily=dailyQuestionCooldownIds({daily_plan:{date:'2026-10-2
 assert.ok(recentSubmittedDaily.has('recent_submitted_daily_q'),'recent submitted daily paper should be covered by the cooldown');
 const indexHtml=fs.readFileSync('index.html','utf8');
 assert.match(indexHtml,/function eligibleDailyBank\(\)[\s\S]{0,2200}__amcDailyQuestionCooldownIds/,'daily bank must use the shared cooldown helper');
-assert.match(indexHtml,/const ENGINE_VERSION='0\\.6\\.5\\.16'|const ENGINE_VERSION='0\.6\.5\.16'/,'engine version must match cooldown fix release');
+assert.match(indexHtml,/const ENGINE_VERSION='0\\.6\\.5\\.17'|const ENGINE_VERSION='0\.6\.5\.17'/,'engine version must match cooldown fix release');
 
 
 const partialMock={date:'2026-10-24',score:7,per_question:Array.from({length:8},(_,i)=>({index:i+1,correct:false}))};
@@ -90,7 +90,9 @@ const legacyComplete={date:'2026-10-21',per_question:Array.from({length:25},(_,i
 assert.equal(selectionEvidenceFor({printable_mock_meta:currentSelection,mock_detail_history:[legacyComplete]},legacyComplete),null,'do not attach current paper evidence to an older completed mock without its own evidence');
 assert.equal(selectionEvidenceFor({printable_mock_meta:currentSelection,mock_detail_history:[]},null),currentSelection,'before any completed mock, current locked paper evidence may be shown');
 const reportHtml=fs.readFileSync('index.html','utf8');
-assert.match(reportHtml,/per_question&&x\.per_question\.length===25/,'learning report must ignore partial mock detail records');
-assert.match(closureSourcePlaceholder='function renderClosurePanel\(\)[\s\S]{0,1800}latestCompleteMockDetail\(state\)/,'report panel must use complete mock selector');
+assert.match(reportHtml,/Array\.isArray\(x\.per_question\)&&x\.per_question\.length===25/,'learning report must ignore partial mock detail records');
+const closureSource=fs.readFileSync('coach_learning_closure_v06514.js','utf8');
+assert.match(closureSource,/const latest=latestCompleteMockDetail\(state\)/,'closure panel must use the latest complete mock');
+assert.match(closureSource,/const selection=selectionEvidenceFor\(state,latest\)/,'selection evidence must belong to the mock being reported');
 
 console.log('PASS: 575 tags, weak-point matching, complete 30-day cooldown, and report integrity for full mock records.');
