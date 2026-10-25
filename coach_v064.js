@@ -27,7 +27,7 @@ function skillEvidence(skill){
  const indep=rows.filter(isIndependent), wrong=rows.filter(a=>!a.correct||a.guessed), slow=indep.filter(a=>a.error_detail==='correct_but_slow'||a.error_type==='time_issue');
  const days=new Set(indep.map(a=>a.date));
  return {skill,attempts:rows.length,distinct:new Set(rows.map(a=>a.question_id)).size,independent:indep.length,wrong:wrong.length,slow:slow.length,independent_days:days.size,
-  status:rows.length<3?'证据不足':(indep.length>=3&&days.size>=2&&wrong.length<=1?'初步稳定':wrong.length>=2?'需要加强':'继续复测')};
+  status:rows.length<3?'证据不足':(indep.length>=3&&days.size>=2&&wrong.length<=1&&slow.length<=1?'初步稳定':(wrong.length>=2||slow.length>=2?'需要加强':'继续复测'))};
 }
 window.amc8V064Ability=()=>SKILLS.map(skillEvidence).filter(x=>x.attempts);
 function candidateValue(q,position,used,recordsBySkill){

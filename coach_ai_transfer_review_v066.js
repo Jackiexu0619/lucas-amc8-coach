@@ -34,6 +34,10 @@ const isTrain=d=>{const x=dateOf(d);return x&&[2,3,4,5].includes(x.getDay())};
 const nextTrain=d=>{let x=add(d,1),i=0;while(!isTrain(x)&&i++<8)x=add(x,1);return x};
 const scheduled=d=>{let x=d,i=0;while(!isTrain(x)&&i++<8)x=add(x,1);return x};
 const todayLocal=()=>typeof today==='function'?today():new Date().toISOString().slice(0,10);
+const isSlow=a=>{
+ const error=String(a?.error_type||'').toLowerCase(),detail=String(a?.error_detail||'').toLowerCase(),speed=String(a?.speed_label||'');
+ return ['time_issue','correct_but_slow'].includes(error)||detail==='correct_but_slow'||speed.includes('偏慢')||speed.includes('需复盘');
+};
 function queue(){
  const attempts=(S.attempts||[]).map((a,i)=>({a,i})).filter(x=>x.a&&x.a.date);
  attempts.sort((x,y)=>String(x.a.date).localeCompare(String(y.a.date))||x.i-y.i);
@@ -43,7 +47,7 @@ function queue(){
    used.add(a.question_id);
    const g=a.method_group, key=a.review_origin_question_id||('method:'+g), t=tasks.get(key);
    if(!t||t.method_group!==g)continue;
-   if(!a.correct||a.guessed||(a.hint_level||0)>0){
+   if(!a.correct||a.guessed||(a.hint_level||0)>0||isSlow(a)){
     t.stage=0;t.status='pending';t.due=nextTrain(a.date);t.last_result='not_independent_pass';t.last_review_date=a.date;
    }else{
     t.stage=(t.stage||0)+1;t.last_result='independent_correct';t.last_review_date=a.date;
@@ -54,7 +58,7 @@ function queue(){
   }
   const method=sourceToMethod[a.question_id];
   if(!method||!['paper_daily','weekend_mock'].includes(a.source))continue;
-  const fail=!a.correct||a.guessed||a.result_status==='unable'||a.result_status==='skipped';
+  const fail=!a.correct||a.guessed||a.result_status==='unable'||a.result_status==='skipped'||isSlow(a);
   if(!fail)continue;
   const key=a.question_id;
   const prev=tasks.get(key);

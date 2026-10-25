@@ -127,7 +127,10 @@ function selectionEvidenceFor(state={},latest=latestCompleteMockDetail(state)) {
   return current&&Array.isArray(current.weekly_weakness_coverage)?current:null;
 }
 function selectArchivePaper(options={}) {
-  const bank=Array.isArray(options.bank)?options.bank:[],state=options.state||{},tagMap=tagMapOf(options.tagMap);
+  const sourceBank=Array.isArray(options.bank)?options.bank:[];
+  const reservedYears=new Set((Array.isArray(options.reservedYears)?options.reservedYears:[]).map(Number).filter(Number.isFinite));
+  const bank=sourceBank.filter(q=>!reservedYears.has(Number(q&&q.year)));
+  const state=options.state||{},tagMap=tagMapOf(options.tagMap);
   const today=options.today||new Date().toISOString().slice(0,10),random=typeof options.randomFn==='function'?options.randomFn:Math.random;
   const allWeak=(options.weakRecords||[]).map(r=>({...r,tags:cleanTag(r.tags||{})}));
   const mappedWeak=allWeak.filter(r=>mapped(r.tags)),unmappedCount=allWeak.length-mappedWeak.length;
@@ -169,6 +172,7 @@ function selectArchivePaper(options={}) {
   }
   return {questions:chosen,meta:{
     tag_bank_status:options.tagBankStatus||'unknown',tag_bank_count:tagMap.size,
+    reserved_years_excluded:[...reservedYears].sort((a,b)=>a-b),reserved_year_filter_applied:reservedYears.size>0,
     weekly_weakness_attempt_count:allWeak.length,weekly_weakness_mapped_count:mappedWeak.length,weekly_weakness_unmapped_count:unmappedCount,
     weekly_weakness_focus:summarizeWeakness(mappedWeak),personalized_positions:POSITIONS.map(p=>p+1),weekly_weakness_coverage:coverage
   }};
@@ -219,17 +223,21 @@ async function loadTagBank(){
 const ready=loadTagBank();
 root.amcLearningClosureV06514={getTag,ready,status:()=>({status:tagBankStatus,count:tagMap.size,error:tagBankError,math_independently_verified:false}),selectArchivePaper};
 
-if(typeof archivePaperPicker==='function')archivePaperPicker=function(){
-  const state=getState(),bank=typeof ARCHIVE_BANK!=='undefined'&&Array.isArray(ARCHIVE_BANK)?ARCHIVE_BANK:[];
+if(typeof archivePaperPicker==='function')archivePaperPicker=function(options={}){
+  const state=getState(),sourceBank=Array.isArray(options.archive)?options.archive:(typeof ARCHIVE_BANK!=='undefined'&&Array.isArray(ARCHIVE_BANK)?ARCHIVE_BANK:[]);
+  const reservedYears=new Set((Array.isArray(options.reservedYears)?options.reservedYears:[]).map(Number).filter(Number.isFinite));
+  const bank=sourceBank.filter(q=>!reservedYears.has(Number(q&&q.year)));
   const records=typeof weeklyWeakRecords==='function'?weeklyWeakRecords():[];
-  const result=selectArchivePaper({bank,state,tagMap,weakRecords:records,today:typeof today==='function'?today():new Date().toISOString().slice(0,10),randomFn:Math.random,tagBankStatus});
+  const result=selectArchivePaper({bank,state,tagMap,weakRecords:records,today:typeof today==='function'?today():new Date().toISOString().slice(0,10),randomFn:Math.random,tagBankStatus,reservedYears:[...reservedYears]});
   root.__amcWeaknessPickMeta=result?result.meta:null;return result?result.questions:null;
 };
-if(typeof buildArchiveMockCore==='function')buildArchiveMockCore=function(){
-  const bank=typeof ARCHIVE_BANK!=='undefined'&&Array.isArray(ARCHIVE_BANK)?ARCHIVE_BANK:[];
+if(typeof buildArchiveMockCore==='function')buildArchiveMockCore=function(options={}){
+  const sourceBank=Array.isArray(options.archive)?options.archive:(typeof ARCHIVE_BANK!=='undefined'&&Array.isArray(ARCHIVE_BANK)?ARCHIVE_BANK:[]);
+  const reservedYears=new Set((Array.isArray(options.reservedYears)?options.reservedYears:[]).map(Number).filter(Number.isFinite));
+  const bank=sourceBank.filter(q=>!reservedYears.has(Number(q&&q.year)));
   if(!bank.length)return false;
   if(tagBankStatus==='loading'){alert('正在读取真题知识点资料，请稍候几秒再生成周末模拟卷。');return true;}
-  const chosen=typeof archivePaperPicker==='function'?archivePaperPicker():null;
+  const chosen=typeof archivePaperPicker==='function'?archivePaperPicker({archive:bank,reservedYears:[...reservedYears]}):null;
   if(!chosen||chosen.length!==25){alert('真题混编失败：当前题库无法为25个原始题号位置各选出一道不重复的题');return true;}
   const state=getState(),years=[...new Set(chosen.map(q=>q.year))].sort((a,b)=>a-b);
   state.printable_mock_ids=chosen.map(q=>q.id);state.printable_mock_date=typeof today==='function'?today():new Date().toISOString().slice(0,10);
@@ -237,7 +245,7 @@ if(typeof buildArchiveMockCore==='function')buildArchiveMockCore=function(){
     engine:'official_mixed_position_v1',engine_version:typeof ENGINE_VERSION==='string'?ENGINE_VERSION:'0.6.5.14',
     source_years:years,source_mix:chosen.map(q=>({id:q.id,year:q.year,original_position:q.problem_number})),
     difficulty_by_position:typeof EXAM_DIFFICULTY_BY_POSITION!=='undefined'?[...EXAM_DIFFICULTY_BY_POSITION]:Array.from({length:25},(_,i)=>i+1<=8?1:i+1<=16?2:i+1<=21?3:4),
-    constraints:{mixed_years:true,original_position_preserved:true,unique_questions:true,answer_key_linked:true},
+    constraints:{mixed_years:true,original_position_preserved:true,unique_questions:true,answer_key_linked:true,reserved_years_excluded:[...reservedYears].sort((a,b)=>a-b),reserved_year_filter_applied:reservedYears.size>0},
     ...(root.__amcWeaknessPickMeta||{})
   };
   if(typeof saveStateLocal==='function')saveStateLocal();

@@ -1,6 +1,7 @@
 'use strict';
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
+const vm=require('node:vm');
 const {resolveTags,selectArchivePaper,classifyMatch,dailyQuestionCooldownIds,latestCompleteMockDetail,selectionEvidenceFor}=require('./coach_learning_closure_v06514.js');
 const data=JSON.parse(fs.readFileSync('coach_skill_bank.json','utf8'));
 assert.equal(data.questions.length,575);
@@ -45,6 +46,12 @@ assert.equal(result.meta.weekly_weakness_unmapped_count,1);
 const q5=result.meta.weekly_weakness_coverage.find(x=>x.position===5);
 assert.ok(q5&&q5.matched);
 assert.equal(q5.matches[0].match_type,'同标签组（题库标注）');
+const reservedYears=new Set([2017,2018]);
+const reservedResult=selectArchivePaper({bank,state,tagMap,weakRecords,today:'2026-10-24',tagBankStatus:'ready',reservedYears:[2017,2018],randomFn:()=>0.5});
+assert.ok(reservedResult&&reservedResult.questions.length===25,'reserved-year filtering must still assemble a full paper');
+assert.ok(reservedResult.questions.every(q=>!reservedYears.has(q.year)),'reserved diagnostic years must not leak into personalized assembly');
+assert.deepEqual(reservedResult.meta.reserved_years_excluded,[2017,2018]);
+assert.equal(reservedResult.meta.reserved_year_filter_applied,true);
 const none=selectArchivePaper({bank,state:{printable_mock_ids:[],attempts:[],mock_detail_history:[]},tagMap:new Map(),
   weakRecords:[{question_id:'unknown_question',age:0,severity:1,tags:{}}],today:'2026-10-24',tagBankStatus:'failed',randomFn:()=>0.5});
 assert.equal(none.meta.weekly_weakness_mapped_count,0);
@@ -77,7 +84,7 @@ const recentSubmittedDaily=dailyQuestionCooldownIds({daily_plan:{date:'2026-10-2
 assert.ok(recentSubmittedDaily.has('recent_submitted_daily_q'),'recent submitted daily paper should be covered by the cooldown');
 const indexHtml=fs.readFileSync('index.html','utf8');
 assert.match(indexHtml,/function eligibleDailyBank\(\)[\s\S]{0,2200}__amcDailyQuestionCooldownIds/,'daily bank must use the shared cooldown helper');
-assert.match(indexHtml,/const ENGINE_VERSION='0\\.6\\.5\\.17'|const ENGINE_VERSION='0\.6\.5\.17'/,'engine version must match cooldown fix release');
+assert.match(indexHtml,/const ENGINE_VERSION='0\\.6\\.5\\.18'|const ENGINE_VERSION='0\.6\.5\.18'/,'engine version must match cooldown fix release');
 
 
 const partialMock={date:'2026-10-24',score:7,per_question:Array.from({length:8},(_,i)=>({index:i+1,correct:false}))};
@@ -94,5 +101,81 @@ assert.match(reportHtml,/Array\.isArray\(x\.per_question\)&&x\.per_question\.len
 const closureSource=fs.readFileSync('coach_learning_closure_v06514.js','utf8');
 assert.match(closureSource,/const latest=latestCompleteMockDetail\(state\)/,'closure panel must use the latest complete mock');
 assert.match(closureSource,/const selection=selectionEvidenceFor\(state,latest\)/,'selection evidence must belong to the mock being reported');
+assert.match(closureSource,/archivePaperPicker=function\(options=\{\}\)/,'the active picker override must accept the production options');
+assert.match(closureSource,/const sourceBank=Array\.isArray\(options\.archive\)\?options\.archive/,'the active picker must honor the filtered archive passed by the production engine');
+assert.match(closureSource,/buildArchiveMockCore=function\(options=\{\}\)/,'the final active builder must preserve the options contract');
+assert.match(closureSource,/archivePaperPicker\(\{archive:bank,reservedYears:\[\.\.\.reservedYears\]\}\)/,'the final active builder must pass the protected years into the final active picker');
 
-console.log('PASS: 575 tags, weak-point matching, complete 30-day cooldown, and report integrity for full mock records.');
+const reviewCycleSource=fs.readFileSync('coach_review_cycle_v065.js','utf8');
+const slowDailyQ={id:'slow_daily_q',year:2018,problem_number:17,answer:'A'};
+const slowWeekendQ={id:'slow_weekend_q',year:2018,problem_number:18,answer:'B'};
+const reviewQuestions=new Map([[slowDailyQ.id,slowDailyQ],[slowWeekendQ.id,slowWeekendQ]]);
+const reviewState={
+  attempts:[{question_id:slowDailyQ.id,date:'2026-10-23',correct:true,guessed:false,result_status:'correct',error_type:'time_issue',error_detail:'correct_but_slow',source:'paper_daily'}],
+  v064_question_tags:{slow_daily_q:{skill:'概率与补集',status:'reviewed'},slow_weekend_q:{skill:'概率与补集',status:'reviewed'}},
+  v064_specific_skills:{},mock_detail_history:[],mock_history:[],printable_mock_ids:[],daily_sessions:[],daily_plan:null,
+  mock_drafts:{paper1:{error_types:{'0':'time_issue'}}},printable_mock_id:'paper1'
+};
+const reviewWindow={};
+const reviewCtx={
+  window:reviewWindow,S:reviewState,today:()=> '2026-10-25',saveStateLocal:()=>{},
+  qById:id=>reviewQuestions.get(id)||null,eligibleDailyBank:()=>[slowDailyQ,slowWeekendQ],
+  generateDailyPlan:()=>[],dailyPlan:()=>[],renderReport:()=>{},renderMock:()=>{},
+  submitPrintableMockAnswers:()=>{
+    reviewState.attempts.push({question_id:slowWeekendQ.id,date:'2026-10-25',correct:true,guessed:false,result_status:'correct',source:'weekend_mock',paper_id:'paper1',paper_question_index:1});
+    reviewState.mock_detail_history.push({date:'2026-10-25',per_question:[]});
+    return true;
+  },
+  submitDailyPaperResults:()=>true,ensurePaperId:()=> 'paper1',currentDraft:()=>reviewState.mock_drafts.paper1,
+  renderAll:()=>{},document:{getElementById:()=>null},alert:()=>{},console
+};
+vm.createContext(reviewCtx);
+vm.runInContext(reviewCycleSource,reviewCtx,{filename:'coach_review_cycle_v065.js'});
+let slowQueue=reviewWindow.amc8V065Queue();
+assert.ok(slowQueue.tasks.some(t=>t.first_question_id===slowDailyQ.id&&t.status==='pending'),'a correct-but-slow weekday answer must create a pending retest task');
+assert.equal(slowQueue.tasks.find(t=>t.first_question_id===slowDailyQ.id).history[0].reason,'time_issue');
+reviewState.attempts=[];reviewState.mock_detail_history=[];reviewState.v065_review_cycle=undefined;
+reviewCtx.submitPrintableMockAnswers();
+const weekendSlow=reviewState.attempts.find(a=>a.question_id===slowWeekendQ.id);
+assert.equal(weekendSlow.error_type,'time_issue','a parent-marked slow correct answer must persist on the weekend attempt');
+assert.equal(weekendSlow.error_detail,'correct_but_slow');
+assert.ok(reviewWindow.amc8V065Queue().tasks.some(t=>t.first_question_id===slowWeekendQ.id&&t.status==='pending'),'a parent-marked slow weekend answer must create a pending retest task');
+
+async function testLiveBuilderOverride(){
+  const liveBank=[];
+  for(const year of [2015,2016,2017,2018])for(let pos=1;pos<=25;pos++){
+    liveBank.push({id:'archive_'+year+'_'+String(pos).padStart(2,'0'),year,problem_number:pos,answer:'A',choices:['A','B','C','D','E']});
+  }
+  const liveState={attempts:[],mock_detail_history:[],printable_mock_ids:[],printable_mock_meta:null,
+    v064_question_tags:{},v064_specific_skills:{},daily_plan:null,mock_drafts:{}};
+  const liveWindow={document:{getElementById:()=>null}};
+  const liveCtx={
+    window:liveWindow,S:liveState,ARCHIVE_BANK:liveBank,ENGINE_VERSION:'0.6.5.18',
+    EXAM_DIFFICULTY_BY_POSITION:Array.from({length:25},(_,i)=>i+1<=8?1:i+1<=16?2:i+1<=21?3:4),
+    archivePaperPicker:()=>null,buildArchiveMockCore:()=>false,submitPrintableMockAnswers:()=>true,
+    learningTags:()=>({skill:'',method:'',domain:''}),weeklyWeakRecords:()=>[],weeklyWeaknessSummary:()=>[],
+    weeklyWeakMatch:()=>[],weeklyWeakAffinity:()=>0,resetWeeklyWeaknessCache:()=>{},
+    renderReport:()=>{},saveStateLocal:()=>{},renderAll:()=>{},today:()=> '2026-10-25',
+    alert:()=>{},fetch:async()=>({ok:false,status:503}),console
+  };
+  vm.createContext(liveCtx);
+  vm.runInContext(closureSource,liveCtx,{filename:'coach_learning_closure_v06514.js:browser-override'});
+  await liveWindow.amcLearningClosureV06514.ready;
+  const built=liveCtx.buildArchiveMockCore({archive:liveBank,reservedYears:[2017,2018]});
+  assert.equal(built,true,'the active browser override should assemble the paper');
+  assert.equal(liveState.printable_mock_ids.length,25,'the active browser override must create 25 questions');
+  assert.equal(new Set(liveState.printable_mock_ids).size,25,'the active browser override must keep question IDs unique');
+  assert.ok(liveState.printable_mock_meta.source_mix.every(q=>![2017,2018].includes(q.year)),
+    'the final active browser override must not consume reserved diagnostic years');
+  assert.equal(JSON.stringify(liveState.printable_mock_meta.reserved_years_excluded),JSON.stringify([2017,2018]),'reserved-year metadata should survive the active browser override');
+  assert.equal(liveState.printable_mock_meta.reserved_year_filter_applied,true);
+  assert.equal(liveState.printable_mock_meta.constraints.reserved_year_filter_applied,true);
+  assert.ok(liveState.printable_mock_meta.source_mix.every((q,i)=>q.original_position===i+1),
+    'the active browser override must preserve all 25 original AMC8 positions');
+}
+testLiveBuilderOverride().then(()=>{
+  console.log('PASS: 575 tags, weakness matching, reserved-year protection through the final active browser override, 30-day cooldown, report integrity, and correct-but-slow retest integration.');
+}).catch(error=>{
+  console.error(error&&error.stack?error.stack:String(error));
+  process.exitCode=1;
+});
