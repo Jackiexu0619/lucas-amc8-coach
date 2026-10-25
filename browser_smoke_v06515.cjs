@@ -17,7 +17,7 @@ const errors = [];
     const response = await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
     assert.ok(response && response.ok(), 'deployed site should return a successful HTTP response');
     await page.locator('#guidedStudentDashboard').waitFor({ state: 'attached', timeout: 30000 });
-    assert.match(await page.title(), /Lucas AMC8 Coach v0\.6\.5\.(15|16)/, 'deployed title should match intended build');
+    assert.match(await page.title(), /Lucas AMC8 Coach v0\.6\.5\.(15|16|17)/, 'deployed title should match intended build');
     assert.ok((await page.locator('#guidedStudentDashboard').innerText()).includes('YOUR AMC8 LEARNING PATH'),
       'guided learning path should render');
 
