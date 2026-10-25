@@ -88,7 +88,7 @@ const html = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf8');
 const coach = fs.readFileSync(path.join(__dirname, 'coach_v064.js'), 'utf8');
 const changelog = fs.readFileSync(path.join(__dirname, 'CHANGELOG.md'), 'utf8');
 assert.equal((html.match(/function buildPrintableMockCore\s*\(/g) || []).length, 1, 'only one active buildPrintableMockCore definition may exist');
-assert.match(html, /coach_mock_assembly_v06514\\.js\\?v=0\\.6\\.5\\.(14|16)/, 'new selector module must be cache-busted and loaded');
+assert.match(html, /coach_mock_assembly_v06514\.js\?v=0\.6\.5\.(14|16)/, 'new selector module must be cache-busted and loaded');
 assert.match(html, /function archiveWeaknessScore\s*\(/, 'application must calculate a same-method weakness score');
 assert.match(html, /selectArchiveMock\s*\(/, 'active archive selector must use the tested selector module');
 assert.match(html, /weekly_weakness_coverage/, 'mock metadata must retain traceable weakness coverage');
