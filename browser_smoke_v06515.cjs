@@ -113,7 +113,7 @@ const errors = [];
       'returning home must not duplicate the guided dashboard');
     assert.deepEqual(errors, [], 'navigation should not produce uncaught JavaScript errors');
 
-    console.log('PASS: exact v0.6.5.19 live build, clickable answer auto-advance, guess preservation, locked weekend/daily paper preservation, no submitted test results, all six navigation destinations, return-home rendering, and zero uncaught page errors.');
+    console.log('PASS: final deployed v0.6.5.19 build, clickable answer auto-advance, guess preservation, locked weekend/daily paper preservation, no submitted test results, all six navigation destinations, return-home rendering, and zero uncaught page errors.');
   } finally {
     await context.close();
     await browser.close();
