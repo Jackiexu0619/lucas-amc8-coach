@@ -10,6 +10,7 @@ on:
       - 'coach_mock_assembly_v06514.js'
       - 'qa_mock_assembly_v06514.cjs'
       - 'qa_mock_answer_interaction_v06519.cjs'
+      - 'qa_mock_learning_report_v06520.cjs'
       - '.github/workflows/mock-assembly-qa.yml'
   pull_request:
     paths:
@@ -19,6 +20,8 @@ on:
       - 'README.md'
       - 'coach_mock_assembly_v06514.js'
       - 'qa_mock_assembly_v06514.cjs'
+      - 'qa_mock_answer_interaction_v06519.cjs'
+      - 'qa_mock_learning_report_v06520.cjs'
       - '.github/workflows/mock-assembly-qa.yml'
   workflow_dispatch:
 
@@ -36,3 +39,5 @@ jobs:
         run: node qa_mock_assembly_v06514.cjs
       - name: Interactive mock answer UX QA
         run: node qa_mock_answer_interaction_v06519.cjs
+      - name: Per-question learning report QA
+        run: node qa_mock_learning_report_v06520.cjs
