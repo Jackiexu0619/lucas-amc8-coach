@@ -92,7 +92,7 @@ assert.doesNotMatch(letterRow, /A\. A/);
 
 // Structured questions expose their actual choice text as the clickable option.
 vm.runInContext('mockEntryIndex = 0; renderMockQuestion()', context);
-assert.match(box.innerHTML, /A\. 9th/);
+assert.match(box.innerHTML, /A\.<\/span> 9th/);
 assert.match(box.innerHTML, /data-answer="C"/);
 
 // Selecting an answer saves it, preserves the guess marker, and immediately advances.
