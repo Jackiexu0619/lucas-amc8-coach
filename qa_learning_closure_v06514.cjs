@@ -84,7 +84,7 @@ const recentSubmittedDaily=dailyQuestionCooldownIds({daily_plan:{date:'2026-10-2
 assert.ok(recentSubmittedDaily.has('recent_submitted_daily_q'),'recent submitted daily paper should be covered by the cooldown');
 const indexHtml=fs.readFileSync('index.html','utf8');
 assert.match(indexHtml,/function eligibleDailyBank\(\)[\s\S]{0,2200}__amcDailyQuestionCooldownIds/,'daily bank must use the shared cooldown helper');
-assert.match(indexHtml,/const ENGINE_VERSION='0\.6\.5\.(18|19)'/,'engine version must match the current release');
+assert.match(indexHtml,/const ENGINE_VERSION='0\.6\.5\.(18|19|20)'/,'engine version must match the current release');
 
 
 const partialMock={date:'2026-10-24',score:7,per_question:Array.from({length:8},(_,i)=>({index:i+1,correct:false}))};
@@ -150,7 +150,7 @@ async function testLiveBuilderOverride(){
     v064_question_tags:{},v064_specific_skills:{},daily_plan:null,mock_drafts:{}};
   const liveWindow={document:{getElementById:()=>null}};
   const liveCtx={
-    window:liveWindow,S:liveState,ARCHIVE_BANK:liveBank,ENGINE_VERSION:'0.6.5.19',
+    window:liveWindow,S:liveState,ARCHIVE_BANK:liveBank,ENGINE_VERSION:'0.6.5.20',
     EXAM_DIFFICULTY_BY_POSITION:Array.from({length:25},(_,i)=>i+1<=8?1:i+1<=16?2:i+1<=21?3:4),
     archivePaperPicker:()=>null,buildArchiveMockCore:()=>false,submitPrintableMockAnswers:()=>true,
     learningTags:()=>({skill:'',method:'',domain:''}),weeklyWeakRecords:()=>[],weeklyWeaknessSummary:()=>[],
