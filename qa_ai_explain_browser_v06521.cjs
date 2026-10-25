@@ -61,8 +61,14 @@ async function main(){
     await page.locator('#mockAiExplain .mock-ai-explain-row').first().waitFor();
     assert.equal(await page.locator('#mockAiExplain').getByText('已缓存').count(),4);
     assert.equal(calls,5,'report reopen must use local cache');
+    await page.setViewportSize({width:390,height:844});
+    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth),true,
+      'AI explanations must not create horizontal overflow on a mobile viewport');
+    assert.equal(await page.locator('#mockAiExplain .mock-review-paper-image').count(),4,
+      'each AI result stays paired with its original question image');
+    assert.match(await page.locator('#mockAiExplain .mock-ai-explain-row').first().innerText(),/Lucas 的答案.*题库标准答案/);
     assert.deepEqual(pageErrors,[]);
-    console.log('PASS: isolated browser report, no automatic API call, partial success, progress, single retry, and cache reopen.');
+    console.log('PASS: isolated browser report, no automatic API call, partial success, progress, single retry, cache reopen, and mobile layout.');
   }finally{await context.close();await browser.close();await new Promise(resolve=>server.close(resolve));}
 }
 main().catch(error=>{console.error(error);server.close();process.exitCode=1;});
