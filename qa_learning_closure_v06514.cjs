@@ -1,7 +1,7 @@
 'use strict';
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
-const {resolveTags,selectArchivePaper,classifyMatch}=require('./coach_learning_closure_v06514.js');
+const {resolveTags,selectArchivePaper,classifyMatch,dailyQuestionCooldownIds}=require('./coach_learning_closure_v06514.js');
 const data=JSON.parse(fs.readFileSync('coach_skill_bank.json','utf8'));
 assert.equal(data.questions.length,575);
 const ids=new Set();
@@ -51,4 +51,32 @@ assert.equal(none.meta.weekly_weakness_mapped_count,0);
 assert.equal(none.meta.weekly_weakness_unmapped_count,1);
 assert.ok(none.meta.weekly_weakness_coverage.every(x=>x.matches.length===0));
 assert.equal(classifyMatch({method:'方法甲',groupKey:'a'},{method:'方法甲',groupKey:'b'}).type,'同解法描述');
-console.log('PASS: 575 tags, 25-position curve, uniqueness, recent-question avoidance, weak-point matching, and unmapped-record safeguards.');
+
+const cooldownState={
+  attempts:[{question_id:'attempt_30d',date:'2026-09-25'},{question_id:'attempt_31d',date:'2026-09-24'}],
+  mock_detail_history:[
+    {date:'2026-10-20',question_ids:['recent_mock_q1'],per_question:[{qid:'recent_mock_q2'}]},
+    {date:'2026-09-01',question_ids:['old_mock_q']}
+  ],
+  printable_mock_ids:['locked_weekend_q'],
+  daily_plan:{date:'2026-10-01',question_ids:['pending_daily_q'],submitted:false}
+};
+const cooldown30=dailyQuestionCooldownIds(cooldownState,'2026-10-25',30);
+assert.ok(cooldown30.has('attempt_30d'),'30-day boundary attempt should be excluded');
+assert.ok(!cooldown30.has('attempt_31d'),'attempts older than 30 days should not be excluded by cooldown');
+assert.ok(cooldown30.has('recent_mock_q1')&&cooldown30.has('recent_mock_q2'),'recent weekend mock history should be excluded');
+assert.ok(!cooldown30.has('old_mock_q'),'old mock history should not be excluded by the date window');
+assert.ok(cooldown30.has('locked_weekend_q'),'currently locked weekend paper must always be protected');
+assert.ok(cooldown30.has('pending_daily_q'),'pending daily paper must always be protected');
+const cooldown7=dailyQuestionCooldownIds(cooldownState,'2026-10-25',7);
+assert.ok(!cooldown7.has('attempt_30d'),'14/7-day fallback should relax old attempted questions');
+assert.ok(cooldown7.has('locked_weekend_q')&&cooldown7.has('pending_daily_q'),'fallback must never reuse locked papers');
+const submittedDaily=dailyQuestionCooldownIds({daily_plan:{date:'2026-10-01',question_ids:['old_submitted_daily_q'],submitted:true}},'2026-10-25',30);
+assert.ok(!submittedDaily.has('old_submitted_daily_q'),'old submitted daily paper should age out normally');
+const recentSubmittedDaily=dailyQuestionCooldownIds({daily_plan:{date:'2026-10-20',question_ids:['recent_submitted_daily_q'],submitted:true}},'2026-10-25',30);
+assert.ok(recentSubmittedDaily.has('recent_submitted_daily_q'),'recent submitted daily paper should be covered by the cooldown');
+const indexHtml=fs.readFileSync('index.html','utf8');
+assert.match(indexHtml,/function eligibleDailyBank\(\)[\s\S]{0,2200}__amcDailyQuestionCooldownIds/,'daily bank must use the shared cooldown helper');
+assert.match(indexHtml,/const ENGINE_VERSION='0\\.6\\.5\\.16'|const ENGINE_VERSION='0\.6\.5\.16'/,'engine version must match cooldown fix release');
+
+console.log('PASS: 575 tags, 25-position curve, weakness matching, unmapped safeguards, and complete 30-day question cooldown.');
