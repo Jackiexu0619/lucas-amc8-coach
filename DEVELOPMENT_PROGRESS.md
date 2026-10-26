@@ -1,6 +1,6 @@
 # Lucas AMC8 Coach — Development Progress
 
-Last updated: 2026-10-25
+Last updated: 2026-10-26
 
 ## Product goal
 
@@ -13,16 +13,23 @@ Keep the learning loop simple and evidence-based:
 ## Current production baseline
 
 - Production branch: `main`
-- Production page version: `v0.6.5.21`, verified from the deployed HTML and an isolated live browser on 2026-10-25. Main merge commit: `f4a8d17632a239d2c2f23d5b70bc30a25df5c0ef`.
+- Production page version: `v0.6.5.22`, verified from the deployed HTML and GitHub Pages run on 2026-10-26. Main merge commit: `13a9fcaf86faa93abec6744001701e43f2e07caa`. The family Chrome state has not yet completed the post-merge acceptance.
 
+## v0.6.5.23 — assisted daily answers must not advance review (review branch; not deployed)
 
-## v0.6.5.22 — daily regeneration keeps due reviews (fix branch; not yet deployed)
+- Root cause: daily parent entry had no hint field and wrote `hint_level:0` for every answer; the official same-method review queue ignored hint use when treating a correct answer as a pass. The AI queue already rejected positive hint levels but treated missing values as zero.
+- Daily parent entry now requires an explicit 0/1/2 hint choice for each question before any attempts are saved. Assisted correct answers remain correct for the paper but are not marked independently mastered. The legacy paper-entry helper also asks rather than silently recording zero.
+- Official and AI review tasks only advance on an explicitly unassisted, unguessed correct answer. Assisted correct answers reset to the existing next-training-day review cadence; genuine independent passes keep the existing 7/14/30-day progression. Missing/invalid old hint values are not rewritten or accepted as independent passes, and an otherwise correct old record alone does not invent a new weakness task.
+- Isolated queue QA reproduced the original stage-1 defect before the fix and now passes for independent, hint-assisted, guessed, wrong and unknown-hint results. Isolated Chromium QA confirms that an unconfirmed hint field blocks all writes and that 1/2/0 records yield one independent answer without changing mock results. Regeneration, AI transfer, learning-closure, mock assembly, answer-interaction, learning-report, AI-explanation and explanation-browser regression scripts passed locally (exit 0); inline scripts compile, and `git diff --check` is clean. These are isolated tests, not family-browser acceptance.
+- No production learner data, locked paper, Supabase row, official answer or AI explanation cache was changed. Next: submit PR for review, inspect CI, then obtain family-browser acceptance before any deployment.
+
+## v0.6.5.22 — daily regeneration keeps due reviews (deployed; family-browser acceptance pending)
 
 - Live v0.6.5.21 state confirmed that the 2026-10-24 mock's four weak items were already present in the review queue and due on 2026-10-27. However, the locked daily paper was still dated 2026-10-24 and unsubmitted.
 - Root cause: `refreshArchiveDaily()` calls `generateDailyPlan(new Set(previous))`; the review-cycle and AI-transfer exclusion branches returned the generic selector directly, bypassing due review tasks.
 - Fix: explicit regeneration now applies the due same-method queue while excluding every old paper ID; the AI transfer selector also respects that exclusion set. Maximum remains three questions, with no repeated old-paper IDs.
 - AI explanation cache remains reusable because its own engine version stays at v0.6.5.21; no explanation prompt or payload changed.
-- Added regression coverage for the weekend review queue, regeneration exclusions, the three-question cap and AI transfer retention. Production remains v0.6.5.21 until the PR is merged and deployed.
+- Added regression coverage for the weekend review queue, regeneration exclusions, the three-question cap and AI transfer retention. PR #12 merged as `13a9fcaf86faa93abec6744001701e43f2e07caa`; Pages deployment passed: https://github.com/Jackiexu0619/lucas-amc8-coach/actions/runs/40193184204. Family-browser regeneration and record-preservation checks remain pending.
 
 ## v0.6.5.21 — on-demand DeepSeek mock explanations (deployed and browser-verified)
 

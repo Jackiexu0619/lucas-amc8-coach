@@ -22,7 +22,7 @@ const isSlow=a=>{
  const error=String(a?.error_type||'').toLowerCase(),detail=String(a?.error_detail||'').toLowerCase(),speed=String(a?.speed_label||'');
  return ['time_issue','correct_but_slow'].includes(error)||detail==='correct_but_slow'||speed.includes('偏慢')||speed.includes('需复盘');
 };
-const resultOK=a=>a.correct&&!a.guessed&&a.result_status!=='skipped'&&a.result_status!=='unable'&&!isSlow(a);
+const resultOK=a=>a.correct&&!a.guessed&&a.hint_level===0&&a.result_status!=='skipped'&&a.result_status!=='unable'&&!isSlow(a);
 function rebuildQueue(){
  const old=S[KEY]||{};
  const rows=(S.attempts||[]).map((a,i)=>({a,i})).filter(({a})=>a&&a.question_id&&a.date&&(a.source==='paper_daily'||a.source==='weekend_mock'));
@@ -33,13 +33,19 @@ function rebuildQueue(){
   const q=qById(a.question_id);if(!q)continue;
   const tag=descriptor(q);if(!tag){if(!resultOK(a))unidentified.push({qid:q.id,date:a.date});continue}
   let t=taskMap.get(tag.key);
+  // Old records without a valid hint value cannot prove an independent pass, but
+  // an otherwise correct standalone record is not evidence of a new weakness.
+  const hintKnown=a.hint_level===0||(Number.isInteger(a.hint_level)&&a.hint_level>0);
+  if(!t&&!hintKnown&&a.correct&&!a.guessed&&a.result_status!=='skipped'&&a.result_status!=='unable'&&!isSlow(a))continue;
   if(!resultOK(a)){
     if(!t||t.status==='completed')t={skill:tag.skill,key:tag.key,source:tag.source,first_question_id:q.id,origin:a.source,origin_date:a.date,stage:0,status:'pending',due:nextTrainDay(a.date),history:[],priority:0};
     t.status='pending';t.due=nextTrainDay(a.date);t.last_question_id=q.id;t.last_failure_date=a.date;t.stage=0;
     t.priority+=a.source==='weekend_mock'?2:3;
     if(a.result_status==='unable'||a.result_status==='skipped')t.priority+=2;
     if(a.guessed)t.priority+=1;
-    t.history.push({date:a.date,qid:q.id,pass:false,reason:a.error_type||'unsure',source:a.source});
+    const reason=a.guessed?'guess':a.hint_level>0&&Number.isInteger(a.hint_level)?'hint_used':
+      a.error_type||(a.correct?'independence_unverified':'unsure');
+    t.history.push({date:a.date,qid:q.id,pass:false,reason,source:a.source});
   }else if(t&&t.status!=='completed'){
     if(a.question_id===t.last_question_id){ /* no identical original question can validate transfer */ continue }
     // Do not treat an incidental earlier correct answer as the future proof; dates must be strictly later.

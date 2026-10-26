@@ -111,4 +111,20 @@ assert.equal(regenerated[0].source,'ai_generated_review','due AI transfer must r
 assert.ok(regenerated.every(q=>!previousPaperIds.has(q.id)),'regenerated paper must exclude every old locked question');
 assert.equal(regenerated.filter(q=>q.official).length,2,'AI transfer still leaves two authentic AMC8 questions');
 
+for(const hintLevel of [1,2,undefined,'0']){
+ const transfer={question_id:'ai_transfer_rework_20261024_023',date:'2026-10-27',correct:true,guessed:false,
+  source:'ai_transfer_review',method_group:'prime_factor_divisors',review_origin_question_id:original.id};
+ if(hintLevel!==undefined)transfer.hint_level=hintLevel;
+ S.attempts=[{question_id:original.id,date:'2026-10-24',correct:false,guessed:false,result_status:'wrong',source:'paper_daily'},transfer];
+ const preserved=structuredClone(S.attempts);
+ const retryTask=window.amcAiTransferV066.queue().tasks.find(t=>t.origin_question_id===original.id);
+ assert.equal(retryTask.stage,0,'AI review with hinted or unknown independence must not advance');
+ assert.equal(retryTask.due,'2026-10-28','AI review stays on the existing next-training-day cadence');
+ assert.deepEqual(S.attempts,preserved,'AI queue must not rewrite historical hint evidence');
+}
+S.attempts=[{question_id:original.id,date:'2026-10-24',correct:true,guessed:false,hint_level:1,
+ result_status:'correct',source:'paper_daily'}];
+assert.equal(window.amcAiTransferV066.queue().tasks[0].origin_question_id,original.id,
+ 'hint-assisted correct original must start an AI same-method review task');
+
 console.log('PASS: AI transfer loop preserves diagnostic isolation, same-method retests, 7/14/30 spacing, completion, correct-but-slow handling, and excluded-ID regeneration.');
