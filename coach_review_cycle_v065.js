@@ -45,7 +45,8 @@ function rebuildQueue(){
     if(a.guessed)t.priority+=1;
     const reason=a.guessed?'guess':(a.hint_level===1||a.hint_level===2)?'hint_used':
       a.error_type||(a.correct?'independence_unverified':'unsure');
-    t.history.push({date:a.date,qid:q.id,pass:false,reason,source:a.source});
+    t.history.push({date:a.date,qid:q.id,pass:false,reason,source:a.source,
+      ...(a.correct&&!hintKnown?{independence:'unverified'}:{})});
   }else if(t&&t.status!=='completed'){
     if(a.question_id===t.last_question_id){ /* no identical original question can validate transfer */ continue }
     // Do not treat an incidental earlier correct answer as the future proof; dates must be strictly later.
