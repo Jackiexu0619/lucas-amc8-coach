@@ -1693,6 +1693,7 @@ function renderReport(){
   <div class=card style="margin-top:13px"><h3>整套趋势</h3>${mh.length?`<table><tr><th>日期</th><th>独立正确</th></tr>${mh.map(x=>`<tr><td>${x.date}</td><td>${x.independent_score}/25</td></tr>`).join('')}</table>`:'<p class=muted>暂无</p>'}</div>`;
 
   renderLatestMockInsightsIntoReport();
+  renderDailyReviewIntoReport();
 }
 
 function sanitizeSolutionHtml(raw){
@@ -1813,6 +1814,7 @@ function renderLatestMockInsightsIntoReport(){
 // Never modifies S, and never assumes old legacy attempts have selected answers.
 function renderDailyReviewIntoReport(){
   const host=document.getElementById('report');if(!host)return;
+  host.querySelector('#dailyReviewHistory')?.remove();
   const sessions=(S.daily_sessions||[]).filter(x=>x&&x.source==='paper_daily').slice().reverse();
   const wrap=document.createElement('div');wrap.className='card';wrap.style.marginTop='13px';
   wrap.id='dailyReviewHistory';

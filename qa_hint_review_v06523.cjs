@@ -7,7 +7,8 @@ const vm=require('node:vm');
 const source=fs.readFileSync(path.join(__dirname,'coach_review_cycle_v065.js'),'utf8');
 const baseQuestion={id:'archive_2009_15',year:2009,problem_number:15};
 const transferQuestion={id:'archive_2017_15',year:2017,problem_number:15};
-const bank=new Map([baseQuestion,transferQuestion].map(q=>[q.id,q]));
+const extraTransfers=[2018,2019,2020].map(year=>({id:`archive_${year}_15`,year,problem_number:15}));
+const bank=new Map([baseQuestion,transferQuestion,...extraTransfers].map(q=>[q.id,q]));
 const tags=Object.fromEntries([...bank.keys()].map(id=>[id,{
   status:'pdf_explanation_reviewed',skill:'比例关系',group_key:'ratio',method:'同方法比例迁移'
 }]));
@@ -72,3 +73,38 @@ for(const hint of [undefined,null,'0',-1,3,99]){
   assert.deepEqual(S.attempts[0],answer,'historic attempt must not be rewritten');
 }
 console.log('PASS: historic missing/invalid hint values are preserved and never prove independent mastery.');
+const completed=[sourceAttempt,...[
+  [transferQuestion,'2026-10-28'],[extraTransfers[0],'2026-11-04'],
+  [extraTransfers[1],'2026-11-18'],[extraTransfers[2],'2026-12-18']
+].map(([q,date])=>({question_id:q.id,date,source:'paper_daily',correct:true,guessed:false,
+  result_status:'correct',hint_level:0}))];
+const finished=makeQueue(completed).S.v065_review_cycle.tasks[0];
+assert.equal(finished.status,'completed','four independent transfers complete the existing task');
+assert.equal(finished.stage,4);
+for(const hint of [undefined,null,'0',-1,3,99,1,2]){
+  const answer={question_id:baseQuestion.id,date:'2026-12-19',source:'paper_daily',
+    correct:true,guessed:false,result_status:'correct'};
+  if(hint!==undefined)answer.hint_level=hint;
+  const {S}=makeQueue([...completed,answer]);
+  const task=S.v065_review_cycle.tasks[0];
+  assert.equal(task.status,hint===1||hint===2?'pending':'completed',
+    'completed task status after hint '+String(hint));
+  assert.equal(task.stage,hint===1||hint===2?0:4,
+    'completed task stage after hint '+String(hint));
+  assert.deepEqual(S.attempts.at(-1),answer,'completion scenario preserves raw attempt');
+}
+for(const hint of [undefined,3,99]){
+  const answer={question_id:transferQuestion.id,date:'2026-10-27',source:'paper_daily',
+    correct:true,guessed:false,result_status:'correct',error_type:'time_issue'};
+  if(hint!==undefined)answer.hint_level=hint;
+  const {S}=makeQueue([answer]);
+  assert.equal(S.v065_review_cycle.tasks.length,1,'real slow-answer weakness still creates a task');
+  assert.equal(S.v065_review_cycle.tasks[0].history[0].reason,'time_issue');
+  assert.equal(S.v065_review_cycle.tasks[0].history[0].independence,'unverified');
+  const {S:afterCompletion}=makeQueue([...completed,{...answer,date:'2026-12-19'}]);
+  const reopened=afterCompletion.v065_review_cycle.tasks[0];
+  assert.equal(reopened.status,'pending','a real slow-answer weakness reopens a completed task');
+  assert.equal(reopened.history.at(-1).reason,'time_issue');
+  assert.equal(reopened.history.at(-1).independence,'unverified');
+}
+console.log('PASS: invalid hints do not reopen completed review, valid hints do, and real weakness evidence remains active.');

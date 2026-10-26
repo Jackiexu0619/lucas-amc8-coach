@@ -36,7 +36,7 @@ function rebuildQueue(){
   // Old records without a valid hint value cannot prove an independent pass, but
   // an otherwise correct standalone record is not evidence of a new weakness.
   const hintKnown=a.hint_level===0||a.hint_level===1||a.hint_level===2;
-  if(!t&&!hintKnown&&a.correct&&!a.guessed&&a.result_status!=='skipped'&&a.result_status!=='unable'&&!isSlow(a))continue;
+  if((!t||t.status==='completed')&&!hintKnown&&a.correct&&!a.guessed&&a.result_status!=='skipped'&&a.result_status!=='unable'&&!isSlow(a))continue;
   if(!resultOK(a)){
     if(!t||t.status==='completed')t={skill:tag.skill,key:tag.key,source:tag.source,first_question_id:q.id,origin:a.source,origin_date:a.date,stage:0,status:'pending',due:nextTrainDay(a.date),history:[],priority:0};
     t.status='pending';t.due=nextTrainDay(a.date);t.last_question_id=q.id;t.last_failure_date=a.date;t.stage=0;
