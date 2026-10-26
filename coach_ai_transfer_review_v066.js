@@ -47,7 +47,7 @@ function queue(){
    used.add(a.question_id);
    const g=a.method_group, key=a.review_origin_question_id||('method:'+g), t=tasks.get(key);
    if(!t||t.method_group!==g)continue;
-   if(!a.correct||a.guessed||(a.hint_level||0)>0||isSlow(a)){
+   if(!a.correct||a.guessed||a.hint_level!==0||isSlow(a)){
     t.stage=0;t.status='pending';t.due=nextTrain(a.date);t.last_result='not_independent_pass';t.last_review_date=a.date;
    }else{
     t.stage=(t.stage||0)+1;t.last_result='independent_correct';t.last_review_date=a.date;
@@ -58,7 +58,8 @@ function queue(){
   }
   const method=sourceToMethod[a.question_id];
   if(!method||!['paper_daily','weekend_mock'].includes(a.source))continue;
-  const fail=!a.correct||a.guessed||a.result_status==='unable'||a.result_status==='skipped'||isSlow(a);
+  const fail=!a.correct||a.guessed||a.result_status==='unable'||a.result_status==='skipped'||isSlow(a)||
+   a.hint_level===1||a.hint_level===2;
   if(!fail)continue;
   const key=a.question_id;
   const prev=tasks.get(key);
@@ -150,7 +151,7 @@ submitDailyPaperResults=function(){
      const active=window.__amcAiTransferSelected;
      if(active?.id===a.question_id)a.review_origin_question_id=active.review_origin_question_id;
     }
-    a.review_independent=!!a.correct&&!a.guessed&&!(a.hint_level||0);
+    a.review_independent=!!a.correct&&!a.guessed&&a.hint_level===0;
    }
   }
   // The legacy queue is rebuilt after the source tag correction so AI attempts do not pollute it.

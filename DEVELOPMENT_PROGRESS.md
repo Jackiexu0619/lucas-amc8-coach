@@ -1,6 +1,6 @@
 # Lucas AMC8 Coach — Development Progress
 
-Last updated: 2026-10-25
+Last updated: 2026-10-26
 
 ## Product goal
 
@@ -13,16 +13,28 @@ Keep the learning loop simple and evidence-based:
 ## Current production baseline
 
 - Production branch: `main`
-- Production page version: `v0.6.5.21`, verified from the deployed HTML and an isolated live browser on 2026-10-25. Main merge commit: `f4a8d17632a239d2c2f23d5b70bc30a25df5c0ef`.
+- Production page version: `v0.6.5.22`, verified from the deployed HTML and GitHub Pages run on 2026-10-26. Main merge commit: `13a9fcaf86faa93abec6744001701e43f2e07caa`. The family Chrome state has not yet completed the post-merge acceptance.
 
+## v0.6.5.23 — assisted daily answers must not advance review (review branch; not deployed)
 
-## v0.6.5.22 — daily regeneration keeps due reviews (fix branch; not yet deployed)
+- Root cause: daily parent entry had no hint field and wrote `hint_level:0` for every answer; the official same-method review queue ignored hint use when treating a correct answer as a pass. The AI queue already rejected positive hint levels but treated missing values as zero.
+- Daily parent entry now requires an explicit 0/1/2 hint choice for each question before any attempts are saved. Assisted correct answers remain correct for the paper but are not marked independently mastered. The legacy paper-entry helper also asks rather than silently recording zero.
+- Official and AI review tasks only advance on an explicitly unassisted, unguessed correct answer. Assisted correct answers reset to the existing next-training-day review cadence; genuine independent passes keep the existing 7/14/30-day progression. Missing/invalid old hint values are not rewritten or accepted as independent passes, and an otherwise correct old record alone does not invent a new weakness task.
+- Isolated queue QA reproduced the original stage-1 defect before the fix and now passes for independent, hint-assisted, guessed, wrong and unknown-hint results. Isolated Chromium QA confirms that an unconfirmed hint field blocks all writes and that 1/2/0 records yield one independent answer without changing mock results. Regeneration, AI transfer, learning-closure, mock assembly, answer-interaction, learning-report, AI-explanation and explanation-browser regression scripts passed locally (exit 0); inline scripts compile, and `git diff --check` is clean. These are isolated tests, not family-browser acceptance.
+- No production learner data, locked paper, Supabase row, official answer or AI explanation cache was changed. PR #13 is open for review; family-browser acceptance is required after review and before declaring a production pass.
+- PR #13 follow-up: strict numeric hint levels are `0`, `1`, `2` only. A historical `3` or `99` no longer creates an official or AI transfer task from an otherwise correct standalone answer, receives no `hint_used` reason, adds no mastery, and appears as "independence unverified" in the daily answer detail. Missing, `null`, string `"0"` and negative values follow the same conservative rule. An existing pending task remains pending on the next training day and records `independence_unverified`; raw attempts are untouched.
+- Follow-up QA: `node qa_hint_review_v06523.cjs`, `node qa_ai_transfer_review_v066.cjs`, and isolated Chromium `node qa_hint_review_browser_v06523.cjs` first failed against PR #13 head `f5b079d4640a26e1ce9fb2cc74f3c4e44021b65e` at `hint_used`, AI task creation and `+0.04` mastery respectively; all passed after the range fix (exit 0). The browser test also checks rendered daily-detail labels and untouched historical attempts. The four prior business regression scripts, mock report and interaction, AI explanation unit and browser scripts, script syntax, inline syntax and `git diff --check` all passed locally (exit 0). Four PR workflows also passed on `bee7ae86726cdb223f89b82a57b33ececffab3b9`; family-browser acceptance remains pending.
+- If a correct historical attempt has an invalid hint and a separate error reason such as `time_issue`, queue history preserves that reason and records `independence: unverified`. This avoids losing a real slow-answer observation while preventing stage advancement. The dedicated regression covers this combined case.
+- Final review fixes on PR #13: `renderReport()` now includes the existing daily answer-history panel; repeated normal navigation renders one panel and empty history shows a clear message. An invalid hint on an otherwise correct, unguessed attempt with no separate weakness evidence cannot reopen a completed review task. Pending tasks still use conservative next-training-day scheduling; valid hints 1/2 and independent 0 retain their prior behavior. No source attempt or mock record is rewritten.
+- Final review QA: expanded `node qa_hint_review_v06523.cjs` reproduces the completed-task reopen defect before the fix and passes afterwards, including completed/pending/absent tasks, valid hints and independent slow-answer evidence. Expanded isolated Chromium `node qa_hint_review_browser_v06523.cjs` reproduces the missing panel before the fix and passes after normal report navigation, repeat renders, empty state, all valid/invalid hint values and unchanged attempts, sessions and mock records. Both exit 0. Regeneration, AI transfer, learning closure, mock assembly, mock report and interaction, AI explanation unit/browser, script and inline syntax, and `git diff --check` passed locally (exit 0). Four PR workflows must rerun on the final commit; no production-browser acceptance was performed.
+
+## v0.6.5.22 — daily regeneration keeps due reviews (deployed; family-browser acceptance pending)
 
 - Live v0.6.5.21 state confirmed that the 2026-10-24 mock's four weak items were already present in the review queue and due on 2026-10-27. However, the locked daily paper was still dated 2026-10-24 and unsubmitted.
 - Root cause: `refreshArchiveDaily()` calls `generateDailyPlan(new Set(previous))`; the review-cycle and AI-transfer exclusion branches returned the generic selector directly, bypassing due review tasks.
 - Fix: explicit regeneration now applies the due same-method queue while excluding every old paper ID; the AI transfer selector also respects that exclusion set. Maximum remains three questions, with no repeated old-paper IDs.
 - AI explanation cache remains reusable because its own engine version stays at v0.6.5.21; no explanation prompt or payload changed.
-- Added regression coverage for the weekend review queue, regeneration exclusions, the three-question cap and AI transfer retention. Production remains v0.6.5.21 until the PR is merged and deployed.
+- Added regression coverage for the weekend review queue, regeneration exclusions, the three-question cap and AI transfer retention. PR #12 merged as `13a9fcaf86faa93abec6744001701e43f2e07caa`; Pages deployment passed: https://github.com/Jackiexu0619/lucas-amc8-coach/actions/runs/40193184204. Family-browser regeneration and record-preservation checks remain pending.
 
 ## v0.6.5.21 — on-demand DeepSeek mock explanations (deployed and browser-verified)
 
