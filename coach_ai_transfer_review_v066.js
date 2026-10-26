@@ -59,7 +59,7 @@ function queue(){
   const method=sourceToMethod[a.question_id];
   if(!method||!['paper_daily','weekend_mock'].includes(a.source))continue;
   const fail=!a.correct||a.guessed||a.result_status==='unable'||a.result_status==='skipped'||isSlow(a)||
-   (Number.isInteger(a.hint_level)&&a.hint_level>0);
+   a.hint_level===1||a.hint_level===2;
   if(!fail)continue;
   const key=a.question_id;
   const prev=tasks.get(key);

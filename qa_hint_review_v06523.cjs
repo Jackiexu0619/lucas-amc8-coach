@@ -38,7 +38,11 @@ const observed=[
   {name:'guessed correct',correct:true,guessed:true,hint_level:0,stage:0,due:'2026-10-28'},
   {name:'wrong answer',correct:false,guessed:false,hint_level:0,stage:0,due:'2026-10-28'},
   {name:'missing hint',correct:true,guessed:false,stage:0,due:'2026-10-28'},
-  {name:'invalid hint',correct:true,guessed:false,hint_level:'0',stage:0,due:'2026-10-28'}
+  {name:'null hint',correct:true,guessed:false,hint_level:null,stage:0,due:'2026-10-28'},
+  {name:'string zero hint',correct:true,guessed:false,hint_level:'0',stage:0,due:'2026-10-28'},
+  {name:'negative hint',correct:true,guessed:false,hint_level:-1,stage:0,due:'2026-10-28'},
+  {name:'out of range hint 3',correct:true,guessed:false,hint_level:3,stage:0,due:'2026-10-28'},
+  {name:'out of range hint 99',correct:true,guessed:false,hint_level:99,stage:0,due:'2026-10-28'}
 ];
 for(const row of observed){
   const answer={question_id:transferQuestion.id,date:'2026-10-27',source:'paper_daily',
@@ -50,10 +54,13 @@ for(const row of observed){
   assert.equal(task.stage,row.stage,row.name+' stage');
   assert.equal(task.due,row.due,row.name+' due');
   assert.equal(task.status,'pending',row.name+' status');
+  if(['missing hint','null hint','string zero hint','negative hint','out of range hint 3','out of range hint 99'].includes(row.name)){
+    assert.equal(task.history.at(-1).reason,'independence_unverified',row.name+' reason');
+  }
   assert.deepEqual(S.attempts[1],answer,row.name+' raw attempt preserved');
   console.log('PASS '+row.name+': stage '+task.stage+', due '+task.due);
 }
-for(const hint of [undefined,'0',-1]){
+for(const hint of [undefined,null,'0',-1,3,99]){
   const answer={question_id:transferQuestion.id,date:'2026-10-27',source:'paper_daily',
     result_status:'correct',correct:true,guessed:false};
   if(hint!==undefined)answer.hint_level=hint;

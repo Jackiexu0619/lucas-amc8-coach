@@ -35,7 +35,7 @@ function rebuildQueue(){
   let t=taskMap.get(tag.key);
   // Old records without a valid hint value cannot prove an independent pass, but
   // an otherwise correct standalone record is not evidence of a new weakness.
-  const hintKnown=a.hint_level===0||(Number.isInteger(a.hint_level)&&a.hint_level>0);
+  const hintKnown=a.hint_level===0||a.hint_level===1||a.hint_level===2;
   if(!t&&!hintKnown&&a.correct&&!a.guessed&&a.result_status!=='skipped'&&a.result_status!=='unable'&&!isSlow(a))continue;
   if(!resultOK(a)){
     if(!t||t.status==='completed')t={skill:tag.skill,key:tag.key,source:tag.source,first_question_id:q.id,origin:a.source,origin_date:a.date,stage:0,status:'pending',due:nextTrainDay(a.date),history:[],priority:0};
@@ -43,7 +43,7 @@ function rebuildQueue(){
     t.priority+=a.source==='weekend_mock'?2:3;
     if(a.result_status==='unable'||a.result_status==='skipped')t.priority+=2;
     if(a.guessed)t.priority+=1;
-    const reason=a.guessed?'guess':a.hint_level>0&&Number.isInteger(a.hint_level)?'hint_used':
+    const reason=a.guessed?'guess':(a.hint_level===1||a.hint_level===2)?'hint_used':
       a.error_type||(a.correct?'independence_unverified':'unsure');
     t.history.push({date:a.date,qid:q.id,pass:false,reason,source:a.source});
   }else if(t&&t.status!=='completed'){
