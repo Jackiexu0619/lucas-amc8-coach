@@ -120,7 +120,7 @@ generateDailyPlan=function(excludeIds){
 };
 function renderQueue(){
  const state=queue(),tasks=state.tasks,pending=tasks.filter(t=>t.status==='pending'),due=pending.filter(t=>t.due<=todayLocal());
- let html='<div class="card" style="margin:12px 0"><h3>AI同方法复测闭环</h3><p class="small">已审核启用 '+approved.length+' 道 AI 迁移题；正式周末模拟卷与四周诊断不使用这些题。到期任务 '+due.length+' 项，待复测 '+pending.length+' 项。独立正确按 7/14/30 天推进；猜对、提示后答对不算掌握。</p>';
+ let html='<div id="aiTransferQueueReport" class="card" style="margin:12px 0"><h3>AI同方法复测闭环</h3><p class="small">已审核启用 '+approved.length+' 道 AI 迁移题；正式周末模拟卷与四周诊断不使用这些题。到期任务 '+due.length+' 项，待复测 '+pending.length+' 项。独立正确按 7/14/30 天推进；猜对、提示后答对不算掌握。</p>';
  if(pending.length){html+='<table><tr><th>方法组</th><th>原题</th><th>阶段</th><th>下次复测</th><th>可用变式</th></tr>';
  for(const t of pending.slice(0,10))html+='<tr><td>'+esc(t.skill)+'</td><td>'+esc(t.origin_question_id)+'</td><td>'+['次日迁移','7天保持','14天保持','30天回测'][Math.min(3,t.stage||0)]+'</td><td>'+esc(t.due||'—')+'</td><td>'+t.available+'</td></tr>';
  html+='</table>';}else html+='<p class="small">当前没有由已映射真题错题触发的 AI 复测任务。</p>';

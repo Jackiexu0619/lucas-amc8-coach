@@ -133,11 +133,13 @@ async function main(){
       'three hint-assisted correct answers are still review evidence in the rendered report');
     assert.doesNotMatch(await hintDay.locator('summary').first().innerText(),/未见本日薄弱证据/);
     assert.equal(await hintDay.locator('.daily-history-question').filter({hasText:'提示后答对'}).count(),3);
+    await page.getByRole('tab',{name:'学习总览'}).click();
     const timeTable=page.getByRole('heading',{name:'最近每日3题纸上总用时'}).locator('..');
     assert.match(await timeTable.locator('tr').filter({hasText:dynamic.hintDate}).innerText(),/未记录/,
       'a null session duration must not be displayed as zero');
     assert.match(await timeTable.locator('tr').filter({hasText:dynamic.zeroDate}).innerText(),/00:00/,
       'a recorded zero-second duration remains distinct from missing time');
+    await page.getByRole('tab',{name:'每日专项'}).click();
     console.log('PASS report hints/time: three hint-assisted correct answers need review; null is unrecorded and zero is 00:00.');
     const dates=await page.locator('.daily-history-day').evaluateAll(nodes=>nodes.map(n=>n.dataset.date));
     assert.deepEqual(dates,[...dates].sort().reverse(),'dates are grouped newest first');
@@ -149,7 +151,7 @@ async function main(){
     assert.match(await first.locator('.daily-history-question').first().textContent(),/Lucas答案：C/);
     assert.match(await second.locator('.daily-history-question').first().textContent(),/Lucas答案：D/);
     const linked=await second.locator('.daily-history-question').nth(1).textContent();
-    assert.match(linked,/知识点：测试归档知识点.*解题方法：测试归档方法/);
+    assert.match(linked,/知识点：测试归档知识点.*方法线索：测试归档方法/);
     assert.match(linked,/复测：真题专项：待复测；下次 2026-10-27/);
     const legacy=page.locator('.daily-history-day[data-date="2026-10-22"]');
     assert.match(await legacy.locator('.daily-history-question').first().textContent(),/Lucas答案：/);

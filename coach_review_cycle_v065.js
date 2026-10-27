@@ -93,7 +93,7 @@ generateDailyPlan=function(excludeIds){
   return pickAndMark(exclusion);
 };
 function reviewText(){const tasks=rebuildQueue().tasks;const pending=tasks.filter(t=>t.status==='pending');const due=pending.filter(t=>t.due<=today());const missing=due.filter(t=>!candidates(t,new Set()).length);
- let text='<div class="card" style="margin:12px 0"><h3>专项复测队列</h3>';
+ let text='<div id="officialReviewQueueReport" class="card" style="margin:12px 0"><h3>专项复测队列</h3>';
  text+='<p class="small">待复测 '+pending.length+' 项；当前到期 '+due.length+' 项。每天最多占用2道题，第3题保留能力拓展。家长确认标签按同技能迁移；PDF方法资料按方法分组匹配未做过的新题。PDF分类仅是待核对候选，不视为已掌握；找不到同组新题时保留待匹配状态。</p>';
  if(pending.length){text+='<table><tr><th>考点</th><th>来源</th><th>验收阶段</th><th>下次日期</th></tr>';
  for(const t of pending.slice(0,12))text+='<tr><td>'+safe(t.skill)+'</td><td>'+safe(t.source)+'</td><td>'+['次日迁移','7天保持','14天进阶','30天回测'][Math.min(3,t.stage)]+'</td><td>'+safe(t.due)+(missing.includes(t)?'（暂无未做过的同方法真题，待匹配）':'')+'</td></tr>';

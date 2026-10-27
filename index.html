@@ -1,10 +1,10 @@
 <!doctype html>
-<!-- BUILD: Lucas AMC8 Coach v0.6.5.24 / archive_official_v1 -->
+<!-- BUILD: Lucas AMC8 Coach v0.6.5.25 / archive_official_v1 -->
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Lucas AMC8 Coach v0.6.5.24</title>
+<title>Lucas AMC8 Coach v0.6.5.25</title>
 <style>
 :root{--bg:#f4f7fb;--card:#fff;--text:#162235;--muted:#657287;--accent:#2d67d9;--line:#dbe3ef;--good:#137a4e;--warn:#a86400;--bad:#b42318}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
@@ -214,12 +214,19 @@ hr{border:0;border-top:1px solid var(--line);margin:15px 0}.two{display:grid;gri
 .mock-review-solution h4{margin:0 0 8px}
 .mock-ai-explain-row{border-top:1px solid var(--line);padding:12px 0;min-width:0;overflow-wrap:anywhere}
 .mock-ai-explain-row .mock-review-solution{margin:8px 0}
+.report-category[hidden]{display:none}
+#reportCategoryNav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+#reportCategoryNav button[aria-selected="true"]{background:var(--accent);color:#fff}
+.daily-history-question{border-bottom:1px solid #e7edf4;overflow-wrap:anywhere}
+.daily-history-question>summary{cursor:pointer;padding:10px 0}
+.daily-history-question .mock-review-paper-image{max-height:none;width:auto;max-width:100%;height:auto}
+.daily-history-question .mock-solution-html{overflow-wrap:anywhere}
 </style>
 <script src="official_bank.js"></script>
 </head>
 <body>
 <header>
-<div><h1>Lucas AMC8 Coach <span style="font-size:12px;font-weight:400">v0.6.5.24</span></h1><div class=sub>真实AMC8题库核心 · Daily Adaptive Engine · Authentic Exam Assembly · 每日锁卷 · 免注册云同步</div></div>
+<div><h1>Lucas AMC8 Coach <span style="font-size:12px;font-weight:400">v0.6.5.25</span></h1><div class=sub>真实AMC8题库核心 · Daily Adaptive Engine · Authentic Exam Assembly · 每日锁卷 · 免注册云同步</div></div>
 <nav aria-label="主导航">
 <button onclick="show('home')">主页</button>
 <button onclick="show('practice')">每日训练</button>
@@ -249,7 +256,7 @@ const SEED={"version":"0.6.3","profile":{"name":"Lucas","goal":"2027-01 AMC 8","
 const ZH_DOMAIN={"arithmetic":"基础运算","ratio":"比例","rate":"速度与行程","algebra":"代数/应用","number_theory":"数论","coordinate":"坐标与变换","data":"数据与统计","patterns":"数列与规律","combinatorics":"组合/概率","geometry":"几何","probability":"概率","spatial":"立体与空间","logic":"逻辑与逆推","misc":"综合","meta":"综合习惯"};
 const ZH_SKILL={"percent_two_step":"连续百分比","ratio_change":"比例变化","average_speed":"平均速度","divisible_but_not":"整除但不整除","composite_divisibility":"复合整除","transformations":"坐标变换","median_change":"中位数变化","arithmetic_series":"等差求和","round_robin":"两两配对计数","area_ratio":"面积比","exactly_two_colors":"恰好两种颜色","distribution":"分配与角色","painted_cuboid":"涂色长方体","machine_reverse":"机器逆推","execution_complete":"做题完整性","rectangle_cutout":"割补与周长","right_triangle_altitude":"直角三角形高","trapezoid_area":"梯形面积","rectangle_midpoint":"长方形与中点","square_point_area":"正方形面积关系","sector_area":"扇形面积","parallelogram_area":"平行四边形面积","triangle_angle_ratio":"三角形角度比","fraction_remainder":"分数连续变化","reverse_percent":"反求原价","percent_change_chain":"连续百分比变化","unit_price":"单价与包装","map_scale":"地图比例尺","proportional_sharing":"按比分配","mixture_ratio":"混合比例","ratio_transfer":"转移后的比例","fraction_ratio":"分数化比例","distance_speed_time":"路程速度时间","catch_up":"追及问题","meeting":"相遇问题","work_rate":"工程问题","upstream_downstream":"流水行船","average_speed_equal_distance":"等路程平均速度","average_speed_equal_time":"等时间平均速度","rectangle_perimeter":"长方形周长","triangle_area":"三角形面积","pythagorean":"勾股关系","similar_triangles":"相似三角形","triangle_angle_sum":"三角形内角和","coordinate_distance":"坐标距离","coordinate_midpoint":"坐标中点","reflection_translation":"对称与平移","painted_cuboid_one_face":"恰一面涂色","prism_volume":"长方体体积","prism_surface_area":"长方体表面积","handshakes":"握手计数","permutations":"全排列","adjacent_arrangements":"相邻排列","identical_distribution":"相同物分配","lattice_paths":"格点路径","single_draw_probability":"单次抽取概率","at_least_one":"至少一个","two_dice_sum":"两骰点数和","exact_heads":"恰好若干正面","inclusion_exclusion":"容斥计数","divisor_count":"因数个数","gcd":"最大公因数","lcm":"最小公倍数","modular_remainder":"幂的余数","digit_divisibility":"数字整除","last_digit":"个位循环","square_divisors":"平方因数","multiples_union":"倍数并集","remainder_count":"余数类计数","palindrome_divisibility":"回文与整除","arithmetic_sequence":"等差数列第n项","recurrence":"递推数列","repeating_cycle":"循环规律","growing_blocks":"增长图案","machine_reverse_even":"奇偶机器逆推","relative_order":"相对次序","pigeonhole":"抽屉原理","mean_change":"平均数变化","weighted_average":"加权平均","range_change":"极差变化","mode_change":"众数变化","frequency_mean":"频数平均数","frequency_median":"频数中位数","frequency_percent":"频数百分比"};
 
-const ENGINE_VERSION='0.6.5.24';
+const ENGINE_VERSION='0.6.5.25';
 const MOCK_TOPIC_MAP={
   arithmetic:'application',ratio:'application',rate:'application',algebra:'application',misc:'patterns_logic',
   geometry:'geometry',coordinate:'geometry',spatial:'geometry',
@@ -1932,7 +1939,7 @@ function renderDailyReviewIntoReport(){
       const paperText=[metric('完成',v.count),metric('正确',v.correct),metric('独立正确',v.independent),
         metric('答错',v.wrong),metric('不会',v.unable),metric('未做',v.skipped),
         v.total===null?'用时未记录':`已记录用时${formatDailyDuration(v.total)}${v.timedCount!==null&&v.count!==null&&v.timedCount<v.count?`（${v.timedCount}/${v.count}题计时）`:''}`].join('｜');
-      html+=`<details class="daily-history-paper" data-paper-id="${esc(pid)}" ${focus?'open':''} style="margin:10px 0 10px 12px;border:1px solid #e7edf4;border-radius:8px;padding:10px;overflow-wrap:anywhere">
+      html+=`<details class="daily-history-paper" data-paper-id="${esc(pid)}" data-date="${esc(date)}" ${focus?'open':''} style="margin:10px 0 10px 12px;border:1px solid #e7edf4;border-radius:8px;padding:10px;overflow-wrap:anywhere">
         <summary><b>${esc(pid||'旧版未保存卷号')}</b><div class="small">${esc(paperText)}</div></summary>`;
       if(!p.ids.length)html+='<p class="muted">旧记录未保存题目 ID，无法可靠关联逐题作答。</p>';
       p.ids.forEach((id,i)=>{
@@ -1943,25 +1950,33 @@ function renderDailyReviewIntoReport(){
         const method=tags.method&&!tags.method.startsWith('archive_method_')?tags.method:'暂无可靠记录';
         const hint=!a?'暂无可靠记录':a.hint_level===0?'未使用':a.hint_level===1?'使用过提示':a.hint_level===2?'看过进一步提示或解法':'暂无可靠记录';
         const duration=a?.duration_sec!==null&&a?.duration_sec!==undefined&&Number.isFinite(+a.duration_sec)&&+a.duration_sec>=0?formatDailyDuration(+a.duration_sec):'未记录';
-        html+=`<div class="daily-history-question" style="padding:10px 0;border-bottom:1px solid #e7edf4;overflow-wrap:anywhere"><b>第${i+1}题 · ${esc(title)}</b>　<strong>${esc(dailyHistoryResult(a))}</strong>
+        const solutionRaw=q?.solution_html||(q?.year&&q?.problem_number?SOLUTION_BANK.get(solutionKey(q.year,q.problem_number)):'')||'';
+        const solution=solutionRaw?sanitizeSolutionHtml(solutionRaw):'';
+        const prompt=q&&(q.archive_image||q.problem_html)?mockReviewPromptHtml(q)+mockReviewPromptChoicesHtml(q):'<p class="muted">原题暂不可用；保留年份和题号供人工核对。</p>';
+        html+=`<details class="daily-history-question" data-question-index="${i+1}" data-question-id="${esc(id)}"><summary><b>第${i+1}题 · ${esc(title)}</b>　<strong>${esc(dailyHistoryResult(a))}</strong></summary>
+          <div class="mock-review-question">${prompt}</div>
           <div class="small">来源：${esc(source)}｜题库ID：${esc(id)}｜Lucas答案：${esc(a?.selected_answer||'暂无可靠记录')}｜官方答案：${esc(q?.answer||'暂无可靠记录')}</div>
           <div class="small">猜测：${esc(a?.guessed===true?'是':a?.guessed===false?'否':'暂无可靠记录')}｜提示：${esc(hint)}｜用时：${esc(duration)}</div>
-          <div class="small">错因：${esc(a?.error_type?errorLabel(a.error_type):'暂无可靠记录')}｜知识点：${esc(skill)}｜解题方法：${esc(method)}</div>
-          <div class="small">复测：${esc(dailyHistoryReview(a))}</div></div>`;
+          <div class="small">错因：${esc(a?.error_type?errorLabel(a.error_type):'暂无可靠记录')}｜知识点：${esc(skill)}｜方法线索：${esc(method)}</div>
+          <div class="mock-review-solution"><h4>解题分析</h4>${solution?`<p class="small">来源：已有逐题解答资料，供对照原题核查。</p><div class="mock-solution-html">${solution}</div>`:'<p>暂无可靠解析。知识点与方法标签不是完整解题步骤；可按需生成 AI 讲解，并核对题库标准答案。</p>'}</div>
+          <div class="small">复测：${esc(dailyHistoryReview(a))}</div></details>`;
       });
       html+='</details>';
     }
     html+='</details>';
   }
-  wrap.innerHTML=html;host.appendChild(wrap);
+  wrap.innerHTML=html;(host.querySelector('#reportCategory-daily')||host).appendChild(wrap);
+  wrap.querySelectorAll('.daily-history-question img').forEach(img=>img.addEventListener('error',()=>{
+    img.replaceWith(Object.assign(document.createElement('p'),{className:'muted',textContent:'原题图片暂时无法加载；请按年份和题号核对原卷。'}));
+  }));
   wrap.querySelector('#dailyHistoryRange').addEventListener('change',e=>{
-    dailyHistoryRange=e.target.value;dailyHistoryDate='';dailyHistoryFocus=null;renderDailyReviewIntoReport();
+    dailyHistoryRange=e.target.value;dailyHistoryDate='';dailyHistoryFocus=null;renderDailyReviewIntoReport();void window.LucasAMC8Explain?.mountDaily?.();
   });
   wrap.querySelector('#dailyHistoryDate').addEventListener('change',e=>{
-    dailyHistoryDate=e.target.value;dailyHistoryFocus=null;renderDailyReviewIntoReport();
+    dailyHistoryDate=e.target.value;dailyHistoryFocus=null;renderDailyReviewIntoReport();void window.LucasAMC8Explain?.mountDaily?.();
   });
   wrap.querySelector('#dailyHistoryClearDate').addEventListener('click',()=>{
-    dailyHistoryDate='';dailyHistoryFocus=null;renderDailyReviewIntoReport();
+    dailyHistoryDate='';dailyHistoryFocus=null;renderDailyReviewIntoReport();void window.LucasAMC8Explain?.mountDaily?.();
   });
 }
 
@@ -2601,12 +2616,12 @@ function renderAll(){renderHome();renderPractice();renderMock();renderReport();r
 async function initV063(){await loadAuthenticBank();try{await loadArchiveBank()}catch(e){console.error('双语真题库载入失败',e)}S=migrateState(S);saveStateLocal(false);renderAll();if(cloudConfigured()&&getSyncCode())cloudSyncAuto().catch(e=>console.warn(e));}
 initV063();
 </script>
-<script src="coach_mock_assembly_v06514.js?v=0.6.5.24"></script>
-<script src="coach_v064.js?v=0.6.5.24"></script>
+<script src="coach_mock_assembly_v06514.js?v=0.6.5.25"></script>
+<script src="coach_v064.js?v=0.6.5.25"></script>
 <script src="coach_v0641.js"></script>
 
 <!-- AMC8 v0.6.4.2 SAFE SKILL MODULE: BEGIN -->
-<script src="coach_skill_import_v4_offline.js?v=0.6.5.24"></script>
+<script src="coach_skill_import_v4_offline.js?v=0.6.5.25"></script>
 <!-- Legacy panel disabled: knowledge lives in its dedicated view, owned by index.html. -->
 <script src="coach_mock_submission_guard.js"></script>
 <!-- AMC8 v0.6.4.2 SAFE SKILL MODULE: END -->
@@ -2698,9 +2713,10 @@ async function startup(){
 startup();
 })();
 </script>
-<script src="coach_review_cycle_v065.js?v=0.6.5.24"></script>
-<script src="coach_ai_transfer_review_v066.js?v=0.6.5.24"></script>
-<script src="coach_learning_closure_v06514.js?v=0.6.5.24"></script>
-<script src="coach_student_dashboard_v06515.js?v=0.6.5.24"></script>
-<script src="coach_ai_explain_v06521.js?v=0.6.5.24"></script>
+<script src="coach_review_cycle_v065.js?v=0.6.5.25"></script>
+<script src="coach_ai_transfer_review_v066.js?v=0.6.5.25"></script>
+<script src="coach_learning_closure_v06514.js?v=0.6.5.25"></script>
+<script src="coach_student_dashboard_v06515.js?v=0.6.5.25"></script>
+<script src="coach_ai_explain_v06521.js?v=0.6.5.25"></script>
+<script src="coach_report_sections_v06525.js?v=0.6.5.25"></script>
 </body></html>

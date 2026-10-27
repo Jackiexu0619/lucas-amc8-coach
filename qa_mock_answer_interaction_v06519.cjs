@@ -16,7 +16,7 @@ const choiceSource = between('function mockChoiceButtonsHtml(i,q){', 'function r
 const renderSource = between('function renderMockQuestion(){', 'function renderFullMockPreview(){');
 const previewSource = between('function renderFullMockPreview(){', 'function regeneratePrintableMock(){');
 
-assert.match(html, /Lucas AMC8 Coach v0\.6\.5\.24/);
+assert.match(html, /Lucas AMC8 Coach v0\.6\.5\.25/);
 assert.doesNotMatch(html, /录入 Lucas 纸上的答案/);
 assert.doesNotMatch(html, /function answerButtonsHtml\(i\)/);
 assert.match(html, /function chooseDraftAndAdvance\(i,v\)/);

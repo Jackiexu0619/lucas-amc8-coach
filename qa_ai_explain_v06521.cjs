@@ -2,7 +2,7 @@
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
-const {reviewItems,cacheKey,runBatch}=require('./coach_ai_explain_v06521.js');
+const {reviewItems,dailyReviewItems,cacheKey,runBatch}=require('./coach_ai_explain_v06521.js');
 
 async function main(){
   const catalog=JSON.parse(fs.readFileSync(path.join(__dirname,'supabase/functions/amc8-explain/question_index.json'),'utf8'));
@@ -13,6 +13,17 @@ async function main(){
   assert.equal(input.questionId,qid);
   assert.equal(validateRequest({sync_code:'',paper_id:'p',question_id:qid,result_status:'wrong'},catalog).error,'sync_code_required');
   assert.equal(validateRequest({sync_code:'A'.repeat(32),paper_id:'p',question_id:'archive_9999_01',result_status:'wrong'},catalog).error,'unknown_question');
+  const hinted={sync_code:'A'.repeat(32),paper_id:'D_20261024',question_id:qid,
+    student_answer:q.answer,result_status:'hinted',hint_level:2};
+  const hintedInput=validateRequest(hinted,catalog);
+  assert.equal(hintedInput.status,'hinted');
+  assert.equal(hintedInput.hintLevel,2);
+  assert.equal(validateRequest({...hinted,hint_level:1},catalog).status,'hinted');
+  for(const bad of [undefined,null,0,3,'1']){
+    assert.equal(validateRequest({...hinted,hint_level:bad},catalog).error,'invalid_hint_level');
+  }
+  assert.equal(validateRequest({...hinted,student_answer:'N'},catalog).error,'invalid_answer');
+  assert.equal(buildDeepSeekRequest(hintedInput).messages[1].content[0].text.includes('"hint_level":2'),true);
   const deepseek=buildDeepSeekRequest(input);
   assert.equal(MODEL,'deepseek-flash');
   assert.equal(deepseek.reasoning_effort,'none');
@@ -32,6 +43,17 @@ async function main(){
   assert.equal(parseDeepSeekResponse({choices:[{finish_reason:'length',message:{content:JSON.stringify(lesson)}}]},input).error,'incomplete_model_output');
 
   const questions=Object.keys(catalog).slice(0,5).map(id=>({id,answer:catalog[id].answer,archive_image:catalog[id].image,year:catalog[id].year,problem_number:catalog[id].number}));
+  const dailyQuestions=[...questions,{id:'archive_2000_06',answer:catalog.archive_2000_06.answer,
+    archive_image:catalog.archive_2000_06.image}];
+  const dailySession={date:'2026-10-24',paper_id:'D_20261024',question_ids:dailyQuestions.map(x=>x.id)};
+  const dailyAttempts=dailyQuestions.map((x,i)=>({result_status:['wrong','unable','skipped','correct','correct','correct'][i],
+    correct:i>=3,guessed:i===3,hint_level:i===4?2:0,selected_answer:x.answer}));
+  const daily=dailyReviewItems(dailySession,[dailySession],id=>dailyQuestions.find(x=>x.id===id),
+    (_session,_id,index)=>dailyAttempts[index]);
+  assert.deepEqual(daily.map(x=>x.status),['wrong','unable','skipped','guessed','hinted']);
+  assert.equal(daily.at(-1).hintLevel,2);
+  assert.equal(dailyReviewItems({...dailySession,paper_id:''},[dailySession],id=>dailyQuestions.find(x=>x.id===id),
+    (_session,_id,index)=>dailyAttempts[index]).length,0,'uncertain paper identity cannot call AI');
   const records=[{qid:questions[0].id,correct:false,result_status:'wrong',selected_answer:'A'},
     {qid:questions[1].id,correct:false,result_status:'unable'},
     {qid:questions[2].id,correct:false,result_status:'skipped'},
