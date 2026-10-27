@@ -103,7 +103,7 @@ async function main(){
     const expected=['不会','独立正确','答错'];
     for(let i=0;i<3;i++){
       const item=paper.locator('.daily-history-question').nth(i);
-      assert.match(await item.locator('summary').innerText(),new RegExp(labels[i]+'.*'+expected[i]));
+      assert.match(await item.locator('summary').innerText(),new RegExp(labels[i]+'[\\s\\S]*'+expected[i]));
       await item.locator('summary').click();
       const image=item.locator('img.mock-review-paper-image');
       await image.evaluate(img=>img.decode());
@@ -190,8 +190,28 @@ async function main(){
     const mobilePaper=mobileDay.locator('.daily-history-paper[data-paper-id="'+oldPaper+'"]');
     await mobilePaper.locator('summary').first().click();
     await mobilePaper.locator('.daily-history-question summary').first().click();
+    const originalLink=mobilePaper.locator('.daily-history-question').first().locator('.review-image-link');
+    assert.match(await originalLink.getAttribute('href'),/assets\/2002_20\.webp$/);
+    const popupPromise=context.waitForEvent('page');
+    await originalLink.click();
+    const originalPage=await popupPromise;
+    await originalPage.waitForLoadState();
+    const fullImage=await originalPage.locator('img').evaluate(img=>({width:img.naturalWidth,height:img.naturalHeight}));
+    assert.ok(fullImage.width>0&&fullImage.height>0,'mobile full-size original opens with real image pixels');
+    await originalPage.close();
     const mobile=await page.evaluate(()=>({viewport:innerWidth,scroll:document.documentElement.scrollWidth}));
     assert.ok(mobile.scroll<=mobile.viewport,'no horizontal overflow at 390px: '+JSON.stringify(mobile));
+    const originalImage=await page.evaluate(()=>{
+      const q=qById('archive_2000_16'),original=q.archive_image;
+      q.archive_image='assets/missing-ui-qa.webp';renderReport();return original;
+    });
+    await page.locator('.daily-history-day[data-date="2026-10-24"] summary').first().click();
+    await page.locator('.daily-history-paper[data-paper-id="'+oldPaper+'"] summary').first().click();
+    await page.locator('.daily-history-question[data-question-id="archive_2000_16"] summary').click();
+    await page.getByText('原题图片暂时无法加载；请按年份和题号核对原卷。').waitFor();
+    assert.equal(await page.locator('.daily-history-question[data-question-id="archive_2000_16"] .review-image-link').count(),0,
+      'failed image link is removed rather than inviting a broken full-size view');
+    await page.evaluate(original=>{qById('archive_2000_16').archive_image=original;renderReport();},originalImage);
     assert.deepEqual(cloudRequests,[],'report navigation and AI explanation do not call the learning-data sync endpoint');
     assert.deepEqual(errors,[],'no uncaught JavaScript errors');
     console.log('PASS navigation/state/mobile: four distinct tabs, filters, 25-question mock, queue panels, unchanged data and 390px layout.');

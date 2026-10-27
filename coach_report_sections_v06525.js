@@ -6,6 +6,8 @@ const categories=[['overview','学习总览'],['daily','每日专项'],['mock','
 function mountSections(){
   const host=document.getElementById('report');if(!host)return;
   const existing=[...host.children];
+  const heading=document.createElement('div');heading.className='report-heading';
+  heading.innerHTML='<div class="muted">LEARNING REPORT</div><h2>学习报告</h2><p>按训练类型查看真实作答、原题解析与后续复测。</p>';
   const nav=document.createElement('nav');nav.id='reportCategoryNav';nav.setAttribute('aria-label','学习报告分类');
   nav.setAttribute('role','tablist');
   const panels=new Map();
@@ -27,7 +29,7 @@ function mountSections(){
     panel.className='report-category';panel.setAttribute('role','tabpanel');panel.setAttribute('aria-labelledby',button.id);
     panels.set(key,panel);
   }
-  host.replaceChildren(nav,...panels.values());
+  host.replaceChildren(heading,nav,...panels.values());
   for(const node of existing){
     const key=node.id==='latestMockLearningReport'||node.id==='mockAiExplain'?'mock':node.id==='dailyReviewHistory'?'daily':
       node.id==='officialReviewQueueReport'||node.id==='aiTransferQueueReport'?'review':'overview';

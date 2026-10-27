@@ -70,7 +70,7 @@ async function main(){
     assert.equal(await page.locator('#dailyReviewHistory').count(),1);
     assert.equal(await page.locator('.daily-history-day[data-date="2026-10-24"]').getAttribute('open'),'');
     assert.equal(await page.locator('.daily-history-paper[data-paper-id="'+oldPaper+'"]').getAttribute('open'),'');
-    assert.match(await page.locator('.daily-history-day[data-date="2026-10-24"]').innerText(),/正确1题.*答错1题.*不会1题/);
+    assert.match(await page.locator('.daily-history-day[data-date="2026-10-24"]').innerText(),/正确1题[\s\S]*答错1题[\s\S]*不会1题/);
     console.log('PASS old-paper submission: saved 1/3, exclusive counts, 135 recorded seconds and immediate dated history.');
 
     await page.reload({waitUntil:'domcontentloaded'});
