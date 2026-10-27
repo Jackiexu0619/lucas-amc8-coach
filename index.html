@@ -1698,7 +1698,7 @@ function renderReport(){
   </div>
   <div class=two style="margin-top:13px">
     <div class=card><h3>最近每日3题纸上总用时</h3>
-      ${sessions.length?`<table><tr><th>日期</th><th>题数</th><th>总用时</th></tr>${sessions.map(x=>`<tr><td>${x.date}</td><td>${x.question_count}</td><td>${secFmt(x.total_sec)}</td></tr>`).join('')}</table>`:'<p class=muted>暂无完整3题用时记录。</p>'}
+      ${sessions.length?`<table><tr><th>日期</th><th>题数</th><th>总用时</th></tr>${sessions.map(x=>`<tr><td>${x.date}</td><td>${x.question_count}</td><td>${x.total_sec==null?'未记录':secFmt(x.total_sec)}</td></tr>`).join('')}</table>`:'<p class=muted>暂无完整3题用时记录。</p>'}
     </div>
     <div class=card><h3>当前训练参考</h3>${est?`<p style="font-size:28px;font-weight:750">${est.low}-${est.high}/25</p><p>加权中心约 <b>${est.avg.toFixed(1)}</b>。</p><div class=notice>这是训练数据区间，不是对正式考试成绩的承诺或预测。</div>`:'<div class=notice>整套样本不足，暂不估计。</div>'}</div>
   </div>
@@ -1875,7 +1875,7 @@ function dailyHistorySummary(session,items){
   const total=complete&&measured!==null?measured:stored!==null?stored:measured;
   const timedCount=complete?timed.length:Number.isInteger(session.timed_question_count)?session.timed_question_count:null;
   return {count,correct,independent,wrong,unable,skipped,total,timedCount,complete,
-    weak:complete&&items.some(a=>isWeakLearningAttempt(a))};
+    weak:complete&&items.some(a=>isWeakLearningAttempt(a)||(a.correct&&(a.hint_level===1||a.hint_level===2)))};
 }
 function dailyHistoryReview(a){
   if(!a)return '暂无可靠记录';

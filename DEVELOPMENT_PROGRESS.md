@@ -1,6 +1,6 @@
 # Lucas AMC8 Coach — Development Progress
 
-Last updated: 2026-10-26
+Last updated: 2026-10-27
 
 ## Product goal
 
@@ -17,6 +17,8 @@ Keep the learning loop simple and evidence-based:
 
 ## v0.6.5.24 — dated daily-paper history (review branch; not deployed)
 
+- PR #14 review follow-up (2026-10-27): the dated-history summary now counts explicitly recorded `hint_level:1` or `2` on a correct answer as review evidence, without changing `isWeakLearningAttempt()` or review scheduling. The existing recent daily-time table shows `未记录` for a null/absent total while retaining `00:00` for a saved zero. Historical attempts, session times, and cloud state are not rewritten.
+- Expanded isolated Chromium `node qa_daily_history_v06524.cjs` passed (exit 0) through normal report navigation: a three-question, all-correct hint-assisted paper shows `有待复盘/复测题` and three `提示后答对` details; the old total-time table distinguishes null and zero. Existing archive, read-only, refresh, multi-paper, filter, mobile and submission assertions still pass. `qa_hint_review_v06523.cjs`, `qa_review_queue_regeneration_v06522.cjs`, `qa_ai_transfer_review_v066.cjs`, `qa_learning_closure_v06514.cjs`, `qa_mock_assembly_v06514.cjs`, `qa_mock_learning_report_v06520.cjs`, `qa_ai_explain_v06521.cjs`, and `qa_hint_review_browser_v06523.cjs` passed locally (exit 0). Three inline scripts and the edited test parse; `git diff --check` passed. PR CI and family-browser acceptance remain separate checks.
 - Fixed `submitDailyPaperResults()` to show counts separately from question positions, distinguish independently correct answers from guessed/hinted correct answers, identify the paper's original date, and count only recorded durations. New attempts store `paper_id` and `paper_question_index`; sessions store the number of timed questions. An old paper opens directly in its dated report entry after submission.
 - Reused the v0.6.5.23 daily review panel, grouping sessions by date and distinct paper IDs. Added seven-day, thirty-day, all-history and exact-date filters without persisting filter state. A legacy attempt without a paper ID is shown only when date and question ID identify one session and one attempt; ambiguous answers remain marked as unreliable. Knowledge/method and review due dates appear only when supported by existing tags and queue history.
 - Report-only navigation renders the report without generating a new daily paper. It does not call save or cloud push; existing revision conflict protection remains unchanged. Weekend mock reports, 25-question assembly, AI explanation cache version `0.6.5.21` and review scheduling are unchanged.

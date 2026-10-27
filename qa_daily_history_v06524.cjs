@@ -115,10 +115,30 @@ async function main(){
       S.cloud_meta.cloud_revision=48;
       saveStateLocal(false);
       window.amc8V065Queue();
-      return {d15,d40};
+      const hintDate=today(),zeroDate=addDay(today(),-1);
+      S.daily_sessions.push({...make(hintDate,'D-hints-only'),total_sec:null,timed_question_count:0},
+        {...make(zeroDate,'D-zero-time'),total_sec:0,timed_question_count:3});
+      for(let i=0;i<3;i++){
+        S.attempts.push({...attempt(hintDate,'D-hints-only',ids[i],i+1,qById(ids[i]).answer),
+          hint_level:i===1?2:1,duration_sec:null});
+        S.attempts.push({...attempt(zeroDate,'D-zero-time',ids[i],i+1,qById(ids[i]).answer),
+          duration_sec:0});
+      }
+      return {d15,d40,hintDate,zeroDate};
     });
     await page.getByRole('button',{name:'学习报告'}).click();
     await page.locator('#dailyHistoryRange').selectOption('all');
+    const hintDay=page.locator('.daily-history-day[data-date="'+dynamic.hintDate+'"]');
+    assert.match(await hintDay.locator('summary').first().innerText(),/有待复盘\/复测题/,
+      'three hint-assisted correct answers are still review evidence in the rendered report');
+    assert.doesNotMatch(await hintDay.locator('summary').first().innerText(),/未见本日薄弱证据/);
+    assert.equal(await hintDay.locator('.daily-history-question').filter({hasText:'提示后答对'}).count(),3);
+    const timeTable=page.getByRole('heading',{name:'最近每日3题纸上总用时'}).locator('..');
+    assert.match(await timeTable.locator('tr').filter({hasText:dynamic.hintDate}).innerText(),/未记录/,
+      'a null session duration must not be displayed as zero');
+    assert.match(await timeTable.locator('tr').filter({hasText:dynamic.zeroDate}).innerText(),/00:00/,
+      'a recorded zero-second duration remains distinct from missing time');
+    console.log('PASS report hints/time: three hint-assisted correct answers need review; null is unrecorded and zero is 00:00.');
     const dates=await page.locator('.daily-history-day').evaluateAll(nodes=>nodes.map(n=>n.dataset.date));
     assert.deepEqual(dates,[...dates].sort().reverse(),'dates are grouped newest first');
     for(const date of ['2026-10-22','2026-10-23','2026-10-24'])assert.ok(dates.includes(date),date+' archive exists');
