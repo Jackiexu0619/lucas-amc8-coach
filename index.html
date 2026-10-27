@@ -4,6 +4,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#102b46">
 <title>Lucas AMC8 Coach v0.6.5.25</title>
 <style>
 :root{--bg:#f4f7fb;--card:#fff;--text:#162235;--muted:#657287;--accent:#2d67d9;--line:#dbe3ef;--good:#137a4e;--warn:#a86400;--bad:#b42318}
@@ -221,29 +222,125 @@ hr{border:0;border-top:1px solid var(--line);margin:15px 0}.two{display:grid;gri
 .daily-history-question>summary{cursor:pointer;padding:10px 0}
 .daily-history-question .mock-review-paper-image{max-height:none;width:auto;max-width:100%;height:auto}
 .daily-history-question .mock-solution-html{overflow-wrap:anywhere}
+/* v0.6.5.25: a quiet, consistent screen design; print rules stay unchanged. */
+:root{--bg:#f3f7fb;--card:#fff;--text:#172b3f;--muted:#506579;--accent:#245c9e;--line:#d9e4ef;--good:#17684c;--warn:#946112;--bad:#b3262e}
+body{background:var(--bg);color:var(--text)}
+.skip-link{position:absolute;left:12px;top:-80px;z-index:30;background:#fff;color:var(--accent);padding:10px 14px;border-radius:8px}
+.skip-link:focus{top:8px}
+header{background:#102b46;padding:18px 24px;gap:18px}
+header h1{font-size:22px;line-height:1.2;letter-spacing:-.02em}
+header .sub{font-size:13px;line-height:1.4;color:#d4e2ef;max-width:680px}
+header nav{gap:6px}
+header nav button{background:transparent;color:#e5edf6;border:1px solid transparent;min-height:42px;padding:9px 13px}
+header nav button:hover{background:#264660;border-color:#52708b;color:#fff}
+header nav button[aria-current="page"]{background:#fff;color:#102b46;border-color:#fff}
+header nav .parent-settings{background:transparent;color:#dbe8f5;border:1px solid #6b859e}
+.wrap{max-width:1200px;padding:24px 20px 60px}
+.view{font-size:16px;line-height:1.55}
+.view h2,.view h3,.view h4{line-height:1.3;text-wrap:balance}
+.view h3{font-size:18px}
+.card{border-color:var(--line);border-radius:16px;padding:20px;box-shadow:0 5px 22px rgba(20,48,76,.045);min-width:0}
+.card .card{box-shadow:none}
+.muted{font-size:14px;color:var(--muted)}.small{font-size:13px;color:var(--muted);line-height:1.55}
+.big{font-size:28px;line-height:1.2;font-variant-numeric:tabular-nums}
+.tag{font-size:13px;padding:4px 9px;line-height:1.35}
+button,.btn{min-height:44px;border:1px solid var(--line);background:#edf3fa;color:#183752;font-size:14px;font-weight:600;line-height:1.25;padding:10px 13px;touch-action:manipulation;transition:background-color .16s,border-color .16s,color .16s}
+button:hover,.btn:hover{background:#deebf8;border-color:#99b7d8}
+button.primary:hover,.btn.primary:hover{background:#194b87;color:#fff}
+button:disabled{opacity:.58;cursor:not-allowed}
+button:focus-visible,.btn:focus-visible,summary:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,a:focus-visible{outline:3px solid #4e9ade;outline-offset:2px}
+input,select,textarea{border-color:#a9bfd3;color:var(--text);font:inherit}
+input:not([type=checkbox]):not([type=radio]),select{min-height:42px}
+.notice{font-size:14px;line-height:1.55;background:#f0f6fc;border-color:#cedff0;padding:12px 14px}
+table{font-size:14px;font-variant-numeric:tabular-nums}th,td{padding:11px 10px}
+.grid,.two{gap:16px}
+#guidedStudentDashboard .student-path-step{background:#f9fbfd;border-color:var(--line);padding:15px}
+#guidedStudentDashboard .student-path-step[data-status="active"]{background:#eff6fd;border-color:#a7c8e8}
+#guidedStudentDashboard .student-next-card{background:#f4f8fd;border-color:#c9daed}
+#guidedStudentDashboard .student-path-step p,#guidedStudentDashboard .student-home-note{font-size:13px;line-height:1.55}
+#report .report-heading{margin:0 0 18px}
+#report .report-heading .muted{font-size:12px;font-weight:700;letter-spacing:.1em;color:var(--accent)}
+#report .report-heading h2{font-size:28px;margin:3px 0 4px}
+#report .report-heading p{margin:0;color:var(--muted);font-size:14px}
+#reportCategoryNav{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;padding:6px;margin-bottom:18px;background:#e8f0f8;border:1px solid #d4e1ef;border-radius:14px}
+#reportCategoryNav button{background:transparent;border-color:transparent;min-height:48px;font-size:15px}
+#reportCategoryNav button:hover{background:#d7e7f6}
+#reportCategoryNav button[aria-selected="true"]{background:#fff;color:#163f70;box-shadow:0 1px 5px rgba(20,48,76,.12)}
+#dailyReviewHistory>h3{font-size:21px;margin-bottom:13px}
+#dailyReviewHistory>.row{margin-bottom:14px}
+#dailyReviewHistory>.row label{font-size:14px;font-weight:600}
+.daily-history-day>summary,.daily-history-paper>summary{cursor:pointer;padding:12px;border-radius:10px;background:#f7fafd;font-size:16px;line-height:1.4}
+.daily-history-day>summary,.daily-history-paper>summary,.daily-history-question>summary{touch-action:manipulation}
+.daily-history-day>summary .small,.daily-history-paper>summary .small{margin-top:4px;font-size:13px;line-height:1.55}
+.daily-history-paper .paper-id{font-size:12px;color:var(--muted);font-weight:500;overflow-wrap:anywhere;margin-top:3px}
+.daily-summary-metrics{display:flex;flex-wrap:wrap;gap:5px 7px;margin-top:8px}
+.daily-summary-metrics span{display:inline-block;padding:3px 8px;border:1px solid #dce7f2;border-radius:7px;background:#fff;color:#38516b;font-size:13px;line-height:1.4}
+.daily-summary-metrics .needs-review{background:#fff5e5;border-color:#f0dbb1;color:#805213}
+.daily-history-day[open],.daily-history-paper[open]{border-color:#a8c5e2!important}
+.daily-history-paper>summary b{overflow-wrap:anywhere}
+.daily-ai-controls{margin:14px 0;padding:15px;background:#f0f6fc;border:1px solid #cfdff0;border-radius:12px}
+.daily-ai-controls h4{margin:0 0 5px;font-size:17px}.daily-ai-controls p{margin:5px 0 10px}
+.daily-history-question>summary{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;min-height:52px;font-size:16px}
+.daily-history-question>summary::marker{color:var(--accent)}
+.daily-question-result{display:inline-block;padding:3px 9px;border-radius:99px;font-size:13px;white-space:nowrap}
+.daily-question-result.good{background:#e8f5ee;color:var(--good)}
+.daily-question-result.warn{background:#fff4df;color:var(--warn)}
+.daily-question-result.bad{background:#fceceb;color:var(--bad)}
+.daily-review-answers,.daily-review-followup{margin:12px 0;padding:14px;background:#f7fafd;border:1px solid #e0eaf4;border-radius:11px;overflow-wrap:anywhere}
+.daily-review-answers h4,.daily-review-followup h4{margin:0 0 8px;font-size:16px}
+.daily-review-answers .small{font-size:14px;margin:5px 0}
+.daily-review-followup .small{font-size:14px}
+.daily-history-question .mock-review-solution{background:#fff;border-left:3px solid #8db5df;padding:16px}
+.daily-history-question .daily-ai-result{background:#f1f7fd;border-color:#b9d2ea}
+.daily-history-question .mock-review-paper-image,#report .mock-review-paper-image{max-height:none}
+.review-image-link{display:block;width:fit-content;max-width:100%;margin:auto}
+.review-image-link img{margin:8px auto 3px}
+.review-image-caption{font-size:13px;color:var(--accent);text-align:center;margin:3px 0 12px}
+.mock-question-review-section .mock-review-item>summary{font-size:15px;min-height:52px}
+.mock-review-answer-card{padding:13px;background:#f7fafd}
+.mock-review-method{background:#f0f6fc;padding:14px}
+.mock-review-solution{padding:16px;line-height:1.65}
+@media(max-width:850px){header{padding:16px 18px}.wrap{padding:18px 16px 48px}.card{padding:16px}.grid,.two{gap:12px}}
+@media(max-width:600px){
+ header nav{width:100%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+ header nav button{padding:9px 5px;font-size:13px;min-height:44px}
+ header .sub{font-size:12px}
+ .wrap{padding:16px 12px 40px}
+ #report .report-heading h2{font-size:24px}
+ #reportCategoryNav{grid-template-columns:repeat(2,minmax(0,1fr));gap:4px}
+ #reportCategoryNav button{font-size:14px;min-height:44px;padding:8px}
+ .daily-history-day>summary,.daily-history-paper>summary{padding:10px}
+ #practice .daily-q-card .entry-grid label{width:100%;justify-content:space-between;gap:10px}
+ #practice .daily-q-card .entry-grid .daily-guess-label{justify-content:flex-start}
+ #practice .daily-q-card .entry-grid select{max-width:58%}
+ .daily-history-question .mock-review-solution{padding:13px}
+}
+@media(prefers-reduced-motion:reduce){button,.btn{transition:none}}
+@media print{body{background:#fff}.card{box-shadow:none}}
 </style>
 <script src="official_bank.js"></script>
 </head>
 <body>
+<a class="skip-link" href="#mainContent">跳到主要内容</a>
 <header>
-<div><h1>Lucas AMC8 Coach <span style="font-size:12px;font-weight:400">v0.6.5.25</span></h1><div class=sub>真实AMC8题库核心 · Daily Adaptive Engine · Authentic Exam Assembly · 每日锁卷 · 免注册云同步</div></div>
+<div><h1>Lucas AMC8 Coach <span style="font-size:12px;font-weight:400">v0.6.5.25</span></h1><div class=sub>真题训练 · 每日三题 · 学习复盘</div></div>
 <nav aria-label="主导航">
-<button onclick="show('home')">主页</button>
-<button onclick="show('practice')">每日训练</button>
-<button onclick="show('mock')">周末模拟</button>
-<button onclick="show('report')">学习报告</button>
-<button onclick="show('knowledge')">知识点</button>
-<button type="button" class="parent-settings" onclick="show('data')" title="备份和云同步">⚙ 家长设置</button>
+<button data-view="home" aria-current="page" onclick="show('home')">主页</button>
+<button data-view="practice" onclick="show('practice')">每日训练</button>
+<button data-view="mock" onclick="show('mock')">周末模拟</button>
+<button data-view="report" onclick="show('report')">学习报告</button>
+<button data-view="knowledge" onclick="show('knowledge')">知识点</button>
+<button type="button" data-view="data" class="parent-settings" onclick="show('data')" title="备份和云同步">家长设置</button>
 </nav>
 </header>
-<div class=wrap>
+<main id=mainContent class=wrap>
 <section id=home class="view active"></section>
 <section id=practice class=view></section>
 <section id=mock class=view></section>
 <section id=report class=view></section>
 <section id=knowledge class=view><div class="card"><h3>知识点与四周诊断</h3><p>正在加载知识点资料……</p></div></section>
 <section id=data class=view></section>
-</div>
+</main>
 <div id=printRoot class=print-root></div>
 <script src="cloud_config.js"></script>
 <script>
@@ -354,6 +451,10 @@ function show(id){
  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
  const dest=document.getElementById(id);if(!dest)return;
  dest.classList.add('active');
+ document.querySelectorAll('header nav [data-view]').forEach(button=>{
+   if(button.dataset.view===id)button.setAttribute('aria-current','page');
+   else button.removeAttribute('aria-current');
+ });
  // Reading the report must not generate a new daily paper or schedule a cloud push.
  if(id==='report')renderReport();else renderAll();
 }
@@ -1604,17 +1705,17 @@ function renderPractice(){
       <div class="entry-grid rowitem" style="margin-top:12px;border:1px solid var(--line);border-radius:9px;padding:12px">
         <div style="grid-column:1/-1"><b>家长录入</b>${submitted?' · 本卷已提交，请到学习报告查看结果':''}</div>
         <div style="grid-column:1/-1;display:flex;gap:12px;flex-wrap:wrap;align-items:center">
-          <label>Lucas 的答案 <select id="daily_ans_${i}" ${submitted?'disabled':''}>
+          <label>Lucas 的答案 <select id="daily_ans_${i}" name="daily_answer_${i}" autocomplete="off" ${submitted?'disabled':''}>
             <option value="">请选择</option><option value="N">不会</option><option value="X">未做</option>
             <option>A</option><option>B</option><option>C</option><option>D</option><option>E</option>
           </select></label>
-          <label>用时（秒） <input id="daily_sec_${i}" type="number" min="0" placeholder="如95" style="width:110px" ${submitted?'disabled':''}></label>
-          <label style="display:flex;align-items:center;gap:5px"> <input id="daily_guess_${i}" type="checkbox" ${submitted?'disabled':''}> 猜的</label>
-          <label>提示使用 <select id="daily_hint_${i}" ${submitted?'disabled':''}>
+          <label>用时（秒） <input id="daily_sec_${i}" name="daily_seconds_${i}" type="number" min="0" inputmode="numeric" autocomplete="off" placeholder="如95" style="width:110px" ${submitted?'disabled':''}></label>
+          <label class="daily-guess-label" style="display:flex;align-items:center;gap:5px"> <input id="daily_guess_${i}" name="daily_guess_${i}" type="checkbox" ${submitted?'disabled':''}> 猜的</label>
+          <label>提示使用 <select id="daily_hint_${i}" name="daily_hint_${i}" autocomplete="off" ${submitted?'disabled':''}>
             <option value="">请确认</option><option value="0">未使用提示</option>
             <option value="1">使用过提示</option><option value="2">看过进一步提示或解法</option>
           </select></label>
-          <label>答错主要原因 <select id="daily_err_${i}" ${submitted?'disabled':''}>
+          <label>答错主要原因 <select id="daily_err_${i}" name="daily_error_${i}" autocomplete="off" ${submitted?'disabled':''}>
             <option value="method_gap">方法没想到</option><option value="knowledge_gap">知识/公式不会</option>
             <option value="execution_error">漏条件/计算错误</option><option value="time_issue">时间不够/卡住</option>
           </select></label>
@@ -1731,7 +1832,7 @@ function sanitizeSolutionHtml(raw){
   }catch(e){return esc(String(raw))}
 }
 function mockReviewPromptHtml(q){
-  if(q?.archive_image)return `<img loading="lazy" class="mock-review-paper-image" src="${esc(q.archive_image)}" alt="${esc((q.year||'')+' AMC8 Q'+(q.problem_number||''))} 原题（含选项与图形）">`;
+  if(q?.archive_image)return `<a class="review-image-link" href="${esc(q.archive_image)}" target="_blank" rel="noopener noreferrer" aria-label="打开${esc((q.year||'')+' AMC8 Q'+(q.problem_number||''))}原题大图"><img loading="lazy" class="mock-review-paper-image" src="${esc(q.archive_image)}" alt="${esc((q.year||'')+' AMC8 Q'+(q.problem_number||''))} 原题（含选项与图形）"></a><p class="review-image-caption">点击原题图片可在新标签页放大查看</p>`;
   if(q?.official&&q.problem_html)return sanitizeOfficialHtml(q.problem_html);
   return questionPromptHtml(q);
 }
@@ -1911,14 +2012,16 @@ function renderDailyReviewIntoReport(){
   filtered.forEach(s=>{if(!byDate.has(s.date))byDate.set(s.date,[]);byDate.get(s.date).push(s)});
   const wrap=document.createElement('section');wrap.className='card';wrap.style.marginTop='13px';wrap.id='dailyReviewHistory';
   let html=`<h3>周中每日专项 · 历史记录（每卷最多3题）</h3>
-    <div class="row" style="gap:10px;flex-wrap:wrap"><label>查看范围 <select id="dailyHistoryRange">
+    <div class="row" style="gap:10px;flex-wrap:wrap"><label>查看范围 <select id="dailyHistoryRange" name="daily_history_range" autocomplete="off">
       <option value="7" ${dailyHistoryRange==='7'?'selected':''}>最近7天</option>
       <option value="30" ${dailyHistoryRange==='30'?'selected':''}>最近30天</option>
       <option value="all" ${dailyHistoryRange==='all'?'selected':''}>全部历史</option>
-    </select></label><label>指定日期 <input id="dailyHistoryDate" type="date" value="${esc(dailyHistoryDate)}"></label>
+    </select></label><label>指定日期 <input id="dailyHistoryDate" name="daily_history_date" type="date" autocomplete="off" value="${esc(dailyHistoryDate)}"></label>
     <button type="button" id="dailyHistoryClearDate">清除日期</button></div>`;
   if(!sessions.length)html+='<p class="muted">尚无已提交的每日3题记录。</p>';
   else if(!filtered.length)html+='<p class="muted">这个日期范围内暂无每日训练记录；可选择“全部历史”。</p>';
+  const metricsHtml=text=>'<div class="daily-summary-metrics">'+text.split('｜').map(part=>
+    `<span${part.includes('有待复盘/复测')?' class="needs-review"':''}>${esc(part)}</span>`).join('')+'</div>';
   for(const date of [...byDate.keys()].sort().reverse()){
     const papers=byDate.get(date).map(s=>({session:s,ids:Array.isArray(s.question_ids)?s.question_ids:[],
       items:(Array.isArray(s.question_ids)?s.question_ids:[]).map((id,i)=>dailyHistoryAttempt(s,id,i,sessions))}));
@@ -1931,8 +2034,8 @@ function renderDailyReviewIntoReport(){
     const timeText=times.length?`｜已记录用时${formatDailyDuration(times.reduce((a,b)=>a+b,0))}`:'';
     const weakness=papers.some(p=>p.summary.weak)?'｜有待复盘/复测题':allComplete?'｜未见本日薄弱证据':'｜复测状态待核对';
     html+=`<details class="daily-history-day" data-date="${esc(date)}" ${dailyHistoryFocus?.date===date?'open':''} style="margin:10px 0;border:1px solid #d8e2ee;border-radius:8px;padding:10px;overflow-wrap:anywhere">
-      <summary><b>${esc(date)}｜每日专项训练</b><div class="small">${esc(dayText+timeText+weakness)}</div></summary>`;
-    for(const p of papers){
+      <summary><b>${esc(date)}｜每日专项训练</b>${metricsHtml(dayText+timeText+weakness)}</summary>`;
+    for(const [paperIndex,p] of papers.entries()){
       const s=p.session,v=p.summary,pid=s.paper_id||'';
       const focus=dailyHistoryFocus?.date===date&&dailyHistoryFocus.paperId===pid;
       const metric=(name,n)=>`${name}${n===null?'暂无可靠记录':n+'题'}`;
@@ -1940,7 +2043,7 @@ function renderDailyReviewIntoReport(){
         metric('答错',v.wrong),metric('不会',v.unable),metric('未做',v.skipped),
         v.total===null?'用时未记录':`已记录用时${formatDailyDuration(v.total)}${v.timedCount!==null&&v.count!==null&&v.timedCount<v.count?`（${v.timedCount}/${v.count}题计时）`:''}`].join('｜');
       html+=`<details class="daily-history-paper" data-paper-id="${esc(pid)}" data-date="${esc(date)}" ${focus?'open':''} style="margin:10px 0 10px 12px;border:1px solid #e7edf4;border-radius:8px;padding:10px;overflow-wrap:anywhere">
-        <summary><b>${esc(pid||'旧版未保存卷号')}</b><div class="small">${esc(paperText)}</div></summary>`;
+        <summary><b>本日第${paperIndex+1}套</b><div class="paper-id">卷号：${esc(pid||'旧版未保存卷号')}</div>${metricsHtml(paperText)}</summary>`;
       if(!p.ids.length)html+='<p class="muted">旧记录未保存题目 ID，无法可靠关联逐题作答。</p>';
       p.ids.forEach((id,i)=>{
         const q=qById(id),a=p.items[i],tags=learningTags(q);
@@ -1953,13 +2056,16 @@ function renderDailyReviewIntoReport(){
         const solutionRaw=q?.solution_html||(q?.year&&q?.problem_number?SOLUTION_BANK.get(solutionKey(q.year,q.problem_number)):'')||'';
         const solution=solutionRaw?sanitizeSolutionHtml(solutionRaw):'';
         const prompt=q&&(q.archive_image||q.problem_html)?mockReviewPromptHtml(q)+mockReviewPromptChoicesHtml(q):'<p class="muted">原题暂不可用；保留年份和题号供人工核对。</p>';
-        html+=`<details class="daily-history-question" data-question-index="${i+1}" data-question-id="${esc(id)}"><summary><b>第${i+1}题 · ${esc(title)}</b>　<strong>${esc(dailyHistoryResult(a))}</strong></summary>
+        const resultTone=!a?'neutral':a.correct&&a.hint_level===0&&!a.guessed?'good':a.result_status==='wrong'?'bad':'warn';
+        html+=`<details class="daily-history-question" data-question-index="${i+1}" data-question-id="${esc(id)}"><summary><b>第${i+1}题 · ${esc(title)}</b><strong class="daily-question-result ${resultTone}">${esc(dailyHistoryResult(a))}</strong></summary>
           <div class="mock-review-question">${prompt}</div>
-          <div class="small">来源：${esc(source)}｜题库ID：${esc(id)}｜Lucas答案：${esc(a?.selected_answer||'暂无可靠记录')}｜官方答案：${esc(q?.answer||'暂无可靠记录')}</div>
+          <div class="daily-review-answers"><h4>作答结果</h4>
+          <div class="small">Lucas答案：${esc(a?.selected_answer||'暂无可靠记录')}｜官方答案：${esc(q?.answer||'暂无可靠记录')}</div>
           <div class="small">猜测：${esc(a?.guessed===true?'是':a?.guessed===false?'否':'暂无可靠记录')}｜提示：${esc(hint)}｜用时：${esc(duration)}</div>
           <div class="small">错因：${esc(a?.error_type?errorLabel(a.error_type):'暂无可靠记录')}｜知识点：${esc(skill)}｜方法线索：${esc(method)}</div>
+          <div class="small">来源：${esc(source)}｜题库ID：${esc(id)}</div></div>
           <div class="mock-review-solution"><h4>解题分析</h4>${solution?`<p class="small">来源：已有逐题解答资料，供对照原题核查。</p><div class="mock-solution-html">${solution}</div>`:'<p>暂无可靠解析。知识点与方法标签不是完整解题步骤；可按需生成 AI 讲解，并核对题库标准答案。</p>'}</div>
-          <div class="small">复测：${esc(dailyHistoryReview(a))}</div></details>`;
+          <div class="daily-review-followup"><h4>学习后续</h4><div class="small">复测：${esc(dailyHistoryReview(a))}</div></div></details>`;
       });
       html+='</details>';
     }
@@ -1967,7 +2073,9 @@ function renderDailyReviewIntoReport(){
   }
   wrap.innerHTML=html;(host.querySelector('#reportCategory-daily')||host).appendChild(wrap);
   wrap.querySelectorAll('.daily-history-question img').forEach(img=>img.addEventListener('error',()=>{
-    img.replaceWith(Object.assign(document.createElement('p'),{className:'muted',textContent:'原题图片暂时无法加载；请按年份和题号核对原卷。'}));
+    const link=img.closest('.review-image-link'),caption=link?.nextElementSibling;
+    (link||img).replaceWith(Object.assign(document.createElement('p'),{className:'muted',textContent:'原题图片暂时无法加载；请按年份和题号核对原卷。'}));
+    if(caption?.classList.contains('review-image-caption'))caption.remove();
   }));
   wrap.querySelector('#dailyHistoryRange').addEventListener('change',e=>{
     dailyHistoryRange=e.target.value;dailyHistoryDate='';dailyHistoryFocus=null;renderDailyReviewIntoReport();void window.LucasAMC8Explain?.mountDaily?.();
