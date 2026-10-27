@@ -67,8 +67,10 @@ async function main(){
     assert.equal(result.sessions,1);
     assert.equal(result.submitted,true);
     assert.equal(result.mockDetailCount,0,'weekend mock results are untouched');
-    assert.match(await page.locator('#report').innerText(),/独立正确 1\/3/,
+    await page.getByRole('tab',{name:'学习总览'}).click();
+    assert.match(await page.locator('#reportCategory-overview').innerText(),/独立正确 1\/3/,
       'the learning report must count only the unassisted answer as independent');
+    await page.getByRole('tab',{name:'每日专项'}).click();
     assert.deepEqual(await page.locator('#dailyReviewHistory strong').allTextContents(),
       ['提示后答对','提示后答对','独立正确'],
       'normal submission and report navigation show the actual 1/2/0 review labels');

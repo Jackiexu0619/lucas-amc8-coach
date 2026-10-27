@@ -15,19 +15,22 @@ export function validateRequest(body,catalog){
   if(code.length<20||code.length>64)return {error:'sync_code_required'};
   if(!/^[A-Za-z0-9_-]{1,100}$/.test(paperId))return {error:'invalid_paper_id'};
   if(!/^archive_\d{4}_\d{2}$/.test(questionId)||!catalog[questionId])return {error:'unknown_question'};
-  if(!['wrong','unable','skipped','guessed'].includes(status))return {error:'not_review_question'};
+  if(!['wrong','unable','skipped','guessed','hinted'].includes(status))return {error:'not_review_question'};
   if(!['A','B','C','D','E','N','X',''].includes(answer))return {error:'invalid_answer'};
-  if((status==='wrong'||status==='guessed')&&!/^[A-E]$/.test(answer))return {error:'invalid_answer'};
+  if((status==='wrong'||status==='guessed'||status==='hinted')&&!/^[A-E]$/.test(answer))return {error:'invalid_answer'};
+  const hintLevel=body.hint_level;
+  if(status==='hinted'&&hintLevel!==1&&hintLevel!==2)return {error:'invalid_hint_level'};
   const q=catalog[questionId];
   if(!/^[A-E]$/.test(q.answer)||!/^assets\/\d{4}_\d{2}\.webp$/.test(q.image))return {error:'question_not_ready'};
-  return {code,paperId,questionId,answer,status,question:q};
+  return {code,paperId,questionId,answer,status,hintLevel,question:q};
 }
 
 export function buildDeepSeekRequest(input){
   const q=input.question;
   const imageUrl=new URL(q.image,IMAGE_ORIGIN).href;
   const task={question_id:input.questionId,year:q.year,problem_number:q.number,
-    student_answer:input.answer||'未录入',result_status:input.status};
+    student_answer:input.answer||'未录入',result_status:input.status,
+    ...(input.status==='hinted'?{hint_level:input.hintLevel}:{})};
   return {model:MODEL,stream:false,reasoning_effort:'none',response_format:{type:'json_object'},max_tokens:2500,
     messages:[
       {role:'system',content:'你是面向小学高年级 AMC8 学生的中文数学讲解老师。只根据用户提供的原题图片独立解题，不得补造看不清的题干或图形。先算出结果，再从图片选项中找到一致的字母和内容；逐步推导的最终数值必须与选项内容一致。使用初等数学，简洁且可复核。Lucas 的答案只能用于指出可能的错误环节；没有过程证据不能推测他的实际思路。必须输出 JSON 对象，字段为 question_id, answer_letter, option_content, computed_result, knowledge_point, method, entry_point, steps(字符串数组), common_mistake, mastery_tip, recognized_question, image_sufficient(布尔值)。若图片信息不足，设 image_sufficient=false，其他讲解字段可为空。'},

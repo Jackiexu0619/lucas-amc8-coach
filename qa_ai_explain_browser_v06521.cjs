@@ -45,6 +45,7 @@ async function main(){
       localStorage.setItem('lucas_amc8_sync_code_v1','A'.repeat(32));
       renderReport();show('report');
     });
+    await page.getByRole('tab',{name:'周末模拟'}).click();
     await page.locator('#mockAiExplain .mock-ai-explain-row').first().waitFor();
     assert.equal(await page.locator('#mockAiExplain .mock-ai-explain-row').count(),4);
     assert.equal(calls,0,'page load and report render must not call DeepSeek');

@@ -5,7 +5,7 @@ const vm = require('node:vm');
 
 const html = fs.readFileSync('index.html', 'utf8');
 
-assert.match(html, /Lucas AMC8 Coach v0\.6\.5\.24/, 'page version must be v0.6.5.24');
+assert.match(html, /Lucas AMC8 Coach v0\.6\.5\.25/, 'page version must be v0.6.5.25');
 assert.match(html, /const AUTHENTIC_CACHE_KEY='lucas_amc8_authentic_bank_v064_solution_report'/,
   'solution cache must be versioned so older cache entries without solutions are refreshed');
 assert.match(html, /function normalizeSolutionRows\(data\)/,
