@@ -1,0 +1,36 @@
+name: Weekly diagnosis QA
+
+on:
+  push:
+    paths:
+      - 'coach_weekly_diagnosis_v1.js'
+      - 'qa_weekly_diagnosis_v06526.cjs'
+      - 'qa_weekly_diagnosis_browser_v06526.cjs'
+      - 'supabase/functions/amc8-diagnose/**'
+      - 'index.html'
+      - '.github/workflows/weekly-diagnosis-qa.yml'
+  pull_request:
+    paths:
+      - 'coach_weekly_diagnosis_v1.js'
+      - 'qa_weekly_diagnosis_v06526.cjs'
+      - 'qa_weekly_diagnosis_browser_v06526.cjs'
+      - 'supabase/functions/amc8-diagnose/**'
+      - 'index.html'
+      - '.github/workflows/weekly-diagnosis-qa.yml'
+  workflow_dispatch:
+
+jobs:
+  isolated-week-cycle:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: node --check coach_weekly_diagnosis_v1.js
+      - run: node --check supabase/functions/amc8-diagnose/core.mjs
+      - run: node --check supabase/functions/amc8-diagnose/index.ts
+      - run: node --check qa_weekly_diagnosis_v06526.cjs
+      - run: node --check qa_weekly_diagnosis_browser_v06526.cjs
+      - run: node qa_weekly_diagnosis_v06526.cjs
+      - run: npm install --no-save playwright && npx playwright install --with-deps chromium && node qa_weekly_diagnosis_browser_v06526.cjs
