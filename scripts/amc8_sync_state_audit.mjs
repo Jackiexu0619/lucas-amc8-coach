@@ -131,12 +131,22 @@ export async function verifyAudit(dir) {
     readFile(path.join(dir, 'snapshot.json'), 'utf8'),
     readFile(path.join(dir, 'diff.json'), 'utf8'),
     readFile(path.join(dir, 'manifest.json'), 'utf8')]);
-  const snapshot = JSON.parse(snapshotText), manifest = JSON.parse(manifestText);
+  const snapshot = JSON.parse(snapshotText), diff = JSON.parse(diffText), manifest = JSON.parse(manifestText);
+  if (![1, 2].includes(snapshot.schema_version) || ![1, 2].includes(manifest.schema_version)) {
+    throw Error('Unsupported snapshot or manifest schema version');
+  }
+  if (manifest.schema_version !== snapshot.schema_version) throw Error('Manifest schema version does not match snapshot');
+  if (manifest.exported_at !== snapshot.exported_at) throw Error('Manifest export time does not match snapshot');
+  if (manifest.record_count !== snapshot.records?.length) throw Error('Manifest record count does not match snapshot');
+  if (!Array.isArray(manifest.record_sha256) || manifest.record_sha256.length !== snapshot.records.length) {
+    throw Error('Manifest record checksum count does not match snapshot');
+  }
   if (sha(snapshotText) !== manifest.snapshot_sha256 ||
     snapshotText !== canonical(snapshot) + '\n') throw Error('Snapshot checksum or canonical serialization mismatch');
   if (sha(diffText) !== manifest.diff_sha256 ||
-    diffText !== canonical(JSON.parse(diffText)) + '\n') throw Error('Difference report checksum mismatch');
+    diffText !== canonical(diff) + '\n') throw Error('Difference report checksum mismatch');
   validateRecords(snapshot.records);
+  if (manifest.candidate_count !== diff.candidate_count) throw Error('Manifest candidate count does not match difference report');
   if (snapshot.records.some((row, i) => {
     const {record_sha256, ...original} = row;
     return sha(canonical(original)) !== record_sha256 || record_sha256 !== manifest.record_sha256[i];

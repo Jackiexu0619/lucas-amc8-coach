@@ -40,6 +40,8 @@ into the repository.
 Checksums use UTF-8 compact JSON with object keys sorted recursively and
 array order preserved. `record_sha256` hashes each original row; the snapshot
 file hash includes a single trailing newline and is stored in `manifest.json`.
+Verification also matches the manifest's candidate and record counts, schema
+version, export time, and per-record checksum list to the snapshot and diff.
 This preserves all JSONB values and metadata, though PostgreSQL's original
 JSONB text formatting is not recoverable.
 

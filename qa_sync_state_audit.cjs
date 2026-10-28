@@ -2,10 +2,11 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
+const {createHash} = require('node:crypto');
 const {spawnSync} = require('node:child_process');
 
 async function run() {
-  const {buildDiff, exportAudit, verifyAudit} = await import('./scripts/amc8_sync_state_audit.mjs');
+  const {buildDiff, canonical, exportAudit, verifyAudit} = await import('./scripts/amc8_sync_state_audit.mjs');
   const temp = fs.mkdtempSync(path.join(os.tmpdir(), 'amc8-audit-'));
   const root = path.join(temp, 'private');
   const script = path.join(__dirname, 'scripts', 'amc8_sync_state_audit.mjs');
@@ -67,9 +68,15 @@ async function run() {
   assert.equal(optionalExport.manifest.schema_version,2);
   const legacy=path.join(temp,'legacy-ambiguous');
   fs.cpSync(optionalExport.dir,legacy,{recursive:true});
+  const legacySnapshot=path.join(legacy,'snapshot.json');
+  const legacySnapshotData=JSON.parse(fs.readFileSync(legacySnapshot,'utf8'));
+  legacySnapshotData.schema_version=1;
+  const legacySnapshotText=canonical(legacySnapshotData)+'\n';
+  fs.writeFileSync(legacySnapshot,legacySnapshotText);
   const legacyManifest=path.join(legacy,'manifest.json');
   const legacyData=JSON.parse(fs.readFileSync(legacyManifest,'utf8'));
   legacyData.schema_version=1;
+  legacyData.snapshot_sha256=createHash('sha256').update(legacySnapshotText).digest('hex');
   legacyData.counts[0].daily_sessions=0;
   legacyData.counts[1].mock_detail_history=0;
   fs.writeFileSync(legacyManifest,JSON.stringify(legacyData));
@@ -110,7 +117,35 @@ async function run() {
   fs.writeFileSync(difference,originalDiff.replace('same_question_only','tampered_question'));
   await assert.rejects(verifyAudit(first.dir),/Difference report checksum/);
   fs.writeFileSync(difference,originalDiff);
-  console.log('PASS: required attempts, optional field missing vs empty, two revisions, cross-day/paper ambiguity, both missing answers, checksums, no overwrite, no network, malformed input');
+
+  let tamperNumber=0;
+  function checkManifestTamper(change, expected) {
+    const dir=path.join(temp,`tampered-manifest-${++tamperNumber}`);
+    fs.cpSync(first.dir,dir,{recursive:true});
+    const target=path.join(dir,'manifest.json');
+    const data=JSON.parse(fs.readFileSync(target,'utf8'));
+    change(data,dir);
+    fs.writeFileSync(target,JSON.stringify(data));
+    const result=spawnSync(process.execPath,[script,'verify',dir],{encoding:'utf8'});
+    assert.notEqual(result.status,0);
+    assert.match(result.stderr,expected);
+    assert(!result.stdout.includes('BACKUP_VERIFIED'));
+  }
+  checkManifestTamper(data=>{data.candidate_count++},/Manifest candidate count/);
+  checkManifestTamper(data=>{data.record_count++},/Manifest record count/);
+  checkManifestTamper(data=>{data.schema_version=1},/Manifest schema version/);
+  checkManifestTamper(data=>{data.exported_at='2020-01-01T00:00:00Z'},/Manifest export time/);
+  checkManifestTamper(data=>{data.record_sha256.pop()},/Manifest record checksum count/);
+  checkManifestTamper(data=>{data.record_sha256='not-a-list'},/Manifest record checksum count/);
+  checkManifestTamper((data,dir)=>{
+    data.schema_version=99;
+    const snapPath=path.join(dir,'snapshot.json');
+    const snapData=JSON.parse(fs.readFileSync(snapPath,'utf8'));
+    snapData.schema_version=99;
+    fs.writeFileSync(snapPath,canonical(snapData)+'\n');
+  },/Unsupported snapshot or manifest schema version/);
+  assert.deepEqual(await verifyAudit(first.dir),first.manifest,'tampering copies must not alter the original snapshot');
+  console.log('PASS: required attempts, optional field missing vs empty, manifest metadata checks, legacy rejection, checksums, no overwrite, no network, malformed input');
   console.log('Synthetic test directory:',temp);
 }
 run().catch(e=>{console.error(e);process.exitCode=1});
