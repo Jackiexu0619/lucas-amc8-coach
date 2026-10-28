@@ -13,7 +13,15 @@ Keep the learning loop simple and evidence-based:
 ## Current production baseline
 
 - Production branch: `main`
-- Production page version: `v0.6.5.24`, verified from the deployed HTML on 2026-10-27. The v0.6.5.25 development branch starts from `main` commit `504ba5792037fe851d935c6d0da874cb4bcfd9c9`. The family Chrome state has not been used for this branch's acceptance.
+- Production page version: `v0.6.5.25`, verified from the deployed HTML on 2026-10-28. Current `main` commit: `470f5a735c438eccb080a18f050b6eab9d3e7092`. The family Chrome state has not been used for this print fix.
+
+## v0.6.5.26 — weekend student paper print readiness (review branch; not deployed)
+
+- Rebased the print repair on the new `main` after PR #15 and #16 merged. The v0.6.5.25 report categories, daily review, mobile UI and AI explanation files remain present.
+- Existing print flow waited for all archived question images and cropped them before calling `window.print()` asynchronously. In isolated Chromium, delaying one image 7 seconds made the print call lose the active click; failed or stalled images gave no visible status. The exact family-browser failure has not been observed directly.
+- The mock student print now reports preparation, blocks incomplete image papers, and retains a prepared 25-question document for a direct second click when loading has exceeded the browser's click activation. The locked paper ID and question IDs remain unchanged; other print actions keep their original behavior.
+- Isolated Chromium `qa_mock_print_v06526.cjs` passed normal one-click printing, 7-second slow-image second-click printing, failed-image protection, a nonempty browser PDF, unchanged mock ID/question IDs/draft/history/cloud request count, and the existing parent-answer print followed by another student print. The new test plus 13 existing report, daily, mock, AI and review regressions passed locally with exit code 0. CI and production Chrome acceptance remain separate.
+- Next: review the hotfix PR, inspect CI, then verify the actual family-browser print dialog after deployment without regenerating the locked paper.
 
 ## v0.6.5.25 — report categories and complete daily-question review (review branch; not deployed)
 
