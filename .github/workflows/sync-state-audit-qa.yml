@@ -1,0 +1,26 @@
+name: Sync state audit QA
+
+on:
+  push:
+    paths:
+      - 'scripts/amc8_sync_state_audit.mjs'
+      - 'qa_sync_state_audit.cjs'
+      - '.github/workflows/sync-state-audit-qa.yml'
+  pull_request:
+    paths:
+      - 'scripts/amc8_sync_state_audit.mjs'
+      - 'qa_sync_state_audit.cjs'
+      - '.github/workflows/sync-state-audit-qa.yml'
+  workflow_dispatch:
+
+jobs:
+  synthetic-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: node --check scripts/amc8_sync_state_audit.mjs
+      - run: node --check qa_sync_state_audit.cjs
+      - run: node qa_sync_state_audit.cjs
