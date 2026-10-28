@@ -21,6 +21,17 @@ async function run(){
     [candidate.id,{method:'利用补集计算概率',skill:'概率',groupKey:'probability_complement',confidence:'pdf_method_reviewed_not_math_verified'}]
   ]);
   const tags=q=>tagMap.get(q.id)||{};
+  const parentTag={status:'reviewed',skill:'计数',method:'列出互斥情况并计数',group_key:'counting_cases',independent_math_verified:false};
+  assert.deepEqual(diagnosis.diagnosisTags(questions[0],{v064_question_tags:{[questions[0].id]:parentTag}},null),{
+    skill:'计数',method:'列出互斥情况并计数',groupKey:'counting_cases',confidence:'parent_reviewed',mathIndependentlyVerified:false});
+  const pdfTag={status:'pdf_explanation_reviewed',skill:'概率',method:'利用补集计算概率',group_key:'probability_complement',independent_math_verified:false};
+  assert.equal(diagnosis.diagnosisTags(questions[1],{v064_specific_skills:{[questions[1].id]:pdfTag}},null).confidence,
+    'pdf_method_reviewed_not_math_verified');
+  assert.equal(diagnosis.diagnosisTags(questions[1],{},pdfTag).groupKey,'probability_complement');
+  assert.equal(diagnosis.diagnosisTags({...questions[3],core_method:'archive_method_2018_04'}, {}, null).confidence,'unknown');
+  assert.equal(diagnosis.diagnosisTags({...questions[3],core_method:'利用补集计算概率',method_tag_status:'reviewed'}, {}, null).confidence,'source_metadata');
+  assert.equal(diagnosis.diagnosisTags(questions[0],{v064_question_tags:{[questions[0].id]:{...parentTag,method:'human_confirmed'}}},null).confidence,'unknown');
+  assert.equal(diagnosis.diagnosisTags(questions[0],{v064_question_tags:{[questions[0].id]:{...parentTag,independent_math_verified:true}}},null).mathIndependentlyVerified,true);
   const results=questions.map((q,i)=>({qid:q.id,index:i+1,answer:q.answer,selected_answer:'A',correct:true,
     result_status:'correct',guessed:false}));
   results[0]={...results[0],selected_answer:'B',correct:false,result_status:'wrong'};
@@ -125,8 +136,9 @@ async function run(){
     prepend(node){this.children.unshift(node)}};
   const ctx=vm.createContext({console,window:{document:{},AMC8_CLOUD_CONFIG:{}},document:{
     querySelector:()=>host,getElementById:()=>host,createElement:()=>({remove(){host.children=host.children.filter(x=>x!==this)}})},
-    S:{attempts:[],mock_detail_history:[],daily_sessions:[],weekly_method_diagnoses:[]},
-    qById:lookup,learningTags:tags,eligibleDailyBank:()=>[...filler,candidate],
+    S:{attempts:[],mock_detail_history:[],daily_sessions:[],weekly_method_diagnoses:[],
+      v064_question_tags:Object.fromEntries([...tagMap].map(([id,t])=>[id,{...t,status:'reviewed',group_key:t.groupKey}]))},
+    qById:lookup,eligibleDailyBank:()=>[...filler,candidate],
     getSyncCode:()=>'',saveStateLocal(){ctx.saveCount=(ctx.saveCount||0)+1},
     renderReport(){},dailyReason(){return '原安排'},
     renderAll(){},

@@ -5,6 +5,27 @@ const validPaper=id=>/^[A-Za-z0-9_-]{1,100}$/.test(String(id||''));
 const realAnswer=value=>/^[A-E]$/.test(String(value||''));
 const norm=value=>String(value||'').trim().replace(/\s+/g,' ').toLowerCase();
 const specificMethod=value=>!!String(value||'').trim()&&!['human_confirmed','unknown','unclassified'].includes(norm(value))&&!/^archive_(unclassified|method)_/i.test(String(value));
+const trustedTagConfidence=new Set(['parent_reviewed','pdf_method_reviewed_not_math_verified','source_metadata']);
+function diagnosisTags(q,state={},bankTag=null){
+  if(!q?.id)return {skill:'',method:'',groupKey:'',confidence:'unknown',mathIndependentlyVerified:false};
+  const parent=state.v064_question_tags?.[q.id];
+  const local=state.v064_specific_skills?.[q.id];
+  const pdf=source=>source?.status==='pdf_explanation_reviewed'&&specificMethod(source.method);
+  let source=null,confidence='unknown';
+  if(parent?.status==='reviewed'&&specificMethod(parent.method)){
+    source=parent;confidence='parent_reviewed';
+  }else if(pdf(local)){
+    source=local;confidence='pdf_method_reviewed_not_math_verified';
+  }else if(pdf(bankTag)){
+    source=bankTag;confidence='pdf_method_reviewed_not_math_verified';
+  }else if(q.method_tag_status==='reviewed'&&specificMethod(q.core_method)){
+    source=q;confidence='source_metadata';
+  }
+  if(!source)return {skill:'',method:'',groupKey:'',confidence:'unknown',mathIndependentlyVerified:false};
+  return {skill:String(source.skill||''),method:String(source.method||source.core_method).trim(),
+    groupKey:String(source.groupKey||source.group_key||(confidence==='pdf_method_reviewed_not_math_verified'?source.skill:'')||''),
+    confidence,mathIndependentlyVerified:source.independent_math_verified===true||source.mathIndependentlyVerified===true};
+}
 const safe=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const isSlow=a=>a?.error_type==='time_issue'||a?.error_detail==='correct_but_slow'||String(a?.speed_label||'').includes('偏慢');
 const weakKind=a=>{
@@ -54,7 +75,7 @@ function diagnose(detail,state,lookup,tags,submittedAt=new Date().toISOString())
       unresolved.push({...evidence,reason:'作答状态与题库标准答案不一致，需核对'});continue;
     }
     const tag=tags(lookup(id))||{},method=String(tag.method||'').trim();
-    if(!specificMethod(method)||tag.confidence==='unknown'){
+    if(!specificMethod(method)||!trustedTagConfidence.has(tag.confidence)){
       unresolved.push({...evidence,reason:'没有可识别的具体方法标签'});continue;
     }
     const key=norm(method),group=groups.get(key)||{target_id:id,method,skill:String(tag.skill||''),
@@ -72,10 +93,11 @@ function diagnose(detail,state,lookup,tags,submittedAt=new Date().toISOString())
     g.historical_independent_question_ids=historicalIds;
     g.related_pending_review=queue.length>0;
     g.evidence_question_ids=g.evidence.map(x=>x.question_id);
-    g.confidence=g.tag_confidence==='parent_reviewed'&&g.math_verified?'high':
-      g.tag_confidence==='parent_reviewed'?'medium':'low';
-    g.confidence_basis=g.confidence==='low'?'具体方法来自未独立验算的题库资料，需复核同方法关系':
-      g.confidence==='medium'?'家长核对过标签，但未独立验算题目方法':'标签与方法已核对';
+    g.confidence=g.math_verified&&g.tag_confidence==='parent_reviewed'?'high':
+      g.math_verified||g.tag_confidence==='parent_reviewed'?'medium':'low';
+    g.confidence_basis=g.math_verified?'标签记录明确标记了独立数学验算，仍需新题验证掌握':
+      g.tag_confidence==='parent_reviewed'?'家长核对过方法标签，但未独立验算题目方法':
+      '具体方法来自未独立验算的题库资料，需复核同方法关系';
     g.reason=g.evidence.map(x=>`第${x.question_number}题${labels[x.result]}`).join('、')+
       (g.related_pending_review?'；同标签组存在待复测任务':'')+
       (historicalIds.length?`；另有${historicalIds.length}道不同原题的可靠独立正确记录，仍需再次验证`:'；尚无不同原题的可靠独立正确记录');
@@ -142,10 +164,10 @@ function selectDaily(base,pool,record,protectedIds=new Set(),excludedIds=new Set
   }
   return {questions:result,context};
 }
-if(typeof module!=='undefined'&&module.exports){module.exports={diagnose,applyAiRanking,selectDaily,weakKind,VERSION};return;}
+if(typeof module!=='undefined'&&module.exports){module.exports={diagnose,diagnosisTags,applyAiRanking,selectDaily,weakKind,VERSION};return;}
 if(!root?.document)return;
 const active=()=>Array.isArray(S.weekly_method_diagnoses)?S.weekly_method_diagnoses.at(-1):null;
-const tags=q=>typeof learningTags==='function'?learningTags(q):{};
+const tags=q=>diagnosisTags(q,S,root.amcLearningClosureV06514?.getTag?.(q?.id));
 const previousGenerate=generateDailyPlan;
 generateDailyPlan=function(excludeIds){
   const base=previousGenerate.apply(this,arguments),record=active();
@@ -226,5 +248,5 @@ renderReport=function(){
     (record?.unresolved?.length?'<p class="small">另有 '+record.unresolved.length+' 题的作答或方法标签待确认，未强行归类。</p>':'');
   host.prepend(panel);return result;
 };
-root.amcWeeklyDiagnosisV1={diagnose,applyAiRanking,selectDaily};
+root.amcWeeklyDiagnosisV1={diagnose,diagnosisTags,tags,applyAiRanking,selectDaily};
 })(typeof window!=='undefined'?window:globalThis);
