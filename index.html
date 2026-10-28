@@ -871,6 +871,18 @@ function prepareArchiveQuestionCrops(root){
 let preparedPrintKey='',pendingPrintKey='',printPreparation=0;
 function setPrintHtml(content,title,options={}){
   const root=document.getElementById('printRoot');
+  if(!options.statusId){
+    ++printPreparation;preparedPrintKey='';pendingPrintKey='';
+    root.innerHTML=content;
+    const old=document.title;document.title=title||'Lucas AMC8';
+    const imgs=[...root.querySelectorAll('.archive-question-crop img')];
+    const wait=imgs.map(img=>img.complete?Promise.resolve():new Promise(resolve=>{img.onload=resolve;img.onerror=resolve;}));
+    Promise.all(wait).then(()=>{
+      prepareArchiveQuestionCrops(root);
+      setTimeout(()=>{window.print();document.title=old},80);
+    });
+    return;
+  }
   const key=options.key||'',status=message=>{const el=options.statusId&&document.getElementById(options.statusId);if(el)el.textContent=message};
   const openPrint=()=>{const old=document.title;document.title=title||'Lucas AMC8';try{window.print()}finally{document.title=old}};
   if(key&&preparedPrintKey===key){status('已备好25题，正在打开浏览器打印窗口。');openPrint();return}

@@ -71,6 +71,14 @@ async function main(){
     assert.equal(result.after,baseline,'printing leaves the locked paper and answers unchanged');
     assert.deepEqual(errors,[]);
     assert.deepEqual(cloudRequests,[]);
+    if(!process.env.SLOW_PRINT_IMAGE_MS&&!process.env.FAIL_PRINT_IMAGE){
+      await page.getByRole('button',{name:'打印家长答案'}).click();
+      await page.waitForFunction(()=>window.__printCalls.length===2);
+      assert.match((await page.evaluate(()=>window.__printCalls[1].title)),/周末答案/);
+      await page.getByRole('button',{name:'打印学生卷'}).click();
+      await page.waitForFunction(()=>window.__printCalls.length===3);
+      assert.equal(await page.evaluate(()=>window.__printCalls[2].questions),25,'student paper is rebuilt after the answer print changes printRoot');
+    }
     console.log('PASS mock student print:',process.env.FAIL_PRINT_IMAGE?'missing image blocked':process.env.SLOW_PRINT_IMAGE_MS?'slow image ready and second-click printed':'25 questions printed on first click');
   }finally{await browser.close();await new Promise(resolve=>server.close(resolve))}
 }
