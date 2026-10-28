@@ -12,6 +12,14 @@ COMMIT;
 ```
 
 The export must preserve the original `sync_hash` and complete JSONB `payload`.
+`payload.attempts` is required and must be an array; missing or malformed data
+fails before any backup directory is created. Older payloads may omit
+`daily_sessions` or `mock_detail_history`; their manifest counts are `null`
+(field missing), while an existing empty array has count `0`. A present value
+of another type is rejected. No missing field is inserted into the snapshot.
+Version 2 manifests use this missing-versus-empty distinction. A version 1
+snapshot with an ambiguous zero count is retained unchanged but fails current
+verification; export a new timestamped snapshot from the authorized source.
 Never use a browser sync action, write RPC, or production data in CI. Place the
 query result in a protected local JSON file outside the Git workspace; do not
 paste it into an issue, PR, command argument, or log.

@@ -18,7 +18,7 @@ export function canonical(value) {
 }
 const sha = value => createHash('sha256').update(value).digest('hex');
 const inside = (parent, child) => child === parent || child.startsWith(parent + path.sep);
-const array = (payload, key) => Array.isArray(payload[key]) ? payload[key] : [];
+const optionalCount = (payload, key) => Object.hasOwn(payload, key) ? payload[key].length : null;
 const present = (obj, key) => Object.hasOwn(obj, key) && obj[key] !== null && obj[key] !== '';
 
 export function validateRecords(rows) {
@@ -33,8 +33,10 @@ export function validateRecords(rows) {
       !row.payload || typeof row.payload !== 'object' || Array.isArray(row.payload)) {
       throw Error(`Invalid or incomplete archive row ${i + 1}`);
     }
-    for (const key of ['attempts', 'daily_sessions', 'mock_detail_history']) {
-      if (row.payload[key] !== undefined && !Array.isArray(row.payload[key])) throw Error(`Invalid ${key} in archive row ${i + 1}`);
+    if (!Object.hasOwn(row.payload, 'attempts')) throw Error(`Missing attempts in archive row ${i + 1}`);
+    if (!Array.isArray(row.payload.attempts)) throw Error(`Invalid attempts in archive row ${i + 1}`);
+    for (const key of ['daily_sessions', 'mock_detail_history']) {
+      if (Object.hasOwn(row.payload, key) && !Array.isArray(row.payload[key])) throw Error(`Invalid ${key} in archive row ${i + 1}`);
     }
     hashes.add(row.sync_hash);
   }
@@ -57,7 +59,8 @@ function compare(left, right) {
 }
 
 export function buildDiff(rows) {
-  const [one, two] = rows.map(r => array(r.payload, 'attempts'));
+  validateRecords(rows);
+  const [one, two] = rows.map(r => r.payload.attempts);
   const candidates = [];
   for (const [i, a] of one.entries()) for (const [j, b] of two.entries()) {
     if (!present(a, 'question_id') || a.question_id !== b.question_id) continue;
@@ -79,9 +82,9 @@ export function buildDiff(rows) {
 }
 
 function counts(row) {
-  return {attempts: array(row.payload, 'attempts').length,
-    daily_sessions: array(row.payload, 'daily_sessions').length,
-    mock_detail_history: array(row.payload, 'mock_detail_history').length};
+  return {attempts: row.payload.attempts.length,
+    daily_sessions: optionalCount(row.payload, 'daily_sessions'),
+    mock_detail_history: optionalCount(row.payload, 'mock_detail_history')};
 }
 
 function secureDirectory(dir) {
@@ -105,13 +108,13 @@ export async function exportAudit(rows, outRoot, now = new Date()) {
   await chmod(dir, 0o700);
   secureDirectory(dir);
   const ordered = [...rows].sort((a, b) => a.created_at.localeCompare(b.created_at));
-  const snapshot = {schema_version: 1, exported_at: now.toISOString(), record_count: 2,
+  const snapshot = {schema_version: 2, exported_at: now.toISOString(), record_count: 2,
     serialization: 'UTF-8 canonical JSON: object keys sorted recursively, array order preserved, compact JSON, one trailing newline',
     records: ordered.map(row => ({...row, record_sha256: sha(canonical(row))}))};
   const snapshotText = canonical(snapshot) + '\n';
   const diff = buildDiff(ordered);
   const diffText = canonical(diff) + '\n';
-  const manifest = {schema_version: 1, exported_at: snapshot.exported_at,
+  const manifest = {schema_version: 2, exported_at: snapshot.exported_at,
     snapshot_sha256: sha(snapshotText), diff_sha256: sha(diffText),
     record_sha256: snapshot.records.map(r => r.record_sha256),
     record_count: 2, counts: ordered.map(counts), candidate_count: diff.candidate_count};
@@ -139,6 +142,11 @@ export async function verifyAudit(dir) {
     return sha(canonical(original)) !== record_sha256 || record_sha256 !== manifest.record_sha256[i];
   })) throw Error('Archive row checksum mismatch');
   if (diffText !== canonical(buildDiff(snapshot.records)) + '\n') throw Error('Difference report does not match archive rows');
+  if (manifest.schema_version < 2 && snapshot.records.some((row, i) =>
+    ['daily_sessions', 'mock_detail_history'].some(key =>
+      !Object.hasOwn(row.payload, key) && manifest.counts?.[i]?.[key] === 0))) {
+    throw Error('Legacy manifest treats a missing field as zero; create a new snapshot without overwriting this one');
+  }
   if (canonical(snapshot.records.map(counts)) !== canonical(manifest.counts)) throw Error('Manifest counts do not match archive rows');
   if ((await stat(path.join(dir, 'diff.json'))).size === 0) throw Error('Missing difference report');
   return manifest;

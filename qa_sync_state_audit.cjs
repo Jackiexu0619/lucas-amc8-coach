@@ -53,13 +53,53 @@ async function run() {
   assert.equal(fs.existsSync(path.join(first.dir,'snapshot.json')),true);
   await assert.rejects(exportAudit(records,__dirname),/outside the Git workspace/);
 
+  // Older payloads may omit these optional arrays. Null means absent; zero means present and empty.
+  const optionalMissing=records.map((record,i)=>({
+    ...record,payload:i===0
+      ? {attempts:record.payload.attempts,mock_detail_history:[]}
+      : {attempts:record.payload.attempts,daily_sessions:[]}
+  }));
+  const optionalExport=await exportAudit(optionalMissing,root,new Date('2026-10-28T00:00:00Z'));
+  assert.deepEqual(optionalExport.manifest.counts,[
+    {attempts:2,daily_sessions:null,mock_detail_history:0},
+    {attempts:2,daily_sessions:0,mock_detail_history:null}]);
+  assert.deepEqual(await verifyAudit(optionalExport.dir),optionalExport.manifest);
+  assert.equal(optionalExport.manifest.schema_version,2);
+  const legacy=path.join(temp,'legacy-ambiguous');
+  fs.cpSync(optionalExport.dir,legacy,{recursive:true});
+  const legacyManifest=path.join(legacy,'manifest.json');
+  const legacyData=JSON.parse(fs.readFileSync(legacyManifest,'utf8'));
+  legacyData.schema_version=1;
+  legacyData.counts[0].daily_sessions=0;
+  legacyData.counts[1].mock_detail_history=0;
+  fs.writeFileSync(legacyManifest,JSON.stringify(legacyData));
+  const legacyCheck=spawnSync(process.execPath,[script,'verify',legacy],{encoding:'utf8'});
+  assert.notEqual(legacyCheck.status,0);
+  assert.match(legacyCheck.stderr,/Legacy manifest treats a missing field as zero/);
+  assert(!legacyCheck.stdout.includes('BACKUP_VERIFIED'));
+  assert.equal(fs.existsSync(path.join(first.dir,'snapshot.json')),true);
+
   const bad = path.join(temp,'bad.json');
   fs.writeFileSync(bad,JSON.stringify([records[0]]));
   const failed=spawnSync(process.execPath,[script,'export','--input',bad,'--out-root',root],{encoding:'utf8'});
   assert.notEqual(failed.status,0);
   assert.match(failed.stderr,/BACKUP_FAILED/);
   assert(!failed.stdout.includes('BACKUP_VERIFIED'));
+  const absentAttempts=records.map((record,i)=>i===0?{
+    ...record,payload:{daily_sessions:[],mock_detail_history:[]}
+  }:record);
+  fs.writeFileSync(bad,JSON.stringify(absentAttempts));
+  const beforeFailedExport=fs.readdirSync(root).length;
+  const missingAttempts=spawnSync(process.execPath,[script,'export','--input',bad,'--out-root',root],{encoding:'utf8'});
+  assert.notEqual(missingAttempts.status,0);
+  assert.match(missingAttempts.stderr,/BACKUP_FAILED: Missing attempts/);
+  assert(!missingAttempts.stdout.includes('BACKUP_VERIFIED'));
+  assert.equal(fs.readdirSync(root).length,beforeFailedExport,'invalid input must not create a snapshot');
+  assert.equal(fs.existsSync(path.join(first.dir,'snapshot.json')),true,'old snapshot remains intact');
+  await assert.rejects(Promise.resolve().then(()=>buildDiff(absentAttempts)),/Missing attempts/);
   await assert.rejects(exportAudit([{...records[0],payload:{attempts:{}}},records[1]],root),/Invalid attempts/);
+  await assert.rejects(exportAudit([{...records[0],payload:{attempts:[],daily_sessions:null}},records[1]],root),/Invalid daily_sessions/);
+  await assert.rejects(exportAudit([{...records[0],payload:{attempts:[],mock_detail_history:{}}},records[1]],root),/Invalid mock_detail_history/);
 
   const snap=path.join(first.dir,'snapshot.json');
   const original=fs.readFileSync(snap,'utf8');
@@ -70,7 +110,7 @@ async function run() {
   fs.writeFileSync(difference,originalDiff.replace('same_question_only','tampered_question'));
   await assert.rejects(verifyAudit(first.dir),/Difference report checksum/);
   fs.writeFileSync(difference,originalDiff);
-  console.log('PASS: two revisions, counts, cross-day/paper ambiguity, both missing, answer/result difference, checksums, no overwrite, no network, malformed input');
+  console.log('PASS: required attempts, optional field missing vs empty, two revisions, cross-day/paper ambiguity, both missing answers, checksums, no overwrite, no network, malformed input');
   console.log('Synthetic test directory:',temp);
 }
 run().catch(e=>{console.error(e);process.exitCode=1});
