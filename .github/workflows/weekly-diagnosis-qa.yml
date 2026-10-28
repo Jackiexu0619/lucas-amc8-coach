@@ -6,6 +6,7 @@ on:
       - 'coach_weekly_diagnosis_v1.js'
       - 'qa_weekly_diagnosis_v06526.cjs'
       - 'qa_weekly_diagnosis_browser_v06526.cjs'
+      - 'qa_weekly_diagnosis_ai_v06527.cjs'
       - 'supabase/functions/amc8-diagnose/**'
       - 'index.html'
       - '.github/workflows/weekly-diagnosis-qa.yml'
@@ -14,6 +15,7 @@ on:
       - 'coach_weekly_diagnosis_v1.js'
       - 'qa_weekly_diagnosis_v06526.cjs'
       - 'qa_weekly_diagnosis_browser_v06526.cjs'
+      - 'qa_weekly_diagnosis_ai_v06527.cjs'
       - 'supabase/functions/amc8-diagnose/**'
       - 'index.html'
       - '.github/workflows/weekly-diagnosis-qa.yml'
@@ -32,5 +34,7 @@ jobs:
       - run: node --check supabase/functions/amc8-diagnose/index.ts
       - run: node --check qa_weekly_diagnosis_v06526.cjs
       - run: node --check qa_weekly_diagnosis_browser_v06526.cjs
+      - run: node --check qa_weekly_diagnosis_ai_v06527.cjs
       - run: node qa_weekly_diagnosis_v06526.cjs
+      - run: node qa_weekly_diagnosis_ai_v06527.cjs
       - run: npm install --no-save playwright && npx playwright install --with-deps chromium && node qa_weekly_diagnosis_browser_v06526.cjs

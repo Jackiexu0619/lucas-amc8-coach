@@ -17,9 +17,9 @@ Deno.serve(async(req)=>{
   if(req.method!=='POST')return json(req,{error:'method_not_allowed'},405);
   const origin=req.headers.get('origin');
   if(origin&&origin!==allowedOrigin)return json(req,{error:'forbidden_origin'},403);
-  if(Number(req.headers.get('content-length')||0)>10000)return json(req,{error:'request_too_large'},413);
+  if(Number(req.headers.get('content-length')||0)>50000)return json(req,{error:'request_too_large'},413);
   let body;
-  try{const raw=await req.text();if(raw.length>10000)return json(req,{error:'request_too_large'},413);body=JSON.parse(raw);}
+  try{const raw=await req.text();if(raw.length>50000)return json(req,{error:'request_too_large'},413);body=JSON.parse(raw);}
   catch{return json(req,{error:'invalid_json'},400);}
   const input=validateRequest(body,catalog);
   if('error' in input)return json(req,{error:input.error},400);

@@ -63,23 +63,17 @@ async function run(){
     assert.equal(submitted.diagnosis.ai_status,'rules_fallback:sync_code_unavailable');
     const core=await import('./supabase/functions/amc8-diagnose/core.mjs');
     const catalog=JSON.parse(fs.readFileSync(path.join(root,'supabase/functions/amc8-explain/question_index.json'),'utf8'));
-    const request={sync_code:'ABCDEFGHJKLMNPQRSTUVWXYZ2345',paper_id:submitted.diagnosis.paper_id,
-      whole_paper_minutes:submitted.diagnosis.whole_paper_minutes,candidates:submitted.diagnosis.candidates.map(c=>({
-        target_id:c.target_id,method:c.method,evidence_question_ids:c.evidence_question_ids,
-        results:c.evidence.map(e=>e.result),historical_independent_count:c.historical_independent_question_ids.length,
-        related_pending_review:c.related_pending_review,tag_confidence:c.tag_confidence}))};
+    const evidence=await page.evaluate(()=>window.amcWeeklyDiagnosisV1.collectMockEvidence(
+      S.mock_detail_history.at(-1),S,qById,window.amcWeeklyDiagnosisV1.tags));
+    assert.equal(evidence.questions.length,25);
+    assert(evidence.questions.some(x=>x.tag_hint===null&&x.result_status==='wrong'),
+      'an untagged original question still enters AI analysis');
+    assert(evidence.questions.every(x=>x.hint_level===null),'legacy weekend zero is not proof of no hint');
+    const request={phase:'analyze',sync_code:'ABCDEFGHJKLMNPQRSTUVWXYZ2345',
+      paper_id:submitted.diagnosis.paper_id,questions:evidence.questions.slice(0,5)};
     const validated=core.validateRequest(request,catalog);
-    assert(!validated.error,'actual browser candidate request must pass server validation');
-    const first=request.candidates[0];
-    const reason={wrong:'incorrect',unable:'unable',skipped:'unanswered',guessed:'guessed',hinted:'hinted',slow:'slow'}[first.results[0]];
-    const modelReply=value=>({choices:[{finish_reason:'stop',message:{content:JSON.stringify(value)}}]});
-    const accepted=core.parseDeepSeekResponse(modelReply({paper_id:request.paper_id,targets:[{
-      target_id:first.target_id,evidence_question_ids:first.evidence_question_ids,reason_codes:[reason]}]}),validated);
-    assert(accepted.ok);
-    assert(require('./coach_weekly_diagnosis_v1.js').applyAiRanking(submitted.diagnosis,accepted)?.focus.length===1);
-    assert.equal(core.parseDeepSeekResponse(modelReply({paper_id:request.paper_id,targets:[{
-      target_id:'archive_1999_01',evidence_question_ids:first.evidence_question_ids,reason_codes:[reason]}]}),validated).error,
-      'invalid_model_diagnosis');
+    assert(!validated.error,'actual browser question evidence must pass server validation');
+    assert.equal(core.buildDeepSeekRequest(validated).messages[1].content.filter(x=>x.type==='image_url').length,5);
     await page.getByRole('button',{name:'学习报告'}).click();
     await page.getByRole('tab',{name:'学习总览'}).click();
     assert.match(await page.locator('#weeklyMethodDiagnosis').innerText(),/本周优先攻克的方法.*测试具体方法/s);
@@ -98,6 +92,107 @@ async function run(){
     assert.equal(remote.length,0,'isolated no-sync-code browser must not contact production Supabase');
     assert.deepEqual(errors,[]);
     console.log('PASS browser: normal 25-question submission -> three grounded targets -> report idempotence -> three daily questions with source context; no production network');
+    const aiContext=await browser.newContext({viewport:{width:1200,height:850}});
+    try{
+      const aiPage=await aiContext.newPage(),aiErrors=[],calls=[];
+      let failAi=false;
+      aiPage.on('pageerror',e=>aiErrors.push(e.message));
+      aiPage.on('dialog',d=>d.accept());
+      const known={
+        archive_2003_19:{answer:'C',result:'3',method:'使用最小公倍数定位区间内的公倍数',steps:['15、20、25的最小公倍数是300','区间内有1200、1500、1800']},
+        archive_2004_19:{answer:'B',result:'62',method:'使用最小公倍数处理共同余数',steps:['x−2是3、4、5、6的公倍数','最小x是62']},
+        archive_2005_20:{answer:'A',result:'6',method:'用周期同余求首次重合',steps:['每轮相对移动14格','14n被12整除，最小n=6']}
+      };
+      await aiPage.route('https://dfwojiefseopguoqugzs.supabase.co/**',async route=>{
+        if(!route.request().url().endsWith('/functions/v1/amc8-diagnose')){await route.abort();return;}
+        if(failAi){calls.push('failed');await route.fulfill({status:503,contentType:'application/json',
+          body:JSON.stringify({error:'model_unavailable'})});return;}
+        const body=route.request().postDataJSON(),input=core.validateRequest(body,catalog);
+        assert(!input.error,`browser-built ${body.phase} request: ${input.error}`);
+        calls.push(body.phase);
+        let parsed;
+        if(body.phase==='analyze'){
+          const items=input.questions.map(x=>{
+            const k=known[x.question_id];
+            return k?{question_id:x.question_id,image_sufficient:true,recognized_question:'隔离样本原题已人工核对',
+              derived_answer:k.answer,option_content:k.result,computed_result:k.result,method:k.method,
+              method_evidence:'原题条件与选项核对',solution_steps:k.steps,possible_cause:null,
+              unconfirmed_factors:['具体错误步骤未记录']}:{question_id:x.question_id,image_sufficient:false};
+          });
+          parsed=core.parseDeepSeekResponse({choices:[{finish_reason:'stop',message:{content:JSON.stringify({paper_id:body.paper_id,items})}}]},input);
+        }else{
+          const training=input.trainingCandidates.find(x=>x.question_id==='archive_2006_23');
+          assert(training,'a previously unseen original question must be offered as a candidate: '+
+            input.trainingCandidates.map(x=>x.question_id).join(','));
+          const target={target_id:'archive_2003_19',method:'利用最小公倍数处理整除与共同余数',
+            observed_gap:'一题答错、一题猜对，独立掌握尚未证实',possible_cause:null,confidence:'medium',
+            confidence_basis:'两道原题推导均使用最小公倍数且答案核对一致',unconfirmed_factors:['错因未记录'],
+            training_goal:'独立建立公倍数与余数关系',evidence_question_ids:['archive_2003_19','archive_2004_19'],
+            method_links:[{question_id:'archive_2003_19',reason:'区间公倍数计数'},
+              {question_id:'archive_2004_19',reason:'共同余数转换'}],positive_question_ids:[],
+            training_match:{question_id:training.question_id,answer_letter:'A',reason:'新题余数条件可转为30的倍数，官方答案A'}};
+          parsed=core.parseDeepSeekResponse({choices:[{finish_reason:'stop',message:{content:JSON.stringify({paper_id:body.paper_id,targets:[target]})}}]},input);
+        }
+        assert(parsed.ok,`mock model response rejected: ${parsed.error}`);
+        await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(parsed)});
+      });
+      await aiPage.goto('http://127.0.0.1:'+server.address().port+'/',{waitUntil:'domcontentloaded'});
+      await aiPage.waitForFunction(()=>typeof ARCHIVE_BANK!=='undefined'&&ARCHIVE_BANK.length===575);
+      await aiPage.evaluate(()=>{
+        const ids=['archive_2003_19','archive_2004_19','archive_2005_20',
+          ...ARCHIVE_BANK.filter(q=>q.year===2002&&!['archive_2003_19','archive_2004_19','archive_2005_20'].includes(q.id))
+            .slice(0,22).map(q=>q.id)];
+        S.printable_mock_ids=ids;S.printable_mock_id='QA-AI-ORIGINAL-25';S.printable_mock_date='2026-10-28';
+        const answers=Object.fromEntries(ids.map((id,i)=>[String(i),qById(id).answer]));answers['0']='A';
+        S.mock_drafts={'QA-AI-ORIGINAL-25':{answers,guesses:{'1':true},total_minutes:40}};
+        S.attempts=[];S.mock_detail_history=[];S.mock_history=[];S.weekly_method_diagnoses=[];
+        S.daily_plan=null;S.daily_sessions=[];
+        S.v064_question_tags={};S.v064_specific_skills={};
+        S.v064_question_tags['archive_2006_23']={status:'reviewed',method:'使用最小公倍数处理共同余数',
+          group_key:'qa_common_multiple',independent_math_verified:false};
+        S.v064_question_tags['archive_2003_19']={status:'reviewed',method:'使用最小公倍数处理共同余数',
+          group_key:'qa_common_multiple',independent_math_verified:false};
+        localStorage.setItem('lucas_amc8_sync_code_v1','ABCDEFGHJKLMNPQRSTUVWXYZ2345');
+        saveStateLocal(false);
+      });
+      await aiPage.getByRole('button',{name:'周末模拟'}).click();
+      await aiPage.getByRole('button',{name:'提交整套记录'}).click();
+      await aiPage.waitForFunction(()=>S.weekly_method_diagnoses?.at(-1)?.ai_status==='validated',{timeout:30000});
+      const aiResult=await aiPage.evaluate(()=>({record:S.weekly_method_diagnoses.at(-1),
+        attempts:JSON.stringify(S.attempts),mocks:S.mock_detail_history.length}));
+      assert.equal(aiResult.record.source,'ai_original_analysis');
+      assert.equal(aiResult.record.focus[0].training_match.question_id,'archive_2006_23');
+      assert.equal(aiResult.mocks,1);assert.equal(JSON.parse(aiResult.attempts).length,25);
+      assert.deepEqual(calls,['analyze','analyze','analyze','analyze','analyze','synthesize']);
+      await aiPage.getByRole('button',{name:'学习报告'}).click();
+      await aiPage.getByRole('tab',{name:'学习总览'}).click();
+      assert.match(await aiPage.locator('#weeklyMethodDiagnosis').innerText(),/AI原题分析.*利用最小公倍数处理整除与共同余数/s);
+      await aiPage.getByRole('button',{name:'学习报告'}).click();
+      assert.equal(calls.length,6,'reopening the report must not repeat model calls');
+      await aiPage.evaluate(()=>{S.daily_plan=null;});
+      await aiPage.getByRole('button',{name:'每日训练'}).click();
+      const next=await aiPage.evaluate(()=>({ids:S.daily_plan?.question_ids,ctx:S.daily_plan?.weekly_diagnosis_context||[],
+        attempts:JSON.stringify(S.attempts)}));
+      assert.equal(next.ids?.length,3);assert(next.ids.includes('archive_2006_23'));
+      assert.equal(next.ctx[0].relation,'ai_image_answer_matched');assert.equal(next.attempts,aiResult.attempts);
+      failAi=true;
+      await aiPage.evaluate(()=>{
+        const ids=['archive_2003_19','archive_2004_19','archive_2005_20',
+          ...ARCHIVE_BANK.filter(q=>q.year===2002).slice(0,22).map(q=>q.id)];
+        S.printable_mock_ids=ids;S.printable_mock_id='QA-AI-FAIL-25';S.printable_mock_date='2026-10-29';
+        const answers=Object.fromEntries(ids.map((id,i)=>[String(i),qById(id).answer]));answers['0']='A';
+        S.mock_drafts={'QA-AI-FAIL-25':{answers,guesses:{'1':true},total_minutes:40}};
+        saveStateLocal(false);
+      });
+      await aiPage.getByRole('button',{name:'周末模拟'}).click();
+      await aiPage.getByRole('button',{name:'提交整套记录'}).click();
+      await aiPage.waitForFunction(()=>S.weekly_method_diagnoses?.at(-1)?.ai_status==='rules_fallback:model_unavailable');
+      const failed=await aiPage.evaluate(()=>({record:S.weekly_method_diagnoses.at(-1),count:S.weekly_method_diagnoses.length}));
+      assert.equal(failed.record.source,'rules');assert.equal(failed.count,2);
+      assert(calls.includes('failed'),'model service failure must be exercised');
+      assert.deepEqual(aiErrors,[]);
+      console.log('PASS browser AI: 25-question page submission -> five image batches -> validated original-question method -> next three-question plan; report reopen is read-only; model failure retains rules');
+    }finally{await aiContext.close();}
   }finally{await context.close();await browser.close();await new Promise(resolve=>server.close(resolve));}
 }
 run().catch(e=>{console.error(e);process.exitCode=1});

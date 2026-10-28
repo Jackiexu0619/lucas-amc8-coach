@@ -119,22 +119,88 @@ function diagnose(detail,state,lookup,tags,submittedAt=new Date().toISOString())
     focus:candidates.slice(0,3),candidates:candidates.slice(0,5),unresolved,
     history_note:'仅使用当前档案内能关联卷号、原题与实际答案的历史记录；整套用时不能推断单题用时。'};
 }
-function applyAiRanking(record,result){
-  if(!record||result?.paper_id!==record.paper_id||!Array.isArray(result.targets)||
-    result.targets.length<1||result.targets.length>Math.min(3,record.candidates.length))return null;
-  const byId=new Map(record.candidates.map(c=>[c.target_id,c])),seen=new Set(),focus=[];
-  for(const item of result.targets){
-    const c=byId.get(item?.target_id);
-    if(!c||seen.has(item.target_id)||!Array.isArray(item.evidence_question_ids)||
-      item.evidence_question_ids.length<1||item.evidence_question_ids.some(id=>!c.evidence_question_ids.includes(id)))return null;
-    seen.add(item.target_id);focus.push({...c,ai_evidence_question_ids:[...item.evidence_question_ids]});
+function collectMockEvidence(detail,state,lookup,tags=()=>({})){
+  if(!detail||!validPaper(detail.paper_id)||!Array.isArray(detail.question_ids)||
+    detail.question_ids.length!==25||!Array.isArray(detail.per_question)||detail.per_question.length!==25)return null;
+  const questions=[],unresolved=[];
+  for(let i=0;i<25;i++){
+    const id=detail.question_ids[i],row=detail.per_question[i],q=lookup(id);
+    if(!row||row.qid!==id||row.index!==i+1||!q?.official)return null;
+    const matches=(state.attempts||[]).filter(a=>a?.source==='weekend_mock'&&a.paper_id===detail.paper_id&&
+      a.question_id===id&&a.paper_question_index===i+1);
+    if(matches.length>1){unresolved.push({question_id:id,reason:'重复作答记录'});continue;}
+    if(!/^assets\/\d{4}_\d{2}\.webp$/.test(q.archive_image||'')||!realAnswer(q.answer)||row.answer!==q.answer){
+      unresolved.push({question_id:id,reason:'原题图片或标准答案证据不完整'});continue;
+    }
+    const a=matches[0]||row,status=a.result_status,selected=a.selected_answer??null;
+    if(!['correct','wrong','unable','skipped'].includes(status)||
+      (status==='correct'&&selected!==q.answer)||
+      (status==='wrong'&&(!realAnswer(selected)||selected===q.answer))||
+      (['unable','skipped'].includes(status)&&selected!==null)){
+      unresolved.push({question_id:id,reason:'原始作答状态与题库答案无法核对'});continue;
+    }
+    const tag=tags(q)||{};
+    questions.push({question_id:id,index:i+1,selected_answer:selected,result_status:status,
+      guessed:a.guessed===true,
+      // Weekend entry records no actual hint interaction; its legacy zero is not evidence of independence.
+      hint_level:a.hint_recorded===true&&[0,1,2].includes(a.hint_level)?a.hint_level:null,
+      duration_sec:Number.isFinite(a.duration_sec)&&a.duration_sec>=0?a.duration_sec:null,
+      error_type:['knowledge_gap','method_gap','execution_error','time_issue','unsure'].includes(a.error_type)?a.error_type:null,
+      tag_hint:specificMethod(tag.method)&&trustedTagConfidence.has(tag.confidence)?
+        {method:tag.method,confidence:tag.confidence}:null});
   }
-  return {...record,focus,source:'ai_ranked_grounded_rules',ai_status:'validated'};
+  return {questions,unresolved};
+}
+function applyAiDiagnosis(record,items,result,trainingIds=[]){
+  if(!record||result?.paper_id!==record.paper_id||!Array.isArray(items)||!Array.isArray(result.targets)||
+    result.targets.length<1||result.targets.length>3)return null;
+  const verified=new Map(items.filter(x=>x?.status==='answer_key_matched').map(x=>[x.question_id,x]));
+  const candidates=new Set(trainingIds),seen=new Set(),focus=[];
+  for(const t of result.targets){
+    if(!verified.has(t?.target_id)||seen.has(t.target_id)||!specificMethod(t.method)||
+      !['low','medium'].includes(t.confidence)||!Array.isArray(t.evidence_question_ids)||
+      !t.evidence_question_ids.includes(t.target_id)||t.evidence_question_ids.some(id=>!verified.has(id))||
+      (t.training_match&&!candidates.has(t.training_match.question_id)))return null;
+    seen.add(t.target_id);
+    const evidence=t.evidence_question_ids.map(id=>{
+      const a=verified.get(id);
+      return {question_id:id,question_number:a.index,result:weakKind({correct:a.result_status==='correct',
+        result_status:a.result_status,guessed:a.guessed,hint_level:a.hint_level})||'correct',
+        selected_answer:a.selected_answer,guessed:a.guessed,hint_level:a.hint_level,
+        duration_sec:a.duration_sec,error_type:a.error_type};
+    });
+    if(!evidence.some(x=>x.result!=='correct'))return null;
+    focus.push({target_id:t.target_id,method:t.method,skill:'',group_key:'',tag_confidence:'ai_original_analysis',
+      confidence:t.confidence,confidence_basis:t.confidence_basis,
+      observed_gap:t.observed_gap,possible_cause:t.possible_cause||null,
+      cause_status:'hypothesis_unconfirmed',unconfirmed_factors:t.unconfirmed_factors||[],
+      evidence,evidence_question_ids:t.evidence_question_ids,method_links:t.method_links||[],
+      positive_question_ids:t.positive_question_ids||[],reason:t.observed_gap,
+      training_goal:t.training_goal,training_match:t.training_match||null,
+      needs_weekend_verification:true});
+  }
+  return {...record,source:'ai_original_analysis',ai_status:'validated',rule_focus:record.rule_focus||record.focus,
+    focus,ai_question_analyses:items,unresolved:[...record.unresolved,
+      ...items.filter(x=>x.status!=='answer_key_matched').map(x=>({question_id:x.question_id,reason:x.status}))]};
 }
 function selectDaily(base,pool,record,protectedIds=new Set(),excludedIds=new Set(),tags=()=>({})){
   if(!Array.isArray(base)||base.length!==3||!record?.focus?.length)return {questions:base,context:[]};
   const result=[...base],blocked=new Set([...result.map(q=>q.id),...excludedIds]);
   const context=[];
+  if(record.source==='ai_original_analysis'){
+    const slot=result.findLastIndex(q=>!protectedIds.has(q.id));
+    if(slot<0)return {questions:result,context};
+    for(const target of record.focus){
+      const match=target.training_match,q=pool.find(x=>x.id===match?.question_id);
+      if(!q||blocked.has(q.id)||protectedIds.has(q.id)||q.source==='ai_generated_review')continue;
+      result[slot]=q;
+      context.push({question_id:q.id,question_source:q.source,paper_id:record.paper_id,
+        target_id:target.target_id,method:target.method,evidence_question_ids:target.evidence_question_ids,
+        relation:'ai_image_answer_matched',reason:'AI 对照原题图片提出同方法候选，选项答案与题库相符；方法关系仍需复核：'+match.reason});
+      return {questions:result,context};
+    }
+    return {questions:result,context};
+  }
   const relation=(q,target)=>{
     const t=tags(q)||{};
     if(t.confidence==='unknown'||(!t.method&&!t.groupKey&&!t.group_key))return null;
@@ -164,7 +230,7 @@ function selectDaily(base,pool,record,protectedIds=new Set(),excludedIds=new Set
   }
   return {questions:result,context};
 }
-if(typeof module!=='undefined'&&module.exports){module.exports={diagnose,diagnosisTags,applyAiRanking,selectDaily,weakKind,VERSION};return;}
+if(typeof module!=='undefined'&&module.exports){module.exports={diagnose,diagnosisTags,collectMockEvidence,applyAiDiagnosis,selectDaily,weakKind,VERSION};return;}
 if(!root?.document)return;
 const active=()=>Array.isArray(S.weekly_method_diagnoses)?S.weekly_method_diagnoses.at(-1):null;
 const tags=q=>diagnosisTags(q,S,root.amcLearningClosureV06514?.getTag?.(q?.id));
@@ -202,7 +268,18 @@ submitDailyPaperResults=function(){
   }
   return result;
 };
-async function requestAi(record){
+function trainingCandidates(detail,items){
+  const weak=items.filter(x=>x.status==='answer_key_matched'&&
+    (x.result_status!=='correct'||x.guessed||x.hint_level===1||x.hint_level===2));
+  const related=weak.map(x=>tags(qById(x.question_id)));
+  const pool=eligibleDailyBank().filter(q=>q?.official&&q.archive_image&&
+    !detail.question_ids.includes(q.id)&&q.source!=='ai_generated_review');
+  const score=q=>{const t=tags(q);return related.reduce((n,x)=>n+
+    (x.groupKey&&x.groupKey===t.groupKey?4:0)+(x.method&&x.method===t.method?3:0)+
+    (x.skill&&x.skill===t.skill?2:0),0)-Math.abs((q.problem_number||17)-18)/25;};
+  return pool.sort((a,b)=>score(b)-score(a)||a.id.localeCompare(b.id)).slice(0,6).map(q=>q.id);
+}
+async function requestAi(record,evidence,detail){
   const setStatus=status=>{
     const current=(S.weekly_method_diagnoses||[]).find(x=>x.paper_id===record.paper_id);
     if(current&&current.diagnosis_version===VERSION){current.ai_status=status;saveStateLocal();renderReport();}
@@ -210,15 +287,33 @@ async function requestAi(record){
   const code=typeof getSyncCode==='function'?getSyncCode():'';
   if(!code||!root.AMC8_CLOUD_CONFIG?.url){setStatus('rules_fallback:sync_code_unavailable');return;}
   try{
-    const response=await fetch(root.AMC8_CLOUD_CONFIG.url+'/functions/v1/amc8-diagnose',{
-      method:'POST',headers:{'Content-Type':'application/json',apikey:root.AMC8_CLOUD_CONFIG.publishableKey},
-      body:JSON.stringify({sync_code:code,paper_id:record.paper_id,whole_paper_minutes:record.whole_paper_minutes,
-        candidates:record.candidates.map(c=>({
-        target_id:c.target_id,method:c.method,evidence_question_ids:c.evidence_question_ids,
-        results:c.evidence.map(e=>e.result),historical_independent_count:c.historical_independent_question_ids.length,
-        related_pending_review:c.related_pending_review,tag_confidence:c.tag_confidence}))})});
-    const body=await response.json();if(!response.ok||!body.ok)throw Error(body.error||'model_unavailable');
-    const accepted=applyAiRanking(record,body);if(!accepted)throw Error('invalid_model_diagnosis');
+    const post=async payload=>{
+      const response=await fetch(root.AMC8_CLOUD_CONFIG.url+'/functions/v1/amc8-diagnose',{
+        method:'POST',headers:{'Content-Type':'application/json',apikey:root.AMC8_CLOUD_CONFIG.publishableKey},
+        body:JSON.stringify({sync_code:code,paper_id:record.paper_id,...payload}),signal:AbortSignal.timeout(65000)});
+      const body=await response.json();if(!response.ok||!body.ok||body.paper_id!==record.paper_id)
+        throw Error(body.error||'invalid_model_diagnosis');
+      return body;
+    };
+    const items=[];
+    for(let i=0;i<evidence.questions.length;i+=5){
+      setStatus(`analyzing:${Math.min(i+5,evidence.questions.length)}/${evidence.questions.length}`);
+      const body=await post({phase:'analyze',questions:evidence.questions.slice(i,i+5)});
+      if(!Array.isArray(body.items))throw Error('invalid_model_diagnosis');
+      items.push(...body.items);
+      const current=(S.weekly_method_diagnoses||[]).find(x=>x.paper_id===record.paper_id);
+      if(current){current.ai_question_analyses=[...items];saveStateLocal();}
+    }
+    const verified=items.filter(x=>x.status==='answer_key_matched');
+    if(!verified.some(x=>x.result_status!=='correct'||x.guessed||x.hint_level===1||x.hint_level===2)){
+      setStatus('rules_fallback:no_verified_weak_question');return;
+    }
+    const candidateIds=trainingCandidates(detail,items);
+    setStatus('synthesizing');
+    const body=await post({phase:'synthesize',analyses:verified,training_candidates:candidateIds});
+    if(!Array.isArray(body.targets)||!body.targets.length){setStatus('rules_fallback:ai_evidence_insufficient');return;}
+    const accepted=applyAiDiagnosis(record,items,body,candidateIds);
+    if(!accepted)throw Error('invalid_model_diagnosis');
     const list=S.weekly_method_diagnoses||[],index=list.findIndex(x=>x.paper_id===record.paper_id);
     if(index>=0&&list[index].diagnosis_version===VERSION){list[index]=accepted;saveStateLocal();renderReport();}
   }catch(e){setStatus('rules_fallback:'+String(e?.message||'model_unavailable').slice(0,50));}
@@ -229,11 +324,13 @@ submitPrintableMockAnswers=function(){
   if((S.mock_detail_history||[]).length!==before+1)return result;
   const detail=S.mock_detail_history.at(-1);
   if((S.weekly_method_diagnoses||[]).some(x=>x.paper_id===detail.paper_id))return result;
+  const evidence=collectMockEvidence(detail,S,qById,tags);
   const record=diagnose(detail,S,qById,tags);
   if(!record){console.warn('Weekly diagnosis skipped: incomplete mock evidence');return result;}
+  if(evidence?.unresolved?.length)record.unresolved.push(...evidence.unresolved);
   S.weekly_method_diagnoses=S.weekly_method_diagnoses||[];
   S.weekly_method_diagnoses.push(record);saveStateLocal();renderReport();
-  if(record.candidates.length)void requestAi(record);
+  if(evidence?.questions?.length)void requestAi(record,evidence,detail);
   return result;
 };
 const previousReport=renderReport;
@@ -243,10 +340,13 @@ renderReport=function(){
   host.querySelector('#weeklyMethodDiagnosis')?.remove();
   const record=active(),panel=document.createElement('section');panel.className='card';panel.id='weeklyMethodDiagnosis';
   const focus=record?.focus||[];
-  panel.innerHTML='<h3>本周优先攻克的方法</h3>'+(record?'<p class="small">模拟卷 '+safe(record.paper_id)+' · '+safe(record.source==='rules'?'规则诊断':'AI排序已通过证据校验')+' · '+safe(record.ai_status)+'</p>':'<p>完整模拟提交后，系统会按真实作答生成本周目标。</p>')+
-    (focus.length?'<ol>'+focus.map(c=>'<li><b>'+safe(c.method)+'</b>（置信度：'+safe(c.confidence)+'）<br>'+safe(c.reason)+'<br>'+safe(c.confidence_basis)+'<br>训练目标：'+safe(c.training_goal)+'；周末陌生真题验证：尚未完成</li>').join('')+'</ol>':'<p>目前没有足够证据确认具体薄弱方法。</p>')+
+  panel.innerHTML='<h3>本周优先攻克的方法</h3>'+(record?'<p class="small">模拟卷 '+safe(record.paper_id)+' · '+safe(record.source==='ai_original_analysis'?'AI原题分析（答案已与题库核对，推导仍需复核）':'规则诊断')+' · '+safe(record.ai_status)+'</p>':'<p>完整模拟提交后，系统会按真实作答生成本周目标。</p>')+
+    (focus.length?'<ol>'+focus.map(c=>'<li><b>'+safe(c.method)+'</b>（置信度：'+safe(c.confidence)+'）<br>观察到：'+safe(c.observed_gap||c.reason)+'<br>'+safe(c.confidence_basis)+
+      (c.possible_cause?'<br>可能原因（待确认）：'+safe(c.possible_cause):'')+
+      (c.unconfirmed_factors?.length?'<br>尚未确认：'+safe(c.unconfirmed_factors.join('；')):'')+
+      '<br>训练目标：'+safe(c.training_goal)+'<br>本周训练候选：'+safe(c.training_match?.question_id||'尚无经过原题核对的同方法候选')+'；周末陌生真题验证：尚未完成</li>').join('')+'</ol>':'<p>目前没有足够证据确认具体薄弱方法。</p>')+
     (record?.unresolved?.length?'<p class="small">另有 '+record.unresolved.length+' 题的作答或方法标签待确认，未强行归类。</p>':'');
   host.prepend(panel);return result;
 };
-root.amcWeeklyDiagnosisV1={diagnose,diagnosisTags,tags,applyAiRanking,selectDaily};
+root.amcWeeklyDiagnosisV1={diagnose,diagnosisTags,tags,collectMockEvidence,applyAiDiagnosis,selectDaily};
 })(typeof window!=='undefined'?window:globalThis);

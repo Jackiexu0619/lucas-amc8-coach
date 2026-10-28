@@ -1,9 +1,5 @@
 const assert=require('node:assert/strict');
-const fs=require('node:fs');
-const vm=require('node:vm');
-const path=require('node:path');
 const diagnosis=require('./coach_weekly_diagnosis_v1.js');
-const serverPromise=import('./supabase/functions/amc8-diagnose/core.mjs');
 
 async function run(){
   const questions=Array.from({length:25},(_,i)=>({id:`archive_2018_${String(i+1).padStart(2,'0')}`,
@@ -76,10 +72,6 @@ async function run(){
   const onlyOne=diagnosis.diagnose({...detail,per_question:results.map((r,i)=>i===0?r:{...r,correct:true,guessed:false,result_status:'correct',selected_answer:'A'})},
     {...state,attempts:state.attempts.filter(a=>a.paper_id!=='W-20261028-01')},lookup,tags);
   assert.equal(onlyOne.focus.length,1,'do not invent two more focus methods');
-  const aiValid={paper_id:record.paper_id,targets:record.focus.slice(0,2).map(c=>({target_id:c.target_id,
-    evidence_question_ids:c.evidence_question_ids,reason_codes:['limited_history']}))};
-  assert.equal(diagnosis.applyAiRanking(record,aiValid).focus.length,2);
-  assert.equal(diagnosis.applyAiRanking(record,{...aiValid,targets:[{target_id:'archive_1999_01',evidence_question_ids:['archive_1999_01']}]}),null);
   const protectedIds=new Set([filler[0].id]);
   const plan=diagnosis.selectDaily([filler[0],filler[1],filler[2]],[...filler,candidate],record,protectedIds,new Set(),tags);
   assert.equal(plan.questions.length,3);
@@ -92,92 +84,6 @@ async function run(){
     protectedIds,new Set([candidate.id]),tags);
   assert(!excluded.questions.some(q=>q.id===candidate.id),'old-paper exclusion remains active');
 
-  const server=await serverPromise,catalog=Object.fromEntries(bank.map(q=>[q.id,{answer:q.answer}]));
-  const request={sync_code:'ABCDEFGHJKLMNPQRSTUVWXYZ2345',paper_id:record.paper_id,whole_paper_minutes:42,
-    candidates:record.candidates.map(c=>({target_id:c.target_id,method:c.method,
-      evidence_question_ids:c.evidence_question_ids,results:c.evidence.map(e=>e.result),
-      historical_independent_count:c.historical_independent_question_ids.length,
-      related_pending_review:c.related_pending_review,tag_confidence:c.tag_confidence}))};
-  const validated=server.validateRequest(request,catalog);
-  assert(!validated.error);
-  assert.equal(server.validateRequest({...request,candidates:[{...request.candidates[0],method:''}]},catalog).error,'invalid_candidates');
-  assert.equal(server.validateRequest({...request,whole_paper_minutes:'42'},catalog).error,'invalid_time');
-  const modelOutput=value=>({choices:[{finish_reason:'stop',message:{content:JSON.stringify(value)}}]});
-  assert(server.parseDeepSeekResponse(modelOutput(aiValid),validated).ok);
-  assert.equal(server.parseDeepSeekResponse(modelOutput({...aiValid,targets:[{target_id:'archive_1999_01',evidence_question_ids:[questions[0].id],reason_codes:['incorrect']}]}),validated).error,'invalid_model_diagnosis');
-  assert.equal(server.parseDeepSeekResponse(modelOutput({...aiValid,targets:[{target_id:request.candidates[0].target_id,evidence_question_ids:[questions[0].id],reason_codes:['guessed']}]}),validated).error,'invalid_model_diagnosis');
-  assert.equal(server.parseDeepSeekResponse(modelOutput({...aiValid,invented_error_step:'Lucas forgot a formula'}),validated).error,'invalid_model_diagnosis');
-  assert.equal(server.parseDeepSeekResponse({choices:[{finish_reason:'stop',message:{content:'broken'}}]},validated).error,'invalid_model_json');
-  assert.equal(server.parseDeepSeekResponse({choices:[{finish_reason:'length',message:{content:'{}'}}]},validated).error,'incomplete_model_output');
-
-  // Exercise the Edge Function handler with fake authorization and model responses only.
-  let handler,authorizationCalls=0,modelCalls=0;
-  global.Deno={serve:fn=>{handler=fn},env:{get:key=>({DEEPSEEK_API_KEY:'test-only-model-secret',
-    SUPABASE_URL:'https://example.invalid',SUPABASE_SECRET_KEYS:'{"default":"test-only-server-secret"}'})[key]}};
-  global.fetch=async(url)=>{
-    if(String(url).includes('/rpc/amc8_explain_authorize_and_charge')){authorizationCalls++;return new Response('"ok"',{status:200});}
-    if(String(url).includes('/chat/completions')){modelCalls++;return new Response(JSON.stringify(modelOutput(aiValid)),{status:200});}
-    throw Error('Unexpected network request in isolated test');
-  };
-  await import('./supabase/functions/amc8-diagnose/index.ts');
-  const edgeResponse=await handler(new Request('https://example.invalid/functions/v1/amc8-diagnose',{
-    method:'POST',headers:{'Content-Type':'application/json','Origin':'https://jackiexu0619.github.io'},body:JSON.stringify(request)}));
-  assert.equal(edgeResponse.status,200);
-  assert.equal((await edgeResponse.json()).targets.length,2);
-  assert.equal(authorizationCalls,1);assert.equal(modelCalls,1);
-  const badEdge=await handler(new Request('https://example.invalid/functions/v1/amc8-diagnose',{
-    method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...request,candidates:[{...request.candidates[0],target_id:'archive_1999_01'}]})}));
-  assert.equal(badEdge.status,400);
-  assert.equal(authorizationCalls,1,'invalid candidate is rejected before quota authorization');
-
-  // Actual browser wrapper chain in an isolated VM: submit once, reopen report, then plan three questions.
-  const source=fs.readFileSync(path.join(__dirname,'coach_weekly_diagnosis_v1.js'),'utf8');
-  const host={children:[],querySelector(selector){return selector==='#weeklyMethodDiagnosis'?this.children.find(x=>x.id==='weeklyMethodDiagnosis')||null:null},
-    prepend(node){this.children.unshift(node)}};
-  const ctx=vm.createContext({console,window:{document:{},AMC8_CLOUD_CONFIG:{}},document:{
-    querySelector:()=>host,getElementById:()=>host,createElement:()=>({remove(){host.children=host.children.filter(x=>x!==this)}})},
-    S:{attempts:[],mock_detail_history:[],daily_sessions:[],weekly_method_diagnoses:[],
-      v064_question_tags:Object.fromEntries([...tagMap].map(([id,t])=>[id,{...t,status:'reviewed',group_key:t.groupKey}]))},
-    qById:lookup,eligibleDailyBank:()=>[...filler,candidate],
-    getSyncCode:()=>'',saveStateLocal(){ctx.saveCount=(ctx.saveCount||0)+1},
-    renderReport(){},dailyReason(){return '原安排'},
-    renderAll(){},
-    generateDailyPlan(){return [filler[0],filler[1],filler[2]]},
-    dailyPlan(){const plan=ctx.generateDailyPlan();ctx.S.daily_plan={paper_id:'D-new',question_ids:plan.map(q=>q.id),date:'2026-10-29',submitted:false};return plan},
-    submitPrintableMockAnswers(){ctx.S.mock_detail_history.push(ctx.nextDetail||detail);ctx.S.attempts.push(...(ctx.nextAttempts||attempts))},
-    submitDailyPaperResults(){ctx.S.daily_sessions.push({paper_id:'D-new'})}});
-  ctx.window.document=ctx.document;ctx.window.amcV065Planned=[{qid:filler[0].id}];
-  vm.runInContext(source,ctx,{filename:'coach_weekly_diagnosis_v1.js'});
-  vm.runInContext('submitPrintableMockAnswers()',ctx);
-  await new Promise(setImmediate);
-  assert.equal(ctx.S.weekly_method_diagnoses.length,1);
-  assert.equal(ctx.S.weekly_method_diagnoses[0].ai_status,'rules_fallback:sync_code_unavailable');
-  assert.equal(ctx.S.attempts.length,25);
-  vm.runInContext('renderReport();renderReport()',ctx);
-  assert.equal(host.children.length,1,'report reopening does not duplicate diagnosis panel');
-  vm.runInContext('dailyPlan()',ctx);
-  assert.equal(ctx.S.daily_plan.question_ids.length,3);
-  assert(ctx.S.daily_plan.weekly_diagnosis_context.some(x=>x.paper_id===detail.paper_id));
-  vm.runInContext('submitDailyPaperResults()',ctx);
-  assert(ctx.S.daily_sessions[0].weekly_diagnosis_context?.length>0,'source persists with daily session');
-  assert.equal(ctx.S.weekly_method_diagnoses.length,1,'no report action creates a second diagnosis');
-  ctx.getSyncCode=()=>request.sync_code;
-  ctx.window.AMC8_CLOUD_CONFIG={url:'https://example.invalid',publishableKey:'public-test-key'};
-  ctx.fetch=async()=>{throw Error('isolated network failure')};
-  ctx.nextDetail={...detail,paper_id:'W-20261104-01'};
-  ctx.nextAttempts=attempts.map(a=>({...a,paper_id:ctx.nextDetail.paper_id}));
-  vm.runInContext('submitPrintableMockAnswers()',ctx);
-  await new Promise(setImmediate);
-  assert.equal(ctx.S.weekly_method_diagnoses.length,2);
-  assert.match(ctx.S.weekly_method_diagnoses[1].ai_status,/^rules_fallback:/,'AI failure preserves rule diagnosis');
-  assert.equal(ctx.S.weekly_method_diagnoses[1].focus.length,3);
-  ctx.fetch=async()=>({ok:true,json:async()=>({ok:true,paper_id:'W-20261111-01',targets:aiValid.targets})});
-  ctx.nextDetail={...detail,paper_id:'W-20261111-01'};
-  ctx.nextAttempts=attempts.map(a=>({...a,paper_id:ctx.nextDetail.paper_id}));
-  vm.runInContext('submitPrintableMockAnswers()',ctx);
-  await new Promise(setImmediate);
-  assert.equal(ctx.S.weekly_method_diagnoses[2].ai_status,'validated');
-  assert.equal(ctx.S.weekly_method_diagnoses[2].focus.length,2);
-  console.log('PASS: mock evidence, confidence, missing records, AI rejection/fallback, daily target, three slots, protected review, idempotent report');
+  console.log('PASS: conservative rule fallback, label evidence, review slots, and daily limit');
 }
 run().catch(e=>{console.error(e);process.exitCode=1});
