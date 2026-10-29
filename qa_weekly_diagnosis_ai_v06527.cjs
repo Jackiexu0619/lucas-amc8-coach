@@ -34,6 +34,11 @@ async function run(){
   assert(parsed.ok);assert.equal(parsed.items.length,4);
   assert(parsed.items.every(x=>x.status==='answer_key_matched'));
   assert.equal(parsed.items[0].cause_status,'hypothesis_unconfirmed');
+  const noTags=core.validateRequest({phase:'analyze',sync_code:code,paper_id,
+    questions:rows.map(x=>({...x,tag_hint:null}))},catalog);
+  assert(!noTags.error);
+  assert(core.parseDeepSeekResponse(model({paper_id,items:original}),noTags).items.every(x=>x.status==='answer_key_matched'),
+    'original image analysis must not require a method tag');
   const conflict=core.parseDeepSeekResponse(model({paper_id,items:[{...original[0],derived_answer:'A'},...original.slice(1)]}),analyze);
   assert.equal(conflict.items[0].status,'answer_conflict');
   const missing=core.parseDeepSeekResponse(model({paper_id,items:[{question_id:qid[0],image_sufficient:false},...original.slice(1)]}),analyze);
