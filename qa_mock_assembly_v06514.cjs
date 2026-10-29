@@ -89,11 +89,11 @@ const coach = fs.readFileSync(path.join(__dirname, 'coach_v064.js'), 'utf8');
 const closure = fs.readFileSync(path.join(__dirname, 'coach_learning_closure_v06514.js'), 'utf8');
 const changelog = fs.readFileSync(path.join(__dirname, 'CHANGELOG.md'), 'utf8');
 assert.equal((html.match(/function buildPrintableMockCore\s*\(/g) || []).length, 1, 'only one active buildPrintableMockCore definition may exist');
-assert.match(html, /coach_mock_assembly_v06514\.js\?v=0\.6\.5\.(14|16|17|18|19|20|21|22|23|24|25|26)/, 'new selector module must be cache-busted and loaded');
+assert.match(html, /coach_mock_assembly_v06514\.js\?v=0\.6\.5\.(14|16|17|18|19|20|21|22|23|24|25|26|27)/, 'new selector module must be cache-busted and loaded');
 assert.match(html, /function archiveWeaknessScore\s*\(/, 'application must calculate a same-method weakness score');
 assert.match(closure, /const result=selectArchivePaper\(\{bank,state,tagMap,weakRecords:records,today:/, 'the final active picker must invoke the tested learning-closure selector');
 assert.match(html, /weekly_weakness_coverage/, 'mock metadata must retain traceable weakness coverage');
-assert.match(html, /coach_v064\.js\?v=0\.6\.5\.(14|16|17|18|19|20|21|22|23|24|25|26)/, 'the production override must be cache-busted');
+assert.match(html, /coach_v064\.js\?v=0\.6\.5\.(14|16|17|18|19|20|21|22|23|24|25|26|27)/, 'the production override must be cache-busted');
 assert.match(coach, /buildArchiveMockCore\(\{\s*archive:allowedArchive,reservedYears:RESERVED_YEARS\}\)/, 'production personalized mode must pass the filtered archive and reserved years');
 assert.match(closure, /archivePaperPicker=function\(options=\{\}\)/, 'the final active picker override must accept options');
 assert.match(closure, /const sourceBank=Array\.isArray\(options\.archive\)\?options\.archive/, 'the final active picker must honor the filtered candidate archive');
@@ -105,7 +105,7 @@ assert.match(coach, /wrong\.length>=2\|\|slow\.length>=2/, 'repeated slow eviden
 assert.match(coach, /chosen=pickDiagnostic\(\)/, 'full-year diagnostic mode must remain independent');
 assert.match(coach, /paper_type:'personalized_practice'/, 'personalized mock type must be preserved for submission history');
 assert.match(coach, /paper_type:'diagnostic'/, 'diagnostic paper type must remain explicit');
-assert.match(html, /const ENGINE_VERSION='0\.6\.5\.(14|15|16|17|18|19|20|21|22|23|24|25|26)'/, 'engine version must remain synchronized with the active page release');
+assert.match(html, /const ENGINE_VERSION='0\.6\.5\.(14|15|16|17|18|19|20|21|22|23|24|25|26|27)'/, 'engine version must remain synchronized with the active page release');
 assert.match(changelog, /v0\.6\.5\.14/, 'changelog must record this release');
 assert.doesNotMatch(html, /0\.6\.5\.13/, 'old version/cache keys should not remain in the active page');
 
