@@ -71,6 +71,29 @@ async function run(){
   assert.equal(applied.focus[0].possible_cause,target.possible_cause);
   assert.equal(applied.focus[0].cause_status,'hypothesis_unconfirmed');
   assert.equal(diagnosis.applyAiDiagnosis(fallback,conflict.items,grouped,[training]),null,'conflicted answer cannot support certain target');
+  const diverseIds=['archive_2000_13','archive_2001_14','archive_2002_15','archive_2003_17',
+    'archive_2004_18','archive_2005_19','archive_2006_23','archive_2007_20'];
+  const diversePool=diverseIds.map(id=>({id,year:Number(id.slice(8,12)),problem_number:Number(id.slice(13))}));
+  const untagged=diagnosis.selectTrainingCandidates(diversePool,[],()=>({}));
+  assert.deepEqual(untagged,diagnosis.selectTrainingCandidates([...diversePool].reverse(),[],()=>({})),
+    'diversity selection is stable even if bank enumeration order changes');
+  assert(untagged.includes(training),'an untagged relevant original remains eligible for image checking');
+  assert.deepEqual(new Set(untagged.map(id=>Number(id.slice(13,15))<=16?'low':Number(id.slice(13,15))<=20?'middle':'high')),
+    new Set(['low','middle','high']),'candidate images span the weekday problem-number bands');
+  assert(new Set(untagged.map(id=>id.slice(8,12))).size>=4,'candidate images span years');
+  const wrongLabels=Object.fromEntries(diverseIds.slice(0,2).map(id=>[id,{method:'错误标注的方法',groupKey:'wrong'}]));
+  const mixed=diagnosis.selectTrainingCandidates(diversePool,[{method:'错误标注的方法',groupKey:'wrong'}],
+    q=>wrongLabels[q.id]||{});
+  assert(mixed.includes(training),'bad tags cannot consume all image-candidate slots');
+  assert(mixed.filter(id=>wrongLabels[id]).length<=2,'at most two candidates follow labels');
+  const untaggedSynthesis=core.validateRequest({phase:'synthesize',sync_code:code,paper_id,
+    analyses:parsed.items,training_candidates:[training]},catalog);
+  assert(!untaggedSynthesis.error);
+  assert.equal(core.parseDeepSeekResponse(model({paper_id,targets:[target]}),untaggedSynthesis).targets[0]
+    .training_match.question_id,training,'the server checks the untagged candidate image and answer');
+  const noMatch=core.parseDeepSeekResponse(model({paper_id,targets:[{...target,training_match:null}]}),untaggedSynthesis);
+  const uncovered=diagnosis.applyAiDiagnosis(fallback,parsed.items,noMatch,[training]);
+  assert.equal(uncovered.focus[0].training_match,null);
   const pool=[{id:'archive_2011_20',source:'2011 AMC8',official:true},{id:training,source:'2006 AMC8',official:true},
     {id:'archive_2010_20',source:'2010 AMC8',official:true}];
   const plan=diagnosis.selectDaily([pool[0],pool[2],{id:'archive_2016_20',source:'2016 AMC8'}],pool,applied,
@@ -79,6 +102,8 @@ async function run(){
   assert.equal(plan.context[0].relation,'ai_image_answer_matched');
   assert(!diagnosis.selectDaily([pool[0],pool[2],{id:'archive_2016_20'}],pool,applied,
     new Set([pool[0].id]),new Set([training])).context.length,'excluded training question remains uncovered');
+  assert.equal(diagnosis.selectDaily([pool[0],pool[2],{id:'archive_2016_20'}],pool,uncovered,
+    new Set(),new Set()).context.length,0,'a mismatched candidate never enters the training plan');
   console.log('SAMPLE',JSON.stringify({method:applied.focus[0].method,
     evidence:applied.focus[0].evidence_question_ids,confidence:applied.focus[0].confidence,
     training_question:applied.focus[0].training_match.question_id,possible_cause_status:applied.focus[0].cause_status}));

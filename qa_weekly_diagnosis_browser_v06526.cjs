@@ -95,7 +95,8 @@ async function run(){
     const aiContext=await browser.newContext({viewport:{width:1200,height:850}});
     try{
       const aiPage=await aiContext.newPage(),aiErrors=[],calls=[];
-      let failAi=false;
+      let modelMode='match';
+      let untaggedCandidates=[];
       aiPage.on('pageerror',e=>aiErrors.push(e.message));
       aiPage.on('dialog',d=>d.accept());
       const known={
@@ -105,13 +106,15 @@ async function run(){
       };
       await aiPage.route('https://dfwojiefseopguoqugzs.supabase.co/**',async route=>{
         if(!route.request().url().endsWith('/functions/v1/amc8-diagnose')){await route.abort();return;}
-        if(failAi){calls.push('failed');await route.fulfill({status:503,contentType:'application/json',
+        if(modelMode==='failure'){calls.push('failed');await route.fulfill({status:503,contentType:'application/json',
           body:JSON.stringify({error:'model_unavailable'})});return;}
         const body=route.request().postDataJSON(),input=core.validateRequest(body,catalog);
         assert(!input.error,`browser-built ${body.phase} request: ${input.error}`);
         calls.push(body.phase);
         let parsed;
         if(body.phase==='analyze'){
+          if(modelMode==='unmatched')assert(input.questions.filter(x=>['archive_2003_19','archive_2004_19']
+            .includes(x.question_id)).every(x=>x.tag_hint===null),'weak original questions have no method tags');
           const items=input.questions.map(x=>{
             const k=known[x.question_id];
             return k?{question_id:x.question_id,image_sufficient:true,recognized_question:'隔离样本原题已人工核对',
@@ -121,8 +124,9 @@ async function run(){
           });
           parsed=core.parseDeepSeekResponse({choices:[{finish_reason:'stop',message:{content:JSON.stringify({paper_id:body.paper_id,items})}}]},input);
         }else{
+          if(modelMode==='unmatched')untaggedCandidates=input.trainingCandidates.map(x=>x.question_id);
           const training=input.trainingCandidates.find(x=>x.question_id==='archive_2006_23');
-          assert(training,'a previously unseen original question must be offered as a candidate: '+
+          if(modelMode==='match')assert(training,'a previously unseen original question must be offered as a candidate: '+
             input.trainingCandidates.map(x=>x.question_id).join(','));
           const target={target_id:'archive_2003_19',method:'利用最小公倍数处理整除与共同余数',
             observed_gap:'一题答错、一题猜对，独立掌握尚未证实',possible_cause:null,confidence:'medium',
@@ -130,7 +134,8 @@ async function run(){
             training_goal:'独立建立公倍数与余数关系',evidence_question_ids:['archive_2003_19','archive_2004_19'],
             method_links:[{question_id:'archive_2003_19',reason:'区间公倍数计数'},
               {question_id:'archive_2004_19',reason:'共同余数转换'}],positive_question_ids:[],
-            training_match:{question_id:training.question_id,answer_letter:'A',reason:'新题余数条件可转为30的倍数，官方答案A'}};
+            training_match:modelMode==='match'?{question_id:training.question_id,answer_letter:'A',
+              reason:'新题余数条件可转为30的倍数，官方答案A'}:null};
           parsed=core.parseDeepSeekResponse({choices:[{finish_reason:'stop',message:{content:JSON.stringify({paper_id:body.paper_id,targets:[target]})}}]},input);
         }
         assert(parsed.ok,`mock model response rejected: ${parsed.error}`);
@@ -175,11 +180,46 @@ async function run(){
         attempts:JSON.stringify(S.attempts)}));
       assert.equal(next.ids?.length,3);assert(next.ids.includes('archive_2006_23'));
       assert.equal(next.ctx[0].relation,'ai_image_answer_matched');assert.equal(next.attempts,aiResult.attempts);
-      failAi=true;
+      modelMode='unmatched';
       await aiPage.evaluate(()=>{
         const ids=['archive_2003_19','archive_2004_19','archive_2005_20',
           ...ARCHIVE_BANK.filter(q=>q.year===2002).slice(0,22).map(q=>q.id)];
-        S.printable_mock_ids=ids;S.printable_mock_id='QA-AI-FAIL-25';S.printable_mock_date='2026-10-29';
+        S.printable_mock_ids=ids;S.printable_mock_id='QA-AI-UNTAGGED-25';S.printable_mock_date='2026-10-29';
+        const answers=Object.fromEntries(ids.map((id,i)=>[String(i),qById(id).answer]));answers['0']='A';
+        S.mock_drafts={'QA-AI-UNTAGGED-25':{answers,guesses:{'1':true},total_minutes:40}};
+        S.v064_question_tags={};S.v064_specific_skills={};S.daily_plan=null;
+        window.amcLearningClosureV06514.getTag=()=>null;
+        saveStateLocal(false);
+      });
+      assert.equal(await aiPage.evaluate(()=>window.amcWeeklyDiagnosisV1.tags(qById('archive_2003_19')).confidence),'unknown');
+      await aiPage.getByRole('button',{name:'周末模拟'}).click();
+      await aiPage.getByRole('button',{name:'提交整套记录'}).click();
+      await aiPage.waitForFunction(()=>S.weekly_method_diagnoses?.at(-1)?.ai_status==='validated');
+      const untaggedResult=await aiPage.evaluate(()=>S.weekly_method_diagnoses.at(-1));
+      assert.equal(untaggedResult.paper_id,'QA-AI-UNTAGGED-25');
+      assert.equal(untaggedResult.source,'ai_original_analysis');
+      assert.equal(untaggedResult.focus[0].training_match,null);
+      assert.equal(untaggedCandidates.length,6);
+      assert(new Set(untaggedCandidates.map(id=>id.slice(8,12))).size>=4);
+      assert.deepEqual(new Set(untaggedCandidates.map(id=>Number(id.slice(13))<=16?'low':
+        Number(id.slice(13))<=20?'middle':'high')),new Set(['low','middle','high']));
+      await aiPage.getByRole('button',{name:'学习报告'}).click();
+      await aiPage.getByRole('tab',{name:'学习总览'}).click();
+      assert.match(await aiPage.locator('#weeklyMethodDiagnosis').innerText(),/目标暂未覆盖：尚无经过原题核对的同方法候选/);
+      const callsBeforeReopen=calls.length;
+      await aiPage.getByRole('button',{name:'学习报告'}).click();
+      assert.equal(calls.length,callsBeforeReopen,'an unmatched target does not repeat diagnosis on report navigation');
+      // A pre-existing daily paper stays locked; inspect only the next disposable, unplanned paper.
+      await aiPage.evaluate(()=>{S.daily_plan=null;});
+      await aiPage.getByRole('button',{name:'每日训练'}).click();
+      const untaggedDaily=await aiPage.evaluate(()=>({ids:S.daily_plan?.question_ids,context:S.daily_plan?.weekly_diagnosis_context||[]}));
+      assert.equal(untaggedDaily.ids?.length,3);assert.equal(untaggedDaily.context.length,0,
+        'an unverified candidate cannot be presented as targeted practice: '+JSON.stringify(untaggedDaily.context));
+      modelMode='failure';
+      await aiPage.evaluate(()=>{
+        const ids=['archive_2003_19','archive_2004_19','archive_2005_20',
+          ...ARCHIVE_BANK.filter(q=>q.year===2002).slice(0,22).map(q=>q.id)];
+        S.printable_mock_ids=ids;S.printable_mock_id='QA-AI-FAIL-25';S.printable_mock_date='2026-10-30';
         const answers=Object.fromEntries(ids.map((id,i)=>[String(i),qById(id).answer]));answers['0']='A';
         S.mock_drafts={'QA-AI-FAIL-25':{answers,guesses:{'1':true},total_minutes:40}};
         saveStateLocal(false);
@@ -188,10 +228,10 @@ async function run(){
       await aiPage.getByRole('button',{name:'提交整套记录'}).click();
       await aiPage.waitForFunction(()=>S.weekly_method_diagnoses?.at(-1)?.ai_status==='rules_fallback:model_unavailable');
       const failed=await aiPage.evaluate(()=>({record:S.weekly_method_diagnoses.at(-1),count:S.weekly_method_diagnoses.length}));
-      assert.equal(failed.record.source,'rules');assert.equal(failed.count,2);
+      assert.equal(failed.record.source,'rules');assert.equal(failed.count,3);
       assert(calls.includes('failed'),'model service failure must be exercised');
       assert.deepEqual(aiErrors,[]);
-      console.log('PASS browser AI: 25-question page submission -> five image batches -> validated original-question method -> next three-question plan; report reopen is read-only; model failure retains rules');
+      console.log('PASS browser AI: original-question method -> three-question plan; all-untagged mock stays uncovered without a verified candidate; report reopen is read-only; model failure retains rules');
     }finally{await aiContext.close();}
   }finally{await context.close();await browser.close();await new Promise(resolve=>server.close(resolve));}
 }

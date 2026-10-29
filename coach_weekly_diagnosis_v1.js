@@ -230,7 +230,30 @@ function selectDaily(base,pool,record,protectedIds=new Set(),excludedIds=new Set
   }
   return {questions:result,context};
 }
-if(typeof module!=='undefined'&&module.exports){module.exports={diagnose,diagnosisTags,collectMockEvidence,applyAiDiagnosis,selectDaily,weakKind,VERSION};return;}
+function selectTrainingCandidates(pool,weakTags,tags=()=>({})){
+  const available=pool.filter(q=>q?.id&&Number.isInteger(q.year)&&Number.isInteger(q.problem_number));
+  const chosen=[],used=new Set();
+  const add=q=>{if(q&&!used.has(q.id)){chosen.push(q);used.add(q.id);}};
+  const tagScore=q=>{const t=tags(q)||{};return weakTags.reduce((n,x)=>n+
+    (x.groupKey&&x.groupKey===t.groupKey?4:0)+(x.method&&x.method===t.method?3:0)+
+    (x.skill&&x.skill===t.skill?2:0),0);};
+  available.map(q=>({q,score:tagScore(q)})).filter(x=>x.score>0)
+    .sort((a,b)=>b.score-a.score||a.q.id.localeCompare(b.q.id)).slice(0,2).forEach(x=>add(x.q));
+  // Reserve three slots across the daily bank's Q13–Q25 range, regardless of existing labels.
+  const bands=[[13,16],[17,20],[21,25]],years=available.map(q=>q.year);
+  const middleYear=years.length?(Math.min(...years)+Math.max(...years))/2:0;
+  const pick=options=>options.filter(q=>!used.has(q.id)).sort((a,b)=>{
+    const score=q=>chosen.length?
+      (chosen.every(x=>x.year!==q.year)?50:0)+Math.min(...chosen.map(x=>Math.abs(x.year-q.year)))*10+
+        Math.min(...chosen.map(x=>Math.abs(x.problem_number-q.problem_number))):
+      -Math.abs(q.year-middleYear)*10;
+    return score(b)-score(a)||a.id.localeCompare(b.id);
+  })[0];
+  for(const [low,high] of bands)add(pick(available.filter(q=>q.problem_number>=low&&q.problem_number<=high)));
+  while(chosen.length<6){const next=pick(available);if(!next)break;add(next);}
+  return chosen.map(q=>q.id);
+}
+if(typeof module!=='undefined'&&module.exports){module.exports={diagnose,diagnosisTags,collectMockEvidence,applyAiDiagnosis,selectDaily,selectTrainingCandidates,weakKind,VERSION};return;}
 if(!root?.document)return;
 const active=()=>Array.isArray(S.weekly_method_diagnoses)?S.weekly_method_diagnoses.at(-1):null;
 const tags=q=>diagnosisTags(q,S,root.amcLearningClosureV06514?.getTag?.(q?.id));
@@ -274,10 +297,7 @@ function trainingCandidates(detail,items){
   const related=weak.map(x=>tags(qById(x.question_id)));
   const pool=eligibleDailyBank().filter(q=>q?.official&&q.archive_image&&
     !detail.question_ids.includes(q.id)&&q.source!=='ai_generated_review');
-  const score=q=>{const t=tags(q);return related.reduce((n,x)=>n+
-    (x.groupKey&&x.groupKey===t.groupKey?4:0)+(x.method&&x.method===t.method?3:0)+
-    (x.skill&&x.skill===t.skill?2:0),0)-Math.abs((q.problem_number||17)-18)/25;};
-  return pool.sort((a,b)=>score(b)-score(a)||a.id.localeCompare(b.id)).slice(0,6).map(q=>q.id);
+  return selectTrainingCandidates(pool,related,tags);
 }
 async function requestAi(record,evidence,detail){
   const setStatus=status=>{
@@ -344,7 +364,7 @@ renderReport=function(){
     (focus.length?'<ol>'+focus.map(c=>'<li><b>'+safe(c.method)+'</b>（置信度：'+safe(c.confidence)+'）<br>观察到：'+safe(c.observed_gap||c.reason)+'<br>'+safe(c.confidence_basis)+
       (c.possible_cause?'<br>可能原因（待确认）：'+safe(c.possible_cause):'')+
       (c.unconfirmed_factors?.length?'<br>尚未确认：'+safe(c.unconfirmed_factors.join('；')):'')+
-      '<br>训练目标：'+safe(c.training_goal)+'<br>本周训练候选：'+safe(c.training_match?.question_id||'尚无经过原题核对的同方法候选')+'；周末陌生真题验证：尚未完成</li>').join('')+'</ol>':'<p>目前没有足够证据确认具体薄弱方法。</p>')+
+      '<br>训练目标：'+safe(c.training_goal)+'<br>本周训练候选：'+safe(c.training_match?.question_id||'目标暂未覆盖：尚无经过原题核对的同方法候选')+'；周末陌生真题验证：尚未完成</li>').join('')+'</ol>':'<p>目前没有足够证据确认具体薄弱方法。</p>')+
     (record?.unresolved?.length?'<p class="small">另有 '+record.unresolved.length+' 题的作答或方法标签待确认，未强行归类。</p>':'');
   host.prepend(panel);return result;
 };
