@@ -86,6 +86,33 @@ async function run(){
     q=>wrongLabels[q.id]||{});
   assert(mixed.includes(training),'bad tags cannot consume all image-candidate slots');
   assert(mixed.filter(id=>wrongLabels[id]).length<=2,'at most two candidates follow labels');
+  const matchedIds=['archive_2000_13','archive_2003_17','archive_2006_23','archive_2007_20','archive_2008_22'];
+  const independentIds=['archive_2001_14','archive_2005_15','archive_2002_18','archive_2009_19','archive_2004_24'];
+  const limitPool=[...matchedIds,...independentIds].map(id=>({id,year:Number(id.slice(8,12)),
+    problem_number:Number(id.slice(13))}));
+  assert(limitPool.every(x=>catalog[x.id]),'quota fixture uses actual archived question IDs');
+  const limitTags=q=>matchedIds.includes(q.id)?{method:'错误标注的方法',groupKey:'wrong'}:{};
+  const weakTag=[{method:'错误标注的方法',groupKey:'wrong'}];
+  const score=id=>{const t=limitTags({id});return weakTag.reduce((n,x)=>n+
+    (x.groupKey&&x.groupKey===t.groupKey?4:0)+(x.method&&x.method===t.method?3:0)+
+    (x.skill&&x.skill===t.skill?2:0),0);};
+  const limited=diagnosis.selectTrainingCandidates(limitPool,weakTag,limitTags);
+  assert.equal(limited.length,6);
+  assert.equal(matchedIds.length,5,'fixture has more than two matching labels');
+  assert.equal(limited.filter(id=>score(id)>0).length,2,'the final six contain at most two label matches');
+  assert(limited.slice(2).every(id=>score(id)===0),'band selection and fill never reclaim a positive-score label');
+  assert.equal(limited.filter(id=>score(id)===0).length,4);
+  assert.deepEqual(limited,diagnosis.selectTrainingCandidates([...limitPool].reverse(),weakTag,limitTags),
+    'label and diversity selection ignore input enumeration order');
+  assert.deepEqual(new Set(limited.filter(id=>score(id)===0).map(id=>Number(id.slice(13))<=16?'low':
+    Number(id.slice(13))<=20?'middle':'high')),new Set(['low','middle','high']));
+  assert(new Set(limited.filter(id=>score(id)===0).map(id=>id.slice(8,12))).size>=3);
+  const scarce=diagnosis.selectTrainingCandidates(limitPool.filter(x=>matchedIds.includes(x.id)||
+    independentIds.slice(0,2).includes(x.id)),weakTag,limitTags);
+  assert.equal(scarce.length,4,'short nonmatching pool returns fewer than six candidates');
+  assert.equal(scarce.filter(id=>score(id)>0).length,2,'scarcity never expands the label allowance');
+  console.log('LABEL_LIMIT',JSON.stringify({candidate_count:limited.length,label_matched:limited.filter(id=>score(id)>0).length,
+    independent:limited.filter(id=>score(id)===0).length,scarce_count:scarce.length}));
   const untaggedSynthesis=core.validateRequest({phase:'synthesize',sync_code:code,paper_id,
     analyses:parsed.items,training_candidates:[training]},catalog);
   assert(!untaggedSynthesis.error);

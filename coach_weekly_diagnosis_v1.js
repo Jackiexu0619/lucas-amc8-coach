@@ -237,10 +237,12 @@ function selectTrainingCandidates(pool,weakTags,tags=()=>({})){
   const tagScore=q=>{const t=tags(q)||{};return weakTags.reduce((n,x)=>n+
     (x.groupKey&&x.groupKey===t.groupKey?4:0)+(x.method&&x.method===t.method?3:0)+
     (x.skill&&x.skill===t.skill?2:0),0);};
-  available.map(q=>({q,score:tagScore(q)})).filter(x=>x.score>0)
+  const scored=available.map(q=>({q,score:tagScore(q)}));
+  scored.filter(x=>x.score>0)
     .sort((a,b)=>b.score-a.score||a.q.id.localeCompare(b.q.id)).slice(0,2).forEach(x=>add(x.q));
-  // Reserve three slots across the daily bank's Q13–Q25 range, regardless of existing labels.
-  const bands=[[13,16],[17,20],[21,25]],years=available.map(q=>q.year);
+  // Every remaining slot is reserved for questions with no matching label.
+  const unlabeled=scored.filter(x=>x.score===0).map(x=>x.q);
+  const bands=[[13,16],[17,20],[21,25]],years=unlabeled.map(q=>q.year);
   const middleYear=years.length?(Math.min(...years)+Math.max(...years))/2:0;
   const pick=options=>options.filter(q=>!used.has(q.id)).sort((a,b)=>{
     const score=q=>chosen.length?
@@ -249,8 +251,8 @@ function selectTrainingCandidates(pool,weakTags,tags=()=>({})){
       -Math.abs(q.year-middleYear)*10;
     return score(b)-score(a)||a.id.localeCompare(b.id);
   })[0];
-  for(const [low,high] of bands)add(pick(available.filter(q=>q.problem_number>=low&&q.problem_number<=high)));
-  while(chosen.length<6){const next=pick(available);if(!next)break;add(next);}
+  for(const [low,high] of bands)add(pick(unlabeled.filter(q=>q.problem_number>=low&&q.problem_number<=high)));
+  while(chosen.length<6){const next=pick(unlabeled);if(!next)break;add(next);}
   return chosen.map(q=>q.id);
 }
 if(typeof module!=='undefined'&&module.exports){module.exports={diagnose,diagnosisTags,collectMockEvidence,applyAiDiagnosis,selectDaily,selectTrainingCandidates,weakKind,VERSION};return;}
